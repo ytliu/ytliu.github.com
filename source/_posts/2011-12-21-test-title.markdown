@@ -5,14 +5,12 @@ date: 2011-12-21 09:59
 comments: true
 categories: security
 ---
-markdown syntax test
-===========
 <http://ytliu.github.com>
 
-\[mctrain](http://ytliu.github.com "mctrain's blog")
-[mctrain](http://ytliu.github.com "mctrain's blog")
-[mctrain-2][link-mctrain-2]
-[link-mctrain-2]:http://ytliu.github.com "mctrain's blog"
+\[mctrain](http://ytliu.github.com "mctrain's blog")    
+[mctrain](http://ytliu.github.com "mctrain's blog")    
+[mctrain-2][link-mctrain-2]   
+[link-mctrain-2]:http://ytliu.github.com "mctrain's blog"   
 
         ![pic](http://ytliu.github.com/images/search.png "pic")
 ![pic](http://ytliu.github.com/images/search.png "pic")
@@ -39,7 +37,7 @@ markdown syntax test
         ***italic&bold***
 ***italic&bold***
 
->highlight
+        >highlight
 >highlight
 
         <html> *a* </html>
@@ -49,9 +47,10 @@ markdown syntax test
 * 2
 * 3
 
-1. first
+16. first
 * second
 * third
+18. fourth
 
 hr-high
 - - - - - -
