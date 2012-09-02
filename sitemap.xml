@@ -1,11 +1,71 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
+        <loc>http://ytliu.github.com/blog/2011/12/21/markdownyu-fa-ce-shi/</loc>
+        <lastmod>2012-09-02T10:17:24+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://ytliu.github.com/blog/2011/12/21/kai-pian-yi-shi/</loc>
+        <lastmod>2012-09-02T10:17:24+08:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://ytliu.github.com/blog/2011/12/23/paper-reading-mobile-security-survey-and-ds-failure-detection/
+        </loc>
+        <lastmod>2012-09-02T10:17:24+08:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://ytliu.github.com/blog/2011/12/26/paper-reading-tcp-re-and-incremental-mr/
+        </loc>
+        <lastmod>2012-09-02T10:17:24+08:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://ytliu.github.com/blog/2012/01/03/paper-reading-x86-interrupt-and-sr-iov-interrupts-avoidance/
+        </loc>
+        <lastmod>2012-09-02T10:17:24+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://ytliu.github.com/blog/2012/02/12/wo-yao-ti-gao-zhi-xing-li-%21/</loc>
+        <lastmod>2012-09-02T10:17:24+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://ytliu.github.com/blog/2012/02/19/za/</loc>
+        <lastmod>2012-09-02T10:17:24+08:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://ytliu.github.com/blog/2012/02/25/qian-tan-mou-xie-gong-ji-ji-qi-fang-fan/
+        </loc>
+        <lastmod>2012-09-02T10:17:24+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://ytliu.github.com/blog/2012/03/03/wei-lai-zai-na-li/</loc>
+        <lastmod>2012-09-02T10:17:24+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://ytliu.github.com/blog/2012/03/09/wo-kan-bei-ai-and-wo-xue-ruby/</loc>
+        <lastmod>2012-09-02T10:17:24+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://ytliu.github.com/blog/2012/03/17/exploitation-learning-outset/</loc>
+        <lastmod>2012-09-02T10:17:24+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://ytliu.github.com/blog/2012/03/26/wo-de-meng-xiang/</loc>
+        <lastmod>2012-09-02T10:17:24+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://ytliu.github.com/blog/2012/04/01/notes-about-ruby/</loc>
+        <lastmod>2012-09-02T10:17:24+08:00</lastmod>
+    </url>
+    <url>
         <loc>http://ytliu.github.com/blog/archives/</loc>
-        <lastmod>2012-09-02T01:13:36+08:00</lastmod>
+        <lastmod>2012-09-02T10:17:24+08:00</lastmod>
     </url>
     <url>
         <loc>http://ytliu.github.com/</loc>
-        <lastmod>2012-09-02T01:13:36+08:00</lastmod>
+        <lastmod>2012-09-02T10:17:24+08:00</lastmod>
     </url>
 </urlset>
