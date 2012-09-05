@@ -3,9 +3,15 @@
 # ----------------------- #
 
 url: http://ytliu.github.com
+<<<<<<< HEAD
+title: My Octopress Blog
+subtitle: A blogging framework for hackers.
+author: Your Name
+=======
 title: Mctrain's Blog
 subtitle: Security, Virtualization, Network, as well as life moments
 author: Liu Yutao 
+>>>>>>> 6682e24271ab0d93161f33bd3226e0b5d26a26b4
 simple_search: http://google.com/search
 description: blog to record the technique diary, life feeling and whatever I'v learned that is valuable.
 
