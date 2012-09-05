@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: 杂 | My Octopress Blog]]></title>
+  <link href="http://ytliu.github.com/blog/categories/杂/atom.xml" rel="self"/>
+  <link href="http://ytliu.github.com/"/>
+  <updated>2012-09-02T22:26:30+08:00</updated>
+  <id>http://ytliu.github.com/</id>
+  <author>
+    <name><![CDATA[Your Name]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[杂]]></title>
+    <link href="http://ytliu.github.com/blog/2012/02/19/za/"/>
+    <updated>2012-02-19T18:08:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2012/02/19/za</id>
+    <content type="html"><![CDATA[<p>总的来说这周过得是比较颓废的，花了太多时间在金庸上，晚睡早起的，不过我并不后悔，没有什么好后悔的，做了就是做了，而且过程还挺开心的，好好制定接下来的计划并实行就好了。</p>
+
+<p>看了射雕，真的很羡慕小说中人物的生活，很喜欢靖哥哥和蓉儿，有的时候我会想，如果真有一个那样子的世界，而我又身处其中，那又会怎么样呢？我也能像郭靖那样这么真诚地对待自己和他人吗？从一开始我就感觉很讨厌杨康，可是看完了回头想想杨康真的做的就完全不对吗？作为一个人多为自己考虑又哪里错了呢？喜欢郭靖还有很重要的原因是他功夫好，可是有时候又真的很为他担心，太过于坚持原则。说到底，我还是最喜欢蓉儿和后期的靖哥哥，真的真的好羡慕他们两人，我知道这是虚构，可是为什么就不能相信世界上真的有这样的一对呢~还有，我在想，在现实生活中，真的能像郭靖那样真诚地对待他人吗？路上看到需要帮助的人你能毫不犹豫地给予施舍？给别人的承诺就算再难也要实现？为了心爱的人能付出所有的一切，包括自己的生命？可是世间又是那么地充满不公，充盈着欺瞒与腐败，作为一个如此普通的人，没有拯救世界的能力，又何来如此真诚而无条件的信心呢？所以我有时憧憬着那些武林中的生活，固然世间充满着不公，固然人依然是如此的渺小，很多时候却更有可能单纯依靠努力改变一些什么。说不清楚什么，或许是虚拟世界的完美性的虚构带来的幻觉吧……</p>
+
+<p>武林中的世界将要告一段落，回到现实生活中，这周主要的工作是两篇paper的rebuttal和依旧的读paper，从PC的review其实可以从一定程度上看出最后的结果了，不过依然带着些侥幸心理，还是要等到最后吧。在后来重新搭建CFIMon的时候发现虽然只是经过了短短2、3个月，很多东西依然忘记了，主要还是因为1.理解的不够深，2.没有很好地记录下来吧。比如那个禁止linux地址空间布局随机化的</p>
+
+<pre><code>    echo 0 &gt; /proc/sys/kernel/randomize_va_space    
+</code></pre>
+
+<p>如果当时能记下来这次就能省去好多时间了。这就是为什么今年"记笔记"是我一个很大的计划的原因了。真的越来越感觉到自己记忆的易失和笔头的重要性了。</p>
+
+<p>还有这周印象很深的是在讨论CFIMon处理signal的问题的时候，斌哥问我关于linux中对signal处理的问题，说来惭愧，当时在写这篇paper的时候我对这个还是一知半解的，甚至到现在还把signal的处理和interrupt的处理混起来了。希望能在这里把这东西说清楚:</p>
+
+<p>当一个进程需要向另一个进程发送一个signal时，它是通知kernel产生这个signal，并将接受方进程的某个flag(ULK中说的是TIF_SIGPEDING)置好，当然这个时候并不是能马上告诉接受进程有signal需要处理，而是像ULK上说的：</p>
+
+<pre><code>    The kernel checks for the existence of pending signals every time it finishes handling an interrupt or an exception.
+</code></pre>
+
+<p>也就是说只有在某个进程运行时需要处理中断或异常即将返回该进程执行时才会检查是否有未处理的signal，再对其进行处理。对于signal的处理主要有三种情况：</p>
+
+<pre><code>    1，ignore
+    2，the default action，通常是SIGSTOP
+    3，用户注册的相对应的signal handler
+</code></pre>
+
+<p>对于前面两种情况很容易理解和实现，这里主要要说的是第三种情况，这个情况的麻烦在于它要先从kernel态切换到user态执行handler，之后再切回kernel态，直到回到进程在进入kernel之前的状态，而这些就要很仔细地考虑栈里面数据和进程状态的维护了。在ULK中用了一张图来表示整个过程：
+<img src="http://ytliu.github.com/images/2012-02-19-1.jpg" title="The process of catching a signal from ULK" alt="Catching a Signal" /></p>
+
+<p>简单来说整个流程是这样的：在处理完中断或异常将从kernel态回到用户态之前，kernel会调用do_signal()函数，在这个函数里面会调用handle_signal()函数，这个函数首先创建用户态所需要的栈环境，这个栈是长这样的：
+<img src="http://ytliu.github.com/images/2012-02-19-2.jpg" title="the frame on the user mode stack from ULK" alt="Frame on the User Mode Stack" /></p>
+
+<p>其实主要就是把return address改成用户自行定义的signal handler的入口，然后进入用户态，执行相应的代码，当执行结束之后，会根据栈顶的pretcode，调用一个sigreturn()或rt_sigreturn()系统调用，回到kernel态，执行流继续下去。其实这里面还有很多细节的，包括那些栈里面内容的含义，如何处理嵌套signal等等，这些需要更仔细地参阅相关资料了。</p>
+
+<p>最后依然是写写这周看的paper，这周本来是想把Oakland'11扫一遍的，不过自己看paper的效率实在是低，加上觉得前面看的几篇确实都蛮有意思的，就多花了些时间，这个专题还是下周来写吧，另外这周给自己选的paper是6.858的preparation的第一篇，叫</p>
+
+<pre><code>    Baggy Bounds Checking: An Efficient and Backwards-Compatible Defense against Out-of-Bounds Errors
+</code></pre>
+
+<p>是发在usenix security 2009上的，主要是因为它是课程的pre-reading，其实我自己本身对这方面不是很熟悉，也不是太感兴趣，在这里就简单介绍下吧：</p>
+
+<p>这篇主要是做memory bounds checking，在文中首先提出要做bound checking主要要考虑两点，第一效率高，第二向后兼容性，这里先归纳下传统memory errors detection的方法：</p>
+
+<pre><code>    static technique;
+    dynamic technique (with or without source code);
+    control flow integrity, taint trcking;
+    system support (fat pointer, splay tree to map memory...)
+</code></pre>
+
+<p>这些方法按照作者的说法要不效率太低，要不需要改变整个系统指针结构的layout，不能向后兼容，要么检查的错误有限制（其实本文也有很大的限制啦）...而作者做这个Baggy bounds checker的最大的insight是，现在linux里面很流行的buddy allocator的特性，所有allocate出来的页的大小都是2的指数大小，于是对于内存区域size和allignment的限制能够很大程度地减小内存的利用，提高检察效率。举个例子，对于传统的保存pointer信息的结构，至少需要8个bytes的空间（4位保存pointer起始地址，4位保存pointer指向内存的大小）而对于baggy来说，只需要一个byte的大小（e = log2(size)）。至于pointer的起始地址，由于在baggy系统里内存被分为slot-size（implementation中是16-bytes)的一个个slots，于是</p>
+
+<pre><code>    size = 1 &lt;&lt; e
+    base = p &amp; ~(size-1)
+</code></pre>
+
+<p>而记录这个e的table是一个占用内存1/slot-size大小的array，每一个slot一个byte表示，于是举个例子：</p>
+
+<pre><code>    对于指针运算：p' = p + i
+    bound的检查：size = 1 &lt;&lt; table[p&gt;&gt;slot_size]
+                 base = p &amp; ~(size-1)
+                 p' &gt;= base &amp;&amp; p' - base &lt; size
+    检查的优化：（p~p')&gt;&gt;table[p&gt;&gt;slot_size] == 0
+</code></pre>
+
+<p>这个优化也很好理解，对于计算出的指针p'，如果它不越界，当且仅当它和p的不同只发生在e least significant bits上。这个baggy bounds checker的整个流程是这样的：
+<img src="http://ytliu.github.com/images/2012-02-19-3.png" title="Architecture" alt="Overall System Architecture" /></p>
+
+<p>当然这中间还有很多细节，我不想一一列出来讲，而且说实话我也看的不是很懂，最后想提提这个paper的limitation，这个最后作者也有说到，除了它列出的几点：</p>
+
+<pre><code>    arithemtic on integers holding addresses is unchecked
+    does not address temporal memory safety violations
+    cannot protect from memory errors in subobjects such as structure fields
+</code></pre>
+
+<p>我还有几点不是很确定算不算，第一个，在它的实现中slot-size为16bytes，也就是说所有memory allocator出来的内存大小都要大于16bytes（否则会有两个objects指在同一个slot里面），那么对于比如integer指针，岂不是很浪费？padding过多会造成大量的内存浪费，当然按照作者的说法这个可以做一个权衡，但是如何权衡或许用户并不是很清楚。第二，对于non-instrumented的第三方library的checking，按照作者的说法将默认size设为2<sup>31，我不懂这样做会不会有很大的副作用，另外，只能在修改过的应用程序中检查memory</sup> bounds violation，对于library中的指针运算依然没办法，而library的code我想应该比用户自己的application多出很多吧，也不见得vulnerability会少啊。</p>
+
+<p>另外在MIT 6.858的lecture-2里面也是讲相关知识的，这里想补充一些"How to prevent buffer overflows"</p>
+
+<pre><code>    Approach 0: use a type-save language (Java, C#, Python..)
+    Approach 1: try to find bugs (analysis tools, fuzzers)
+    Approach 2: canaries (StackGuard, gcc's SSP)
+    Approach 3: bounds checking
+    Approach 4: non-executable memory (AMD's NX bit, Windows DEP, W^X...)
+    Approach 5: randomized memory address (ASLR, stack randomization...)
+</code></pre>
+
+<p>下周打算把Oakland'11完成，至于其它任务吗，还没想好咯。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[开篇仪式]]></title>
+    <link href="http://ytliu.github.com/blog/2011/12/21/kai-pian-yi-shi/"/>
+    <updated>2011-12-21T15:58:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2011/12/21/kai-pian-yi-shi</id>
+    <content type="html"><![CDATA[<p>其实很早就一直在想要写博客了，之前也尝试过（<a href="http://blog.csdn.net/microtrain016" title="microtrain016's blog">一只小小小鸟</a>），但是最后还是没有坚持下来。   <br/>
+昨天看了鹏老大的一篇博文 - <a href="http://mindhacks.cn/2011/11/04/how-to-interview-a-person-for-two-years/">《怎样花两年时间去面试一个人》</a>，真的很有感触，其实我不能算一个geek，技术其实也挺一般的，在自己看来离人才还差得远，但是里面提到的"书单计划"和"github计划"应该是一个慢慢积累的过程，我还有半年的本科生涯，之后还有至少五年的博士，我没有要急于找工作的负担，为什么不趁这个最最珍贵的时间来积累呢？我一直相信于"厚积薄发"，还记得本科的时候看着自己与其他人的距离我写下"时间会拉近人与人之间的差距"，三年过去我觉得自己做到了一些，超过了一些当时在我心目中的牛人。但当我进入PPI，当我开始要考虑自己的博士生涯的时候发现，自己又成了一个更高层次的弱者，我为此感到兴奋，我未来的生活又可以在这种激情中度过，只是在这慢慢的积累中我希望看到一点一滴的进步，我很清楚自己在发散思维上的弱势，我急需一些方法提高。</p>
+
+<p>我写博客是希望将自己在这个学习的过程中的感悟、收获以一种相比于记忆更不会消逝的方式记录下来，如果还能引起别人带来那么一丁点儿的共鸣那再好不过了，我从不祈求于自己能写出多么牛逼的技术文章，任何技术上的收获、生活中的感悟我都会记录下来，我从不认为文字分所谓的"贫贱贵富"，只要是自己的就是最真实的。</p>
+
+<p>至于为什么要用Octopress+Github，是因为我们实验室的两个大牛（<a href="http://blog.yxwang.me">zellux</a>和<a href="http://chenyufei.info">ChenYufei</a>）都开始尝试着用了它，而且我也想感受用vi写博文的感觉所以就尝试写段时间，我希望这个尝试能一直进行下去。也希望能从中得到那些我希望得到的东西。</p>
+
+<p>开篇结束，坚持是未来最大的挑战！</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Markdown语法测试]]></title>
+    <link href="http://ytliu.github.com/blog/2011/12/21/markdownyu-fa-ce-shi/"/>
+    <updated>2011-12-21T15:17:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2011/12/21/markdownyu-fa-ce-shi</id>
+    <content type="html"><![CDATA[<p><a href="http://ytliu.github.com">http://ytliu.github.com</a></p>
+
+<p>[mctrain](http://ytliu.github.com "mctrain's blog")  <br/>
+<a href="http://ytliu.github.com" title="mctrain's blog">mctrain</a>  <br/>
+<a href="http://ytliu.github.com" title="mctrain's blog">mctrain-2</a></p>
+
+<pre><code>    ![pic](http://ytliu.github.com/images/search.png "pic")
+</code></pre>
+
+<p><img src="http://ytliu.github.com/images/search.png" title="pic" alt="pic" /></p>
+
+<pre><code>    #title1
+</code></pre>
+
+<h1>title1</h1>
+
+<pre><code>    ##title2
+</code></pre>
+
+<h2>title2</h2>
+
+<pre><code>    ###title3
+</code></pre>
+
+<h3>title3</h3>
+
+<pre><code>    ####title4
+</code></pre>
+
+<h4>title4</h4>
+
+<pre><code>    #####title5
+</code></pre>
+
+<h5>title5</h5>
+
+<pre><code>    ######title6
+</code></pre>
+
+<h6>title6</h6>
+
+<pre><code>    *italic*
+</code></pre>
+
+<p><em>italic</em></p>
+
+<pre><code>    **bold**
+</code></pre>
+
+<p><strong>bold</strong></p>
+
+<pre><code>    ***italic&amp;bold***
+</code></pre>
+
+<p><strong><em>italic&amp;bold</em></strong></p>
+
+<pre><code>    &gt;highlight
+</code></pre>
+
+<blockquote><p>highlight</p></blockquote>
+
+<pre><code>    &lt;html&gt; *a* &lt;/html&gt;
+</code></pre>
+
+<p><html> <em>a</em> </html></p>
+
+<ul>
+<li>1</li>
+<li>2</li>
+<li><p>3</p></li>
+<li><p>first</p></li>
+<li>second</li>
+<li>third</li>
+<li>fourth</li>
+</ul>
+
+
+<p>hr-high</p>
+
+<hr />
+
+<p>hr-below</p>
+
+<blockquote><p>highlight</p>
+
+<blockquote><p>highlight again</p></blockquote></blockquote>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Awesome code snippet</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="p">[</span><span class="n">rectangle</span> <span class="nl">setX:</span> <span class="mi">10</span> <span class="nl">y:</span> <span class="mi">10</span> <span class="nl">width:</span> <span class="mi">20</span> <span class="nl">height:</span> <span class="mi">20</span><span class="p">];</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>Javascript Array Syntax </span><a href='http://j.mp/pPUUmW'>MDN Documentation </a></figcaption> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">var</span> <span class="nx">arr1</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">arrayLength</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">arr2</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">element0</span><span class="p">,</span> <span class="nx">element1</span><span class="p">,</span> <span class="p">...,</span> <span class="nx">elementN</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>中文测试
+这个测试中有很多很多很多字符
+<blockquote><p>"C"是系统默认的locale，"POSIX"是"C"的别名。所以当我们新安装完一个系统时，默认的locale就是C或POSIX。</p></p><p><p>在Debian中安装locales的方法如下：</p></p><p><p>· 通过apt-get install locales命令安装locales包<br/>· 安装完成locales包后，系统会自动进行locale配置，你只要选择所需的locale，可以多选。最后指定一个系统默认的locale。这样系统就会帮你自动生成相应的locale和配置好系统的locale。</p></p><p><p>· 增加新的locale也很简单，用dpkg-reconfigure locales重新配置locale即可。</p></p><p><p>· 我们也可手动增加locale，只要把新的locale增加到/etc/locale.gen文件中，再运行locale-gen命令即可生成新的locale。再通过设置上面介绍的LC_*变量就可设置系统的locale了。下是一个locale.gen文件的样例。</p></p><p><p></p></blockquote></p>
+]]></content>
+  </entry>
+  
+</feed>

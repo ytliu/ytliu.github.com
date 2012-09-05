@@ -4,7 +4,7 @@
   <title><![CDATA[My Octopress Blog]]></title>
   <link href="http://ytliu.github.com/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2012-09-02T01:17:09+08:00</updated>
+  <updated>2012-09-02T22:26:30+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Your Name]]></name>
@@ -12,5 +12,920 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[全新的开始]]></title>
+    <link href="http://ytliu.github.com/blog/2012/09/02/quan-xin-de-kai-shi/"/>
+    <updated>2012-09-02T10:35:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2012/09/02/quan-xin-de-kai-shi</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Notes about Ruby]]></title>
+    <link href="http://ytliu.github.com/blog/2012/04/01/notes-about-ruby/"/>
+    <updated>2012-04-01T19:58:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2012/04/01/notes-about-ruby</id>
+    <content type="html"><![CDATA[<p>已经决定要学ruby和rails了，就从最实际的开始吧~</p>
+
+<p>CSE要求TA每次recitation完了以后给小朋友们发邮件告知成绩，就尝试用ruby写了个脚本，其实这件事最简单的应该是直接用shell脚本来做的，既然在学ruby嘛~就逮着机会用咯~而且还和小Z学到很多东西呢。</p>
+
+<p>其实要做的事情很简单，就把学生的成绩按照<em>&#8220;学号 分数&#8221;</em>一行行写在文件里，分数是按照<em>&#8220;1.5/0.5/0.5&#8221;</em>的顺序排放的，最后要通过一行行读文件，然后用gmail发给相应学生的学号邮箱里面，标题为REC SCORE，内容是</p>
+
+<pre><code>2.5 （summary/qa/discussion = 1.5/0.5/0.5）
+</code></pre>
+
+<p>其它也没什么好多说的，先贴代码吧：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;gmail&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">sendgmail</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+</span><span class='line'>  <span class="nb">p</span> <span class="s2">&quot;in sendgmail&quot;</span>
+</span><span class='line'>  <span class="no">Gmail</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">gmail</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">lines</span> <span class="o">=</span> <span class="no">IO</span><span class="o">.</span><span class="n">readlines</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">line</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">to_mail</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="si">}</span><span class="s2">@fudan.edu.cn&quot;</span>
+</span><span class='line'>      <span class="n">score</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">tscore</span> <span class="o">=</span> <span class="nb">format</span><span class="p">(</span><span class="s2">&quot;%.2f&quot;</span><span class="p">,</span> <span class="n">score</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:to_f</span><span class="p">)</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="o">|</span><span class="n">a</span><span class="p">,</span> <span class="n">e</span><span class="o">|</span> <span class="n">a</span> <span class="o">+</span> <span class="n">e</span> <span class="p">})</span>
+</span><span class='line'>      <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="n">tscore</span><span class="si">}</span><span class="s2"> (summary/qa/discussion = </span><span class="si">#{</span><span class="n">score</span><span class="si">}</span><span class="s2">)&quot;</span>
+</span><span class='line'>      <span class="nb">p</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="n">to_mail</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="n">content</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">gmail</span><span class="o">.</span><span class="n">deliver</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">to</span> <span class="n">to_mail</span>
+</span><span class='line'>  <span class="n">subject</span> <span class="s1">&#39;REC2 Score&#39;</span>
+</span><span class='line'>  <span class="n">text_part</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">body</span> <span class="n">content</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">username</span> <span class="o">=</span> <span class="s1">&#39;mctrain016@gmail.com&#39;</span>
+</span><span class='line'><span class="n">password</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
+</span><span class='line'><span class="c1">#sendgmail(username, password)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">sendgmail</span><span class="p">(</span><span class="s1">&#39;rec2_score&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里主要是用了一个gem库<em>ruby-gmail</em>，要先</p>
+
+<pre><code>gem install ruby-gmail
+gem install mime
+</code></pre>
+
+<p>里面封装好了用ruby发gmail的方法，这个没有什么好说的，唯一想说的是小Z教我的map和reduce的用法：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>      <span class="n">tscore</span> <span class="o">=</span> <span class="nb">format</span><span class="p">(</span><span class="s2">&quot;%.2f&quot;</span><span class="p">,</span> <span class="n">score</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:to_f</span><span class="p">)</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="o">|</span><span class="n">a</span><span class="p">,</span> <span class="n">e</span><span class="o">|</span> <span class="n">a</span> <span class="o">+</span> <span class="n">e</span> <span class="p">})</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里<em>.map</em>是对Array里面的所有元素都做一遍to_f操作变成一个新的Array，<em>.inject(0)</em>则是在为之后的reduce赋一个初始值0，之后每一次reduce都进行一次<em>a + e</em>的操作，将a作为输出，然后再将<em>a, e</em>作为输入。举一个例子：</p>
+
+<p><img src="http://ytliu.github.com/images/2012-04-01-1.png" title="reduce example" alt="example-1" /></p>
+
+<p>希望之后还有什么需要的都可以用ruby来尝试下，然后再慢慢地学习ruby on rails，不会忘记我的梦想滴~</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[我的梦想]]></title>
+    <link href="http://ytliu.github.com/blog/2012/03/26/wo-de-meng-xiang/"/>
+    <updated>2012-03-26T14:15:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2012/03/26/wo-de-meng-xiang</id>
+    <content type="html"><![CDATA[<blockquote><p>这是这篇博文的MD5和SHA1，它有我最最好的朋友进行见证，我只是希望当20年后回过头来看它的时候我能无怨无悔<br/><blockquote><p>MD5:  e451b95a2e65d728275604ee59d0e431<br/>SHA1: bb44aef1eecd0b1b09b55a16d88eb4b9aa0cc32d</p></blockquote></p></blockquote>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Metasploit Learning Outset]]></title>
+    <link href="http://ytliu.github.com/blog/2012/03/17/exploitation-learning-outset/"/>
+    <updated>2012-03-17T15:35:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2012/03/17/exploitation-learning-outset</id>
+    <content type="html"><![CDATA[<p>这周开始看和学《Metasploit》，真是一个神器啊！原来这种工具还有一种比较学术的、很有正义感的名字叫&#8221;Peneration Test Tool&#8221;啊，不过也确实很有道理就是了，毕竟攻击与防范真是因人而异，其实我觉得如果要实现一个相对安全的系统就先拿所有这些所谓的Penetration tools测试一遍，虽然说从来就是先有矛再有盾，但毕竟如果能对抗所有已有的矛，那这个盾也足够强大了，至于那些新发明的矛，可以通过一些特征标识检测机制来减少，如果想彻底防范所有的攻击那是不可能的！当然啦，要通过现有的所有Penetration Tests困难还是挺大的，而且并不是所有人都有这么高的安全意识，这也就造成现在攻击泛滥、隐私无处藏身的危险境地。做安全的人必需地先懂得攻击，这是我自己理解的，懂得攻击的方式很多，可以从最底层开始，比较理论而深入地去学习每一种攻击的原理，也可以从一些现有的工具下手，来分析它们的漏洞查找手法和所找到的系统漏洞的特点，在我看来，太过于强调前者不是那么地贴近实际，而太过于依赖后者最多也就只能算是个名不见经传的小黑客，所以，我希望能联系两者，即能通过一些paper来比较深入地理解大部分攻击的原理和概念，又能熟练掌握一些或是开源或是收费的工具，更现实而直观地探测它们的可行性。经过了一段时间的survey，我发现了很多超级强大的工具，从各种角度来进行各种攻击，比如进行网络抓包的Wireshark，强调于局域网中间人攻击的Ettercap，简单而又强大的nmap，牛逼的密码破解和ARP攻击的windows下面的Cain，还有寻找漏洞的NeXpose和Nessus&#8230;最后我打算从Metasploit这个&#8221;神器&#8221;入手进行扩展，一个是因为这是一个开源而且被广泛应用的Framework，功能确实无比强大，整合了很多的module和plugin，而且《Metasploit》这本文档也写得很不错，不仅仅是介绍攻击方法，而且框架很清晰，从攻击的流程来进行说明，很有往下看下去的欲望。</p>
+
+<p>在Metasploit这个Framework里面内置了很多plugin，比如前面提到的nmap，NeXpose，Nessus等等，而且它还提供了特别多information gathering和vulnerability scanning的模块你可以直接使用，并用<em>show options</em>来直观地查看它们的用法，当发现了某个漏洞，还可以用它内置的数不尽的payload进行exploit，更重要的是在exploit成功之后还有一个amazing的meterpreter来处理post-exploit的事物，全面控制target。当然啦，到目前为止我只看到这里，后面还有许多方面的介绍，实在是值得一读。而且，它还提供了一个ubuntu系统和一个window XP系统让你进行实验，毕竟攻击真实环境中的机器是不合法的。</p>
+
+<p>这里记录了一些简单的笔记，基本上都能从书中找到，认真学习它肯定能有收获，这个工具的使用是我这个月的计划之一。不懂一个月能不能了解个大概:-)</p>
+
+<pre><code>Terminology:
+Exploit
+    An exploit is the means by which an attacker take advantage of a flaw within a system, an application or a service.
+    Common exploits include buffer overflows, web application vulnerabilities(such as SQL injection) and configuration errors
+Payload
+    A payload is code that we want the system to execute and that is to be selected and delivered by the framework.
+Shellcode
+    Shellcode is a set of instructions used as a payload when exploitation occurs, after which in most cases, a command 
+    shell or a meterpreter shell will be provided.
+Module
+    A module in the context of this book is a piece of software that can be used by the Metasploit Framework.
+Listener
+    A listener is a component within Metasploit that waits for an incoming connection of some sort.
+</code></pre>
+
+<p>还有一些指令和module：</p>
+
+<pre><code>Basic Scan
+msf &gt; db_connect postgres:psw@127.0.0.1/msfdb
+msf &gt; db_import file.xml
+TCP Idle Scan: auxiliary/scanner/ip/ipidseq
+Port scan: search portscan
+SMB Scan: scanner/smb/smb_version
+MS SQL Server Scan: scanner/mssql/mssql_ping
+FTP Scan: scanner/ftp/ftp_version, auxiliary/scanner/ftp/anonymous
+NeXpose
+msf &gt; db_connect postgres:pwd@127.0.0.1/msfdb
+msf &gt; load nexpose
+msf &gt; nexpose_connect username:password@ip:3780 ok
+msf &gt; nexpose_scan target_ip
+msf &gt; hosts -c address
+msf &gt; vulns
+Nessus
+msf &gt; db_connect postgres:pwd@127.0.0.1/msfdb
+msf &gt; load nessus
+msf &gt; nessus_connect username:password@ip:8834 ok
+msf &gt; nessus_policy_list
+msf &gt; nessus_scan new &lt;policy id&gt; &lt;scan name&gt; target_ip
+msf &gt; nessus_scan_status
+msf &gt; nessus_report_list
+msf &gt; nessus_report_get &lt;ID&gt;
+msf &gt; hosts -c address,svcs,vulns
+Validating SMB Logins
+msf &gt; use auxiliary/scanner/smb/smb_login
+msf &gt; set RHOSTS/SMBUser/SMBPass
+msf &gt; exploit
+VNC Authentication
+msf &gt; use auxiliary/scanner/vnc/vnc_none_auth
+Open X11 Server
+msf &gt; use auxiliary/scanner/x11/open_x11
+#key-stroke logging using Back|Track's xspy tool:
+cd /pentest/sniffers/xspy/
+./xspy -display ip:port -delay 100
+</code></pre>
+
+<p>云云尔尔&#8230;</p>
+
+<hr />
+
+<p>另外，这周还看了一个关于彩虹表的介绍，确实是牛逼啊！很想下个120G的彩虹表下来，这里用wiki上的例子简单介绍下这个彩虹表吧，具体的参看<a href="http://en.wikipedia.org/wiki/Rainbow_table" title="wiki">wiki</a>, 之所以会出现彩虹表这个东西，主要是由time cost和space cost的trade-off引入的。简单来说背景是这样的（采用<a href="http://www.ha97.com/4009.html" title="rainbow table">这里</a>的例子）：大家知道如果要破解一个经过hash加密（比如md5）的密码，有两种最直观的方法：</p>
+
+<pre><code>1. 枚举所有你可能想得到的明文，用md5算一遍，如果结果等于该密码则成功，这要消耗大量的计算资源和时间
+2. 列一张包含所有明文映射成密文的表，通过表查找密文，这要占据大量的存储空间
+</code></pre>
+
+<p>举个例子，对于14位的大小写加数字（不包括特殊字符），组成的密码集合为（26x2+10）的14次方即12亿亿亿，如果每纳秒可以计算一个，需要4亿年时间，如果hash结果为128bit即16字节，存hash就需要10的26次方字节空间，如果1GB硬盘算五毛，需要5亿亿人民币！况且查那么大的表也需要时间，这个谁能受得了？如果再加上特殊字符就更不可想象了。</p>
+
+<p>而rainbow table就是平衡了这两种资源，采用了一种叫Hash chain的技术:</p>
+
+<p>假设我们知道这个加密的Hash function H，以及一个有限的密码集合P，在初始化阶段，我们定义另外一个hash function R，从P中随即选取一组密码，对每一个进行如下计算：</p>
+
+<pre><code>aaaaaa --H-&gt; 281DAF40 --R-&gt; sgfnyd --H-&gt; 920ECF10 --R-&gt; kiebgt
+</code></pre>
+
+<p>进行k次，k的大小决定了chain的长度（k越大，最后计算的时间可能更多，单占用的存储空间可能更小，这取决于你的decision），我们仅仅存储第一个（aaaaaa，称为starting point）和最后一个（kiebgt，称为end point），之后当我们需要破解一个密码h（比如920ECF10）时，我们从h开始计算chain，从应用R开始：</p>
+
+<pre><code>910ECF10 --R-&gt; kiebgt
+</code></pre>
+
+<p>当遇到一个值等于所记录的所有end point中的其中一个则从相应的start point开始重新计算一遍它的chain：</p>
+
+<pre><code>aaaaaa --H-&gt; 281DAF40 --R-&gt; sgfnyd --H-&gt; 920ECF10
+</code></pre>
+
+<p>所以得到密码为sgfnyd。当然还有另外一种情况如下：</p>
+
+<pre><code>FB107E70 --R-&gt; bvtdll --H-&gt; oEE80890 --R-&gt; kiebgt
+</code></pre>
+
+<p>虽然它的end point为kiebgt，但是910ECF10并不在这条chain中，这种情况称为false alarm，当遇到这种情况我们就忽略这个match，从kiebgt开始继续计算chain，当计算的次数超过k，则表示在我们的存储中没有相应的密码h，则从P中重新选取另外的集合计算chains。</p>
+
+<p>这是rainbow table最基本的原理，当然它没有这么简单，还有许多需要考虑的问题，比如R如何选择，k要取多少……具体的细节请参考rainbow table wiki。</p>
+
+<hr />
+
+<p>这周还把电脑换成64位了，现在的本本已经有8g的内存啦！！！用起来好爽啊！硬盘也整理出来更多的空间，等暑假买了mac就可以有两台本本给我好好折腾了，想想都happy啊~不过装机的代价就是这周又没干什么正事，明天想好好看篇paper，这周选的是：</p>
+
+<pre><code>Vanish: Increasing Data Privacy with Self-Destructing Data
+</code></pre>
+
+<p>主要是因为现在有一个关于attack-aware system的不成熟的idea，不过想想觉得可能比较不现实，总之先简单survey下吧。想idea真是一个苦差事啊，未来的5年怎么办啊！！！</p>
+
+<hr />
+
+<p>考研的国家线就快要出来啦！小呆一定要进复试然后被录取啊！现在突然感觉好寂寞啊，每天都不想出去就待在实验室，以后的生活一定不会是这样的单调，有点期待去交大的生活了，毕竟是去一个新的环境，认识新的人，开始新的生活。但是现在人生突然没有了激情啊。。。连打球都没了激情，小呆快点过来啊！木头现在好寂寞啊。。。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[我看北爱&amp;我学ruby]]></title>
+    <link href="http://ytliu.github.com/blog/2012/03/09/wo-kan-bei-ai-and-wo-xue-ruby/"/>
+    <updated>2012-03-09T21:30:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2012/03/09/wo-kan-bei-ai-and-wo-xue-ruby</id>
+    <content type="html"><![CDATA[<p><strong>我看北爱</strong></p>
+
+<p>这两周花了晚上睡前的时间加上几次地铁上的时间把传说中的《北京爱情故事》看完了，蛮有感触的。没想到看到最后几集的时候竟然躺在床上任由眼泪从脸颊流下咽入口内，就像很多人所说的，这真的是一部展现无比残酷现实的爱情故事片，尽管我对其中很多思想做法不置可否，觉得或许很多太绝对，太不现实或者根本就不符合我的价值观。可能是受了前段时间很激动地看过的《十七岁不哭》里面简宁的影响吧，我对吴狄还是蛮喜欢的，虽然他有时候感觉太&#8221;迂腐&#8221;，对小伍太不公平，对小曦太过没来由地好，但当他最后和吴魏争论，和伍媚掏尽心窝的那些话使得我越来越喜欢他。在三个男主角中，吴狄是最中庸也是最让人揪心的一个，但他对朋友的付出，对责任心的诠释，还有对情感的从不背叛，让我认识了一个真正活着这个世上的或许被许多人埋怨为幼稚却内心无比强大的人。我想说，在十七岁不哭中简宁所向往的从容，向往的&#8221;无论这个世界如何喧闹都活的从容&#8221;曾经无限地感染过我；而在北爱中他对情感对亲情、爱情、友情的无条件的忠诚也让我在这部现实而残酷的剧中感受到一种不一样的宁静。</p>
+
+<p>或许是性格上的相似吧，我也从不希望自己能有多么地成功，能挣那么多的财产，如果要我像石小孟那样拿沈冰来交换所谓&#8221;成功&#8221;，我怎么也做不到！不要说我只是还没有经历这种场面，更不要说我从没有体会过什么叫贫穷，什么叫身世不济，我不知道为什么石小孟一定要坚持北漂被砸的头破血流，如果是我，我一定选择放弃，选择回家。当沈冰问小猛&#8221;大不了我们就回老家去吧&#8221;而小猛给出坚决的态度的时候我就感觉这是一个悲剧的开始。在我看来人生最重要的是要知道该什么时候放弃什么东西，知道自己最想要的是什么。很喜欢沈冰的那句话：能被买走的东西，迟早会失去的；买不走的，它永远是属于你的。或许小猛只是这千千万万个人中的一个典型，或许他是可怜的，值得我们同情的，或许一个正常的人处在他的状况说不定也会像他一样选择。或许他没有错，不管怎么样，不管他有多么有说服力的理由，有一点是肯定的，他没有沈冰爱他那样地爱沈冰！为什么每个男人都要以为女人一定要你无论用什么代价都要给她物质上的满足呢？两个人简简单单地相爱真的有那么难吗？或许我太年轻太幼稚太没见过世面吧，可是就算我达到所谓的&#8221;成熟&#8221;了，就算我经历过无数这样子的分分合合，我依然希望自己能像吴狄那样坚持自己内心最深处的判断，没了情感的寄托，有再多的钱财又有什么用呢？</p>
+
+<p>再说说疯子吧，疯子这个人我还是蛮喜欢的，敢作敢当，敢爱敢恨，明白自己最爱什么，一句话，够大气！</p>
+
+<p>关于沈冰、林夏、小曦和伍媚，我赞佩于伍媚的智慧和能干，但那太过于强势的女人或许真的不会是吴狄的菜吧。说实话，刚开始我听不喜欢杨紫曦的，但是怎么说呢，当一个女人在提到她的身世提到她的可怜之处时，或许她一切的错都可以原谅吧~我很喜欢林夏，喜欢她的专情，她的大气，她的善解人意和宽容，我喜欢她和疯子之间的斗嘴，但是她真的好可怜，好可怜，好可怜&#8230;然后我最喜欢的就是沈冰了，我也说不出为什么，这么一个纯洁、善解人意的姑娘又有谁会不喜欢呢~</p>
+
+<p>最后的结尾不知道想要表达什么，为什么要让结局这样，总之我还是蛮喜欢这部剧的，喜欢里面刻画的每一个鲜活的角色，陈思成确实挺牛逼的。</p>
+
+<hr />
+
+<p><strong>我学ruby</strong></p>
+
+<p>这周还有一件事就是开始上SaaS这门课，RoR是我的主要目的，ruby真的是一门很牛逼的语言，之前一直在犹豫是要学python呢还是学ruby呢？还曾经将要决定学python呢，毕竟国内应该还是python流行些，不过既然有一个这么好的机会又有什么理由浪费呢，先从ruby开始吧。</p>
+
+<p>昨天看《Ruby Programming Language》的时候看到一个ruby里面很牛逼的东西叫<em>tainting object</em>:</p>
+
+<pre><code>    在程序读入输入数据的时候会自动为数据taint，在数据的传输过程中被感染的数据也会被taint上，如果环境变量
+    $SAFE大于1，则ruby则会限制一些built-in的方法使它们不能使用被taint的数据。当然开发人员也可以手动taint
+    一些变量，比如*s.taint*，则之后任何和*s*有关的变量都会被标记为tainted，以此来跟踪一些可能有危险的数据，
+    增强系统的安全性。
+</code></pre>
+
+<p>当然，ruby还有很多特性，希望这个学期过后能更深入地掌握这门语言！之后碰到一些比较有趣的东西也会记录在这里。</p>
+
+<hr />
+
+<p>话说这周正事似乎没做一件，真的不知道应该怎么想idea，不懂现在该做些什么。想去真实地了解些攻击，不枉说自己是做安全的，不然感觉说的都很勉强。昨天看到一个<a href="http://www.xfocus.net/" title="xfocus">网站</a>感觉很不错，我想为自己订一个计划：这个月能早睡，每天白天7点半起床到实验室学习。我不知道结果会怎么样，我只是想尝试一下，不要让自己后悔吧。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[未来在哪里]]></title>
+    <link href="http://ytliu.github.com/blog/2012/03/03/wei-lai-zai-na-li/"/>
+    <updated>2012-03-03T20:23:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2012/03/03/wei-lai-zai-na-li</id>
+    <content type="html"><![CDATA[<p>又一周要过去了，回过头看看过去的几天做了些什么呢？七零八乱的事凑在一起到头来只能感觉自己又是一事无成！这几天总是感觉失魂落魄的，好像人生没有了目标一样，无数次地问自己想要什么，问未来在哪里？有一种身不由己的感觉，胸口总觉得有一股气闷得慌，真的好烦啊！！！</p>
+
+<p>周三回本部在光草前吹着冷风坐着尝试冥想，真的感觉好难好难，真的已经过了那种无忧无虑可以什么都不考虑的年龄了，连那种保持大脑空白哪怕是仅仅10分钟的能力都已经没有了！脑子里有一股浆糊似的，吵闹而拥塞，不知我会做什么，也不知我能做什么，更不知我将要做什么！好久没有感觉这么迷茫了，却又不知该找谁述说，肯定是没有人能够理解，连我自己都觉得自己在没事找事，在无理取闹！我接下来五年都有了归宿，比起那些还在等待成绩还在期盼offer的同学我看起来有多么的幸福啊，似乎应该毫无烦恼没有杂念，好好享受这种后直博生活，或者静下心来充实自己为接下来的五年做准备，抑或继续搞研究、想idea，学技术&#8230;我也想这样啊！甚至就在几天前我都觉得我应该会这样，可是为什么，为什么突然就变得那么忧伤那么惘然若失？</p>
+
+<p>似乎自己总是没有信心，又开始怀疑自己选择读博是否是正确的。自己真的适合做研究吗？之前的那些理由是否仅仅是自欺欺人呢？有的时候我甚至会觉得自己就不应该在IT业发展，想象着自己未来仅仅是和自己爱的人开着一个小店，每天单调却无忧地生活，一天天老去却也无怨无悔。我从小就没有什么雄心壮志，只是运气好生在一个温馨平凡的家庭，一路走来可以说一帆风顺，走到现在这个地步，这个在大部分人看来应该能有个理想的未来，应该继续朝着这个方向前进，能有多远就走多远，没有什么好彷徨好犹豫的。可是真的是这样吗？这条路往下走走到头就是我想要的生活就是我希望的未来吗？</p>
+
+<p>人类真的是一个超级有趣的生物，得到了别人所期待的，却又去羡慕别人所拥有的。我真的希望自己有一种能力，能去窥探每个人内心的真实想法，我想如果我能知道世界上大多数人的想法那我一定会觉得自己能更幸福吧~还是说会更加痛苦更加不满足呢？可能是台湾小清新电影看多了吧，突然觉得自己好想去做电影里的那些无比平凡的人去从事那些简单而单调的工作，哪怕是超市收银员，哪怕是送快递的，只要是那些没有技术含量，只要能够养活自己的就行，没事的时候用最最朴实的眼睛去默默地观察这个世界，发现平时不曾注意的美好，或者做一个自由职业者，每到一处地方就找份不起眼而且轻松的工作，只求能吃饱穿暖睡得舒适，赚够路费每隔一年换一个全新的环境，尝试一种全新的生活，认识全新的人&#8230;直到走不动的那一天，找一个最满意的地方安定下来去回忆这一生，细数这一路走来遇到的风景，交识的朋友，如果能有一个知心伴侣那再好不过，如果没有也不强求。身边不用存储过多的钱财，只要有一个电脑能联网不过多落后于这个世界，有一个相机能记录下这个多彩的世界，有一辆自行车能有空的时候游荡于这个初来乍到陌生的地方，有一台冰箱能储藏些酸奶水果，有一个微波炉能饿的时候加热便当，还有一张属于自己的床，仅此而已。如果有那么一些存蓄只在遇到突发事件的时候急用那就更好了，平时只用自己从那个平凡的工作所赚来的钱生活，交房租&#8230;</p>
+
+<p>这种生活很难实现吗？一点都不难！这是我期望的生活吗？不确定，但是想着心都痒痒的！这种生活需要博士学历吗？完全不用，或许高中毕业就行了！那我为什么还在这惆怅哀伤呢？</p>
+
+<p>是啊，为什么呢？？？</p>
+
+<p>我应该不会在乎别人对我的看法，我不是那种太在乎这种社会的评判的人。我也应该不会去惧怕这其中可能会遇到的困难，我还很天真没有考虑那么多。我相信自己同样不会甘于平凡，我就是喜欢平凡的生活。那又是为什么呢？</p>
+
+<p>因为&#8221;<strong>牵挂</strong>&#8220;，因为&#8221;<strong>放不下</strong>&#8220;，因为我还是一个社会的人，有太多connection，有太多不能割舍的情感！</p>
+
+<p>我按我的方式生活，那我的父母我的亲人呢？我能忍心切断对他们的牵挂，去过这所谓的<em>自由自在</em>的生活吗？就算我可以选择经常回家就算他们不需要我赚钱养他们，我能放下我心爱的人去过这种无忧无虑却注定独来独往的生活吗？她会心甘情愿地为我放弃那种安逸的稳定的生活吗？我能毫不理会这些年所受的照顾毫不在意那些爱我的人关心我的人帮助我的人对我的期望而仅仅去享受这种我所喜欢的平凡吗？我能不在乎他们对我漂泊的担心不考虑他们对我的惦记吗？</p>
+
+<p>是啊，我可以说我毫不在乎这个世界怎么理解我，但是我实在无法不在乎&#8221;那些人&#8221;，那些我不能不在乎的人对我的理解！不管我多么渴望自由多么渴望平凡多么无所畏惧，但我依然还只是这个社会的一个团体中的一个人，我生下来注定不能只考虑自己不能放任自由，注定要活在别人的理解和期望中，我没有那一种决裂的豪情，我永远要踩着这个社会的主流前进，去在意每一次可能可以&#8221;成功&#8221;的机会，去不甘平凡地拼搏，换取最大的社会所评判的&#8221;幸福&#8221;，什么&#8221;平凡&#8221;，什么&#8221;无忧无虑&#8221;，那些都是无法成功的借口，那些都只是失败者的安慰和自嘲罢了！</p>
+
+<p>2012年，我已经22岁了，走得是那么的&#8221;顺利&#8221;，却依然可耻地&#8221;怨天尤人&#8221;，百无聊赖的时候去想想自己期望的生活，把它搁在近在咫尺却又遥不可及的内心深处。</p>
+
+<p>未来在哪里？再过20年，我会回过头来嘲笑当年的自己是那么地年少无知？还是会毅然决然地走上这一条想了无数遍却无法启程的道路呢？</p>
+
+<p>我不知道，未来在脑中依然是空白的，一路走下去，我希望会是后者，可是又有谁知道呢？</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[浅谈某些攻击及其防范]]></title>
+    <link href="http://ytliu.github.com/blog/2012/02/25/qian-tan-mou-xie-gong-ji-ji-qi-fang-fan/"/>
+    <updated>2012-02-25T21:03:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2012/02/25/qian-tan-mou-xie-gong-ji-ji-qi-fang-fan</id>
+    <content type="html"><![CDATA[<p>很多时候我觉得攻击和防范的历史就像一部电视连续剧，不断出现的魔高一尺道高一丈，此消彼长，生生不息……</p>
+
+<p>这篇博文的初衷来源于6.858中lecture2里面最后的一篇references:</p>
+
+<pre><code>    INTERPRETER EXPLOITATION: POINTER INFERENCE AND JIT SPRAYING
+</code></pre>
+
+<p>这是一篇介绍两个技术<em>pointer inference</em>和<em>JIT spraying</em>的文章，关于这篇文章我应该会在之后详细介绍，这里想说的又是里面引出的一篇报告：</p>
+
+<p><a href="http://www.azimuthsecurity.com/resources/bh2008_dowd_sotirov.pdf" title="bypassing">Bypassing Browser Memory Protections</a></p>
+
+<p>里面介绍了微软在软硬件层面对5种攻击所作的防范，以及攻击者可以如何绕开这些防范。这里的描述方式也按文中一样按照防范措施来分类感觉会比较清晰点吧</p>
+
+<h4><strong>前言</strong></h4>
+
+<p>对于一个成功的攻击，有很大一部分是需要用到<em>buffer overflow</em>技术的，而<em>bf</em>分为很多，主要看你要覆盖什么内容，之后如何使得控制流变成你想要执行的代码，对于之后的这些攻击技术，也就出现了相应的防范策略和机制。但不管怎么说，这里所提到的所有攻击都源自于<em>bf</em>，没有它的攻击属于另外的范畴，这篇暂且不谈。</p>
+
+<h4><strong>stack cookies(canaries) &amp; variable reordering</strong></h4>
+
+<p><em>bf</em>最简单的攻击就是修改函数调用的return address，canaries即是在进入函数栈时在压入的return address之后再加入一个4位的随机数（canaries），如果攻击者改了return address那么canaries也会被改，那么系统在返回时将会报错。但是也有可能在函数返回之前调用一些函数变量，variable reordering则是将变量的顺序进行调整使得攻击者无法对本地变量进行overwrite，这两个技术都是靠编译器支持的，如果开启了这两种保护，栈上的结构将会变成这样：</p>
+
+<p><img src="http://ytliu.github.com/images/2012-02-25-1.png" title="stack layout" alt="stack layout with or without GS protection" /></p>
+
+<p>这两种机制的缺点很明显，对于canaries，它只能保护函数返回时的控制流变化，而且<em>canaries</em>也有可能被破解，对于<em>vr</em>它只支持有限种类的变量reordering，对于一些结构体的保护就不是很好。</p>
+
+<h4><strong>SafeSEH</strong></h4>
+
+<p>这是微软系统对于它们独特的<em>Exception handler</em>机制的保护，叫<em>Structured Exception Handler</em>，这里不想详细介绍，简单说就是在每个函数体的栈上除了一些本地变量之外还会存有一个叫做<em>Exception Handler Record</em>的东西，里面指向一个Exception Handler的链结构，当在函数执行过程中如果发生Exception，则会从这个record开始查找对应的handler。如果攻击者在overflow时将这个结构的handler的地址改成攻击代码的地址，则会在发生Exception时调用恶意代码。而SafeSEH用了两种方法<em>SEH handler validation</em>（维护一张表，在调用handler时检查是否是表中的合法handler）和<em>SEH chain validation</em>（enforce chain的一些特征使其在违反时能够被检查出来）。</p>
+
+<h4><strong>Heap Protection</strong></h4>
+
+<p>这是这篇文章的重点，因为我在这之前虽然听说过<em>heap overflow</em>，但也不清楚里面的细节，<a href="http://www.h-online.com/security/features/A-Heap-of-Risk-747161.html" title="a heap of risk">这篇文章</a>对此做了一个很详细的描述，这里简单介绍下:</p>
+
+<p>文中举了个简单但是明了的例子，虽然不同系统中对heap的实现大同小异，但原理都是一样的。在本文的例子中，堆的结构是这样的：</p>
+
+<p><img src="http://ytliu.github.com/images/2012-02-25-2.png" title="heap layout" alt="heap layout" /></p>
+
+<p>每一个被回收的堆都有一个带有信息的头结构，里面包含了next, prev, size, used的信息，而在free操作过后都会有一个merge的操作，即将相邻的两个free的堆merge起来从而避免fragmentation，在这个merge操作中有一个非常关键的操作：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>hdr->next->next->prev = hdr->next->prev;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>而系统在计算<em>next->prev</em>时会先得到next的地址然后加4，于是攻击者就可以通过buffer overflow将堆的头结构改成以下内容（这里要说明下，heap的overflow可以通过integer的overflow来实现，具体可参阅文章前半部分）：</p>
+
+<p><img src="http://ytliu.github.com/images/2012-02-25-3.png" title="heap header layout" alt="heap header layout" /></p>
+
+<p>将next中的地址指向栈中存放<em>return address + 4</em>的地址，然后<em>next + 4</em>即为return address，将其地址通过那步关键操作赋值成攻击者注入的恶意代码的地址，即可达到目的。</p>
+
+<p>heap overflow有一个最大的缺陷就是需要攻击者对系统堆的实现，以及一些内存信息非常了解，而且如果heap若也被标志为NX，则该方法也没有用了。</p>
+
+<h4><strong>DEP（NX）</strong></h4>
+
+<p><em>DEP</em>（Data Execution Prevention）即为通常所说的<em>NX</em>（Non-eXecutable），让除了代码段之外其它地方的数据都不能执行，这在很大程度上防止了攻击者注入的恶意代码的执行，但其有以下几点缺陷：</p>
+
+<pre><code>    * 有些程序就是需要除了代码段的其它section的指令运行，如果用了该技术则会不兼容；
+    * return-oriented &amp; return-to-libc攻击。
+</code></pre>
+
+<h4><strong>ASLR</strong></h4>
+
+<p><em>ASLR</em>（Address Space Layout Randomization）对一些object的地址做随机化，使得攻击者很难准确地overflow正确的信息，但攻击者并非对此毫无办法：</p>
+
+<pre><code>    * 可以猜测，或者用穷举的办法（JIT spraying就是一个很好的例子）；
+    * 可以运行一些代码来获得随机规律；
+    * 有时候并不需要知道确切的地址，只要知道相对值就行了。
+</code></pre>
+
+<hr />
+
+<p>以上是对一些防范和攻击的简单介绍，这周还看了一篇paper叫</p>
+
+<pre><code>    XFI: SOftware Guards for System Address Space
+</code></pre>
+
+<p>是由微软和UCB在OSDI&#8217;06发表的，应该说这是一篇很牛逼的文章，但是可能是因为我功力太浅，实在没怎么看懂，这里就将里面提出的7个properties列出来，如果有兴趣也可以参考MIT的<a href="http://pdos.csail.mit.edu/6.858/2011/lec/l03-xfi.txt">6.858课程lecture3</a>中对这篇文章提出的几个问题。</p>
+
+<p><strong>external properties</strong>:</p>
+
+<p><em>P1. memory-access constraints</em>: memory accesses are either into a). the memory of the XFI module, or b). into what host system has granted. read/write/execute handled separately, no write to XFI module&#8217;s code</p>
+
+<p><em>P2. interface restrictions</em>: control cannot flow out of XFI&#8217;s code, except via calls to a set of prescribed support routines, and via returns to external call-site.</p>
+
+<p><em>P3. scoped-stack integrity</em>: a). stack register points to at least a fixed amount of writable stack memory? b). accurately reflect function calls, returns and exception; c). Windows stack exception frames are well formed, and linked to each other.</p>
+
+<p><em>P4. simplified instruction semantics</em>: certain machine-code instructions (dangerous, privileged instructions) can never be executed, certain other machine-code instructions may be executed only in a context taht constrains their effects.</p>
+
+<p><em>P5. system-environment integrity</em>: certain aspects of system environment are subject to invariants.</p>
+
+<p><strong>internal properties</strong>:</p>
+
+<p><em>P6. control-flow integrity</em>: execution must follow a static, expected control-flow graph, even on computed calls and jumps.</p>
+
+<p><em>P7. program-data integrity</em>: certain module-global and function-local variables can be accessed only via static references from the proper instructions in the XFI module.</p>
+
+<p>文中之后所说的细节很多也都是通过<em>P6</em>和<em>P7</em>来保证整个系统7个properties的，所以说<em>control-flow integrity</em>和<em>data integrity</em>还是非常重要的，关于CFI，相信这一篇也是理解XFI的关键一文：</p>
+
+<pre><code>    Contro-flow Integrity: Principles, Implementations, and Applications
+</code></pre>
+
+<p>打算在接下来的一周认真读一下。</p>
+
+<p>另外还有一个由Robert C. Seacord做的presentation：</p>
+
+<pre><code>    Pointer Subterfuge: Secure Coding in C and C++
+</code></pre>
+
+<p>也详细地介绍了在C和C++语言中可能出现的通过篡改pointer来实现攻击的例子，主要介绍了<em>GOT（Global Offset Table） Entries</em>, <em>The .dtors Section</em>, C++中的<em>Virtual Pointer</em>, <em>atexit()</em>和<em>on_exit()</em>, <em>setjump()</em>和<em>longjump()</em>，还有就是之前说的<em>SEH（Structured Exception Handler）</em>，在这个presentation里面详细介绍了它们的机制和用法，以及攻击者如何利用它们进行攻击的手段等等，是一篇很有趣的报告。</p>
+
+<hr />
+
+<p>然后简单讲下Oakland&#8217;11吧，上周把<em>IEEE Oakland&#8217;11</em>（四大安全会议之一，其余三个为ACM CCS, USENIX Security and ISOC NDSS）的paper简单浏览的一遍，根据题目挑选了20来篇看了下abstract和introduction，安全会议果然和系统相关会议有蛮大区别的，大部分paper主要是针对一个很小但是很具体的问题进行阐述并解决，不过说实话，我对里面的大部分都不是很有兴趣，但是里面一些paper提出来的一些概念，确实挺让我焕然一新，比如在Hardware Security的Section里面提到的硬件厂商或第三方的恶意backdoor，比如<em>HomeAlone</em>中利用Side-Channel来进行防范，还有之前说过的<em>Virtuoso</em>，<em>PRISM</em>中提到的和我们之前想过的细粒度权限控制的想法有着相似但不同称法的<em>Multi-Level Secure（MLS）</em>，以及<em>RePriv</em>中关于用户隐私性和个性化的平衡，还有那些当今比较热门的话题，如<em>Cashier-as-a-Service（CaaS）</em>、<em>Sybil Attack</em>、<em>Mobile Privacy（location privacy）</em>、<em>Side-Channel Attack</em>，甚至是我不是很感兴趣的<em>Formalization</em>，都让我对安全这个领域有了更进一步的了解。之后我又翻阅了下NDSS&#8217;12的paper，发现里面一些更让我感兴趣的知识，这也算是我下周的打算。</p>
+
+<hr />
+
+<p>总之下周注定要成为更忙的一周，重新奋斗hc，加上各种计划各种paper，凡事尽力吧，也无需勉强自己。</p>
+
+<p>最后用这周译言上的那篇文章结尾：<a href="http://select.yeeyan.org/view/216596/248984" title="top five regrets of the dying">Top five regrets of the dying</a></p>
+
+<blockquote><p>1. I wish I&#8217;d had the courage to live a life true to myself, not the life others expected of me;<br/>2. I wish I hadn&#8217;t worked so hard;<br/>3. I wish I&#8217;d had the courge to express my feelings;<br/>4. I wish I had stayed in touch with my friends;<br/>5. I wish that I had let myself be happier.</p></blockquote>
+
+
+<p>人生真的是如此短暂，&#8221;死而无憾&#8221;绝非易事，只希望在活着的时候对得起自己，不辜负亲人、朋友，其它的一切又算得了什么呢？</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[杂]]></title>
+    <link href="http://ytliu.github.com/blog/2012/02/19/za/"/>
+    <updated>2012-02-19T18:08:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2012/02/19/za</id>
+    <content type="html"><![CDATA[<p>总的来说这周过得是比较颓废的，花了太多时间在金庸上，晚睡早起的，不过我并不后悔，没有什么好后悔的，做了就是做了，而且过程还挺开心的，好好制定接下来的计划并实行就好了。</p>
+
+<p>看了射雕，真的很羡慕小说中人物的生活，很喜欢靖哥哥和蓉儿，有的时候我会想，如果真有一个那样子的世界，而我又身处其中，那又会怎么样呢？我也能像郭靖那样这么真诚地对待自己和他人吗？从一开始我就感觉很讨厌杨康，可是看完了回头想想杨康真的做的就完全不对吗？作为一个人多为自己考虑又哪里错了呢？喜欢郭靖还有很重要的原因是他功夫好，可是有时候又真的很为他担心，太过于坚持原则。说到底，我还是最喜欢蓉儿和后期的靖哥哥，真的真的好羡慕他们两人，我知道这是虚构，可是为什么就不能相信世界上真的有这样的一对呢~还有，我在想，在现实生活中，真的能像郭靖那样真诚地对待他人吗？路上看到需要帮助的人你能毫不犹豫地给予施舍？给别人的承诺就算再难也要实现？为了心爱的人能付出所有的一切，包括自己的生命？可是世间又是那么地充满不公，充盈着欺瞒与腐败，作为一个如此普通的人，没有拯救世界的能力，又何来如此真诚而无条件的信心呢？所以我有时憧憬着那些武林中的生活，固然世间充满着不公，固然人依然是如此的渺小，很多时候却更有可能单纯依靠努力改变一些什么。说不清楚什么，或许是虚拟世界的完美性的虚构带来的幻觉吧……</p>
+
+<p>武林中的世界将要告一段落，回到现实生活中，这周主要的工作是两篇paper的rebuttal和依旧的读paper，从PC的review其实可以从一定程度上看出最后的结果了，不过依然带着些侥幸心理，还是要等到最后吧。在后来重新搭建CFIMon的时候发现虽然只是经过了短短2、3个月，很多东西依然忘记了，主要还是因为1.理解的不够深，2.没有很好地记录下来吧。比如那个禁止linux地址空间布局随机化的</p>
+
+<pre><code>    echo 0 &gt; /proc/sys/kernel/randomize_va_space    
+</code></pre>
+
+<p>如果当时能记下来这次就能省去好多时间了。这就是为什么今年&#8221;记笔记&#8221;是我一个很大的计划的原因了。真的越来越感觉到自己记忆的易失和笔头的重要性了。</p>
+
+<p>还有这周印象很深的是在讨论CFIMon处理signal的问题的时候，斌哥问我关于linux中对signal处理的问题，说来惭愧，当时在写这篇paper的时候我对这个还是一知半解的，甚至到现在还把signal的处理和interrupt的处理混起来了。希望能在这里把这东西说清楚:</p>
+
+<p>当一个进程需要向另一个进程发送一个signal时，它是通知kernel产生这个signal，并将接受方进程的某个flag(ULK中说的是TIF_SIGPEDING)置好，当然这个时候并不是能马上告诉接受进程有signal需要处理，而是像ULK上说的：</p>
+
+<pre><code>    The kernel checks for the existence of pending signals every time it finishes handling an interrupt or an exception.
+</code></pre>
+
+<p>也就是说只有在某个进程运行时需要处理中断或异常即将返回该进程执行时才会检查是否有未处理的signal，再对其进行处理。对于signal的处理主要有三种情况：</p>
+
+<pre><code>    1，ignore
+    2，the default action，通常是SIGSTOP
+    3，用户注册的相对应的signal handler
+</code></pre>
+
+<p>对于前面两种情况很容易理解和实现，这里主要要说的是第三种情况，这个情况的麻烦在于它要先从kernel态切换到user态执行handler，之后再切回kernel态，直到回到进程在进入kernel之前的状态，而这些就要很仔细地考虑栈里面数据和进程状态的维护了。在ULK中用了一张图来表示整个过程：
+<img src="http://ytliu.github.com/images/2012-02-19-1.jpg" title="The process of catching a signal from ULK" alt="Catching a Signal" /></p>
+
+<p>简单来说整个流程是这样的：在处理完中断或异常将从kernel态回到用户态之前，kernel会调用do_signal()函数，在这个函数里面会调用handle_signal()函数，这个函数首先创建用户态所需要的栈环境，这个栈是长这样的：
+<img src="http://ytliu.github.com/images/2012-02-19-2.jpg" title="the frame on the user mode stack from ULK" alt="Frame on the User Mode Stack" /></p>
+
+<p>其实主要就是把return address改成用户自行定义的signal handler的入口，然后进入用户态，执行相应的代码，当执行结束之后，会根据栈顶的pretcode，调用一个sigreturn()或rt_sigreturn()系统调用，回到kernel态，执行流继续下去。其实这里面还有很多细节的，包括那些栈里面内容的含义，如何处理嵌套signal等等，这些需要更仔细地参阅相关资料了。</p>
+
+<p>最后依然是写写这周看的paper，这周本来是想把Oakland&#8217;11扫一遍的，不过自己看paper的效率实在是低，加上觉得前面看的几篇确实都蛮有意思的，就多花了些时间，这个专题还是下周来写吧，另外这周给自己选的paper是6.858的preparation的第一篇，叫</p>
+
+<pre><code>    Baggy Bounds Checking: An Efficient and Backwards-Compatible Defense against Out-of-Bounds Errors
+</code></pre>
+
+<p>是发在usenix security 2009上的，主要是因为它是课程的pre-reading，其实我自己本身对这方面不是很熟悉，也不是太感兴趣，在这里就简单介绍下吧：</p>
+
+<p>这篇主要是做memory bounds checking，在文中首先提出要做bound checking主要要考虑两点，第一效率高，第二向后兼容性，这里先归纳下传统memory errors detection的方法：</p>
+
+<pre><code>    static technique;
+    dynamic technique (with or without source code);
+    control flow integrity, taint trcking;
+    system support (fat pointer, splay tree to map memory...)
+</code></pre>
+
+<p>这些方法按照作者的说法要不效率太低，要不需要改变整个系统指针结构的layout，不能向后兼容，要么检查的错误有限制（其实本文也有很大的限制啦）&#8230;而作者做这个Baggy bounds checker的最大的insight是，现在linux里面很流行的buddy allocator的特性，所有allocate出来的页的大小都是2的指数大小，于是对于内存区域size和allignment的限制能够很大程度地减小内存的利用，提高检察效率。举个例子，对于传统的保存pointer信息的结构，至少需要8个bytes的空间（4位保存pointer起始地址，4位保存pointer指向内存的大小）而对于baggy来说，只需要一个byte的大小（e = log2(size)）。至于pointer的起始地址，由于在baggy系统里内存被分为slot-size（implementation中是16-bytes)的一个个slots，于是</p>
+
+<pre><code>    size = 1 &lt;&lt; e
+    base = p &amp; ~(size-1)
+</code></pre>
+
+<p>而记录这个e的table是一个占用内存1/slot-size大小的array，每一个slot一个byte表示，于是举个例子：</p>
+
+<pre><code>    对于指针运算：p' = p + i
+    bound的检查：size = 1 &lt;&lt; table[p&gt;&gt;slot_size]
+                 base = p &amp; ~(size-1)
+                 p' &gt;= base &amp;&amp; p' - base &lt; size
+    检查的优化：（p~p')&gt;&gt;table[p&gt;&gt;slot_size] == 0
+</code></pre>
+
+<p>这个优化也很好理解，对于计算出的指针p&#8217;，如果它不越界，当且仅当它和p的不同只发生在e least significant bits上。这个baggy bounds checker的整个流程是这样的：
+<img src="http://ytliu.github.com/images/2012-02-19-3.png" title="Architecture" alt="Overall System Architecture" /></p>
+
+<p>当然这中间还有很多细节，我不想一一列出来讲，而且说实话我也看的不是很懂，最后想提提这个paper的limitation，这个最后作者也有说到，除了它列出的几点：</p>
+
+<pre><code>    arithemtic on integers holding addresses is unchecked
+    does not address temporal memory safety violations
+    cannot protect from memory errors in subobjects such as structure fields
+</code></pre>
+
+<p>我还有几点不是很确定算不算，第一个，在它的实现中slot-size为16bytes，也就是说所有memory allocator出来的内存大小都要大于16bytes（否则会有两个objects指在同一个slot里面），那么对于比如integer指针，岂不是很浪费？padding过多会造成大量的内存浪费，当然按照作者的说法这个可以做一个权衡，但是如何权衡或许用户并不是很清楚。第二，对于non-instrumented的第三方library的checking，按照作者的说法将默认size设为2<sup>31，我不懂这样做会不会有很大的副作用，另外，只能在修改过的应用程序中检查memory</sup> bounds violation，对于library中的指针运算依然没办法，而library的code我想应该比用户自己的application多出很多吧，也不见得vulnerability会少啊。</p>
+
+<p>另外在MIT 6.858的lecture-2里面也是讲相关知识的，这里想补充一些&#8221;How to prevent buffer overflows&#8221;</p>
+
+<pre><code>    Approach 0: use a type-save language (Java, C#, Python..)
+    Approach 1: try to find bugs (analysis tools, fuzzers)
+    Approach 2: canaries (StackGuard, gcc's SSP)
+    Approach 3: bounds checking
+    Approach 4: non-executable memory (AMD's NX bit, Windows DEP, W^X...)
+    Approach 5: randomized memory address (ASLR, stack randomization...)
+</code></pre>
+
+<p>下周打算把Oakland&#8217;11完成，至于其它任务吗，还没想好咯。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[我要提高执行力！]]></title>
+    <link href="http://ytliu.github.com/blog/2012/02/12/wo-yao-ti-gao-zhi-xing-li-%21/"/>
+    <updated>2012-02-12T23:24:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2012/02/12/wo-yao-ti-gao-zhi-xing-li-!</id>
+    <content type="html"><![CDATA[<p>已经快十二点了，但是这周的任务还没完成。而这一周是自己要开始执行计划的第一周，因为周末去北京开会，以为今天会比较早回来，没想到到达寝室已经是这个时间了。不过，我决定就算再困也一定要把第一周的任务完成！执行力的退化就是一次又一次地寻找理由妥协而造成的，不过今年的计划最后能完成多少，如果第一次就因为一个或许比较不可避免的原因推迟了，我也就不相信自己将来能做的多好了。何况下周事情感觉比这周还要多，拖延只会造成更严重的滞后，这不是我希望的，也就强迫自己一次吧~~</p>
+
+<p>说实话，当放假在家的时候斌哥告诉我要去北京开会的时候我可高兴自豪了，不要嘲笑我，就是，开会有什么好开心的，又累又没有假期的，不过在这种时候有一种这么重要的锻炼，对于自己来说确实是一种感激。总的来说这次去北京收获真的很大，除了见识了这么多教授，对他们常说的基金有了实质性的了解之外，在路上和北京还和海波斌哥他们讨论了那么多有趣的东西，还和小杜杜逛了一个小时的清华，真的从内心里感到惬意，甚至于上飞机的时候还有那么一丝的不舍呢。</p>
+
+<p>基金的事情就不说了，可能还是谨慎点好，说说这次来北京吧，这是自己有生以来第二次来北京，第一次是初中毕业参加航模比赛和一堆好朋友来，想起当时的稚嫩，都有一种难以说出口的感受。今天在小杜杜的带领下小逛清货，更是感受到一种物是人非的感受。应该快7年了吧，我们就这样从未成年到成年，从幼稚到青春再到渐渐地成熟，依然不变的是那份最最纯真的友谊和我们共同的默契和关心。今年我一定要再去一次北京，自己去，看看同学，和你们更自由地聊聊。今天清华园二校门突然映入眼帘，将自己带回7年前的那么一瞬间的杜杜所谓的moment，在那些走过的石砖上听杜杜的介绍和聊话，真的是一份最最惬意的享受。相信不久之后一定能再次相见，谢谢你的热情款待哦。</p>
+
+<p>还有今天飞机上和斌哥的聊天，让我回想起了好多小时候的事，想起了自己某天的梦想，想起自己曾经对它那么地热爱，对他那么地崇敬，想起那时候的好朋友们现在都行走在自己的道路上，我们走在自己原先的梦想道路上吗？十年、二十年后我们又聚在一起还能那么清晰地回忆那段记忆，能够一个细数那么一些曾经的梦想吗？</p>
+
+<p>关于这个学期的计划，其实我已经列的很清楚了，同样我也很清楚自己很难将上面的东西全部很完美地完成，事情或许比想象的复杂许多，但就像斌哥提到的词&#8221;修炼&#8221;，我很庆幸自己在读博之前还有那么一大段可控的预修炼期，也很明白这段时间对于自己的重要性，不管怎样，我都希望明年的年度总结会上将计划和目标解密的那一瞬间不会那么地尴尬。相信天道酬勤。</p>
+
+<p>最后的篇幅留给这周必读的那篇paper，其实这篇是我去北京前一天才决定下来的，除了Evaluation其余的在来回的路上差不多看掉了，因为Naruil在周四的组会上讲过，当时就觉得这真的是一篇很牛逼的工作，真的属于一般超级有用的榔头，这次看了下里面真的有好多工具可以自己尝试用下。paper的title叫</p>
+
+<pre><code>    Virtuoso: Narrowing the Semantic Gap in Virtual Machine Introspection
+</code></pre>
+
+<p>发在S&amp;P&#8217;11上，是由MIT和GIT(Georgia Institute of Technology)的人做的，故事简单来说是这样的：</p>
+
+<pre><code>    在现在虚拟化环境中，虚拟机监控器很难获得虚拟机的高层语义，也就不能方便的对虚拟机进行检测保护，
+    由此很多研究者提出了VMI(Virtual Machine Introspection)技术，但是有个问题，如果虚拟机本身是不安
+    全的，那它所提供的信息也就不一定是可信赖的，于是乎对于这种技术，又有很多研究者针对该技术提出了
+    很多解决方案，但大多都要开发者对于系统的领域知识非常熟悉，而且针对每一种不同的操作系统甚至内核
+    版本都要设计其相对应的Introspection Tools，这样不但工作量太大，也容易写出error-prone的tools，于
+    是乎，该作者提出一种方法，用一种简单的方法将在一台虚拟机上跑的应用反向工程到另一种操作系统的环
+    境中来，由该操作系统作为secure domain，对客户虚拟机内存等资源进行监控。
+</code></pre>
+
+<p>其实讲了那么多，大部分是motivation，就是用一种反向工程的方式来做VMI。但我对这篇paper最感兴趣的是这个reverse engineering的方法！这个方法由作者的一张图可以很清晰地表达出来：
+<img src="http://ytliu.github.com/images/2012-02-12-1.png" title="An example of Virtuoso's usage" alt="Virtuoso's usage" /></p>
+
+<p>整个过程由log trace, trace analyze, instruction translator, run outside of VM等步骤组成，具体的流程或许说几千个字都说不完，这里也不纠缠了，如果有兴趣可以自己去看，这里想提下的就是里面提到的几个理论和工具，这些是我很想去尝试下的：</p>
+
+<pre><code>    dynamic slicing algorithm, Volatility(a framework for volatile memory analysis writen in Python), 
+    PyXa, XenAccess
+</code></pre>
+
+<p>这些留到过两天比较有空的时候去试吧~现在要洗澡睡觉觉啦~</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Paper reading - x86 interrupt and SR-IOV interrupts avoidance]]></title>
+    <link href="http://ytliu.github.com/blog/2012/01/03/paper-reading-x86-interrupt-and-sr-iov-interrupts-avoidance/"/>
+    <updated>2012-01-03T21:37:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2012/01/03/paper-reading-x86-interrupt-and-sr-iov-interrupts-avoidance</id>
+    <content type="html"><![CDATA[<p>元旦去奉化享受了，玩得超爽，吃的也超爽！感谢zbd和他爸妈的热情招呼，让我们享受了如此惬意的三天~</p>
+
+<p>好了，言归正传吧，讲讲这篇paper：</p>
+
+<pre><code>    "ELI: Bare-Metal Performance for I/O virtualization"
+</code></pre>
+
+<p>是由IBM和Technion的学者做的，发表在ASPLOS&#8217;12上，按照海波的说法是Muli教授推荐的一篇他们写的paper，现在还没公布出来，拿到的是DRAFT版本，所以不会讲太多的细节，主要是谈谈自己学到的东西吧。</p>
+
+<p>由于这篇paper是自己读的，所以也就看的比较仔细，说实话，看完整篇之后收获真的挺大的，加上之后Muli教授和他的同事对邮件的详细回答让我更加清楚了x86对interrupt的处理，特别是虚拟化环境下的一些细节，加上它最后做出来效果很好，对SR-IOV的优化（特别是万兆网络下小包的效率）提高很大，所以从总体来说我觉得这是一个很有趣而且有用的工作。</p>
+
+<p>先简要介绍下这篇paper的motivation吧：在现在虚拟化的环境中，SR-IOV（single root I/O virtualization）可以说使得整个I/O的效率相对于传统的PV也好，用qemu模拟的HVM也好，提高了一个层次，由于可以将一个特定的device（比如网卡）或者virtual function直接赋予一个domain虚拟机，从而从本质上减少了host（比如xen）在整个I/O路径上的介入时间，同时也减少了相当一部分的内存拷贝操作，使得I/O的performance、latency都得到了提高。但是不管是不是用SR-IOV技术，由于x86体系结构的限制，在由物理设备产生的interrupt发生时还是会陷入host，由host来对interrupt进行第一步的处理，或是直接调用自己的interrupt handler，或是向虚拟机插入软件中断，再调度回虚拟机由虚拟机的interrupt handler处理，在处理完成之后由于对EOI寄存器的写操作还会再一次陷入host；由于这两次的context切换造成的overhead，包括context switch、cache pollution&#8230;也就造成了作者在做evaluation时测出的40%的overhead。（其实刚开始看到这个40%我还觉得挺不可思议的，我们实验室之前也对SR-IOV进行过评估，当时得出的结论是SR-IOV的性能很好，和native的环境几乎没有差别。不过后来发现是因为我们的测试环境是千兆，而作者的环境是万兆，而且是小包~~~看来测试环境的优劣还是很重要啊:-)）。</p>
+
+<p><img src="http://ytliu.github.com/images/2012-01-04-1.png" title="guest/host context switch in interrupt handling" alt="baseline interrupt handle" /></p>
+
+<p>于是乎，这篇paper的作者就提出了ELI（ExitLess Interrupt），其目的就是最大程度地减少由这些interrupt造成的context切换，从而达到性能的最大化。</p>
+
+<p>简单来说，这个问题最大的障碍是以下两点：</p>
+
+<pre><code>    1.x86本身的架构不支持有虚拟机处理特定的硬件中断，也就是说，要不就让所有中断产生时
+    直接陷入host，要不就让所有中断都由当前正在运行的虚拟机来处理；
+    2.安全问题，如果让虚拟机能够随意直接处理硬件中断，那么会造成很多不可知的安全问题。
+</code></pre>
+
+<p>对于第一个问题，是由x86的specification定义的，除非改变整个x86架构，否则不会有本质的解决方案。那么，作者又是如何解决这个问题的呢？在这里，就像在virtual memory里的shadow page table一样，作者提出一个shadow IDT的概念。在解释这个shadow IDT之前，我想先介绍下x86虚拟化环境下的中断处理机制：</p>
+
+<p><img src="http://ytliu.github.com/images/2012-01-04-2.png" title="interrupt handle in x86 virtualization" alt="x86 virtualization interrupt handling" /></p>
+
+<pre><code>    由xen的机制举例，在整个系统中有两个IDT（Interrupt Descriptor Table），一个IDT由xen
+    维护，一个由客户虚拟机维护，在一个硬件中断产生时，不管当前是xen在执行还是虚拟机在执
+    行，都会先进入xen的IDT，由中断的vector相对应的handler进行处理，如果发现是由分配给虚
+    拟机的硬件产生的中断，则有xen向虚拟机手动插入一个软件中断（software interrupt），当
+    之后重新调度回虚拟机时会首先判断中断的flag是否有被置上，如果有某个vector的位被置上
+    则先跳入相关的handler进行处理，处理完之后会向LAPIC（之前）或是x2APIC（现在）的相对应
+    的EOI寄存器写入处理完成的标志，在写这个寄存器的同时，控制权会再次跳到xen，由xen对此
+    进行模拟，告诉真实的硬件这个中断处理完成了。这是一个最简单的硬件处理过程，如果遇到当
+    虚拟机在处理一个中断的时候又来了一个硬件中断，则会根据中断的优先级，或者这个中断是不
+    是NMI等进行更加复杂的判断，这又是后话了。
+</code></pre>
+
+<p>那么shadow IDT又是怎么一回事呢？既然x86只支持两种模式的中断处理模式，那么ELI又是如何将特定的硬件中断交给客户虚拟机处理，而将其余的重新让xen进行处理的呢？整个流程简单来说是这样的：</p>
+
+<pre><code>    ELI用的是第二种模式：当有硬件中断产生时，并不是直接陷入xen，而是跳到客户虚拟机的"IDT"，
+    当然这个IDT不是客户虚拟机本身的IDT，而是由host在客户虚拟机启动时为其配置的shadow IDT，
+    在这个IDT中，只有赋予客户虚拟机的设备（比如网卡）对应的中断处理函数是由意义的，而其它
+    的entry则是被置上了一个NP（Non-present）位，也就是说，如果这个中断是由正确的中断产生的，
+    则直接由客户虚拟机的handler处理，否则会向原来一样陷入xen，只是这次的陷入原因是NP，而不
+    是像原来一样的中断原因。而在xen的NP处理时会判断这次的NP是不是由shadow IDT引起的，如果是
+    则重新注入软中断，否则则按一般的NP（如page fault）进行处理。而对于EOI的写操作，ELI只支
+    持x2APIC机制，因为在这个机制中可以设置相对应的bitmap来指定哪些寄存器的写需要陷入xen，由
+    于这是可配置的，所以也就可以控制特定的硬件EOI直接由客户虚拟机处理而不需要陷入xen。这样
+    就使得只有特定硬件产生的中断才会直接由客户虚拟机处理，其余的由host处理。但是这样并没有
+    解决第二个问题：安全隐患。
+</code></pre>
+
+<p>对于第二个安全问题，有以下几点：</p>
+
+<pre><code>    1.既然shadow IDT是存在客户虚拟机的地址空间的，那么用户就有能力去篡改里面的值，比如修改
+    IDT的virtual-to-physical映射，将自己的恶意IDT映射上去从而实现某些攻击，比如将时间中断
+    截获从而让虚拟机不能调度。对于这种攻击，一种方法是shadow所有的virtual-to-physical映射，
+    但是这样会造成很大的性能损失，其他的方法是作者提出的preemption timer（在某个可配置的时
+    间内强制陷入xen），或者是NMI和IDT limiting的结合（详见paper）；
+    2.用户可以故意不写EOI寄存器，这个造成的危害是因为x86会自动屏蔽那些优先级小于正在被处理
+    的中断的中断，所以它会影响host的interruptibility。对于这个问题，ELI会在每次陷入xen的时
+    候，不过客户虚拟机有没有写EOI，就会自动模拟EOI的写操作，如果发现客户虚拟机确实还没有完
+    成相对应的中断处理，则会进入injection mode，直到客户虚拟机进行了EOI的写。
+</code></pre>
+
+<hr />
+
+<p>总的来说，这篇paper给我最大的收获是熟悉了x86及其虚拟化环境下的interrupt机制，它们用纯软件的方式实现了ExitLess Interrupt，而且得到了很好的评测结果，确实是一篇很有实力的paper。同时还要感谢Muli Ben-Yehuda教授和Nadav Amit学者的热心解答。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[paper reading: TCP RE and incremental MR]]></title>
+    <link href="http://ytliu.github.com/blog/2011/12/26/paper-reading-tcp-re-and-incremental-mr/"/>
+    <updated>2011-12-26T20:57:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2011/12/26/paper-reading-tcp-re-and-incremental-mr</id>
+    <content type="html"><![CDATA[<p>今天组会两篇paper，Naruil讲的第一篇听了蛮有收获的，DX讲的第二篇感觉是自己英文太差而且领域不熟最后听的不是很懂，就大致记录下吧。</p>
+
+<p>第一篇是一个做数据中心之间数据传递重复消除的系统，叫End-to-end RE(redundancy elimination)，是发在NSDI&#8217;11上的，题目叫&#8221;EndRE: An End-System Redundancy Elimination Service for Enterprises&#8221;，主要由微软的人做的。简单来说它的motivation就是现在在网络中传递的数据有很大一部分是重复的，比如两个包有大量的重复数据，而这些重复数据占用了大量的带宽，而这篇paper的工作就是如何在减少重复数据的同时也不减少太多的性能。</p>
+
+<p>现在在用的关于这种重复数据消除的技术主要是&#8221;Middlebox-based&#8221;，它有几个缺点：  <br/>
+*       关于安全方面的问题，网络数据在middlebox里面是明文，这样才能更好地判断重复性，这样就势必减弱了网络数据的安全级别；    <br/>
+*       对于一些终端的手机设备，它需要和PC终端传递数据，在这过程中同样有数据的重复，而这种情况就不适宜用Middlebox技术了；      <br/>
+*       代价比较大，现在用的middlebox都是很强大的服务器，配备巨大的内存来存储内容的cache。</p>
+
+<p>于是作者就提出一种end-to-end的RE技术。通篇听下来最大的收获是对传统的fingerprint算法和作者提出的一种新的SAMPLEBYTE fingerprint算法的理解。</p>
+
+<p>这篇paper里面提到了两种传统的fingerprint算法：</p>
+
+<pre><code>    ModP fingerprint：
+            这是一种content-based的fingerprint算法，用一种特殊的hash算法
+            （每一个window的hash值 = 上一个window的hash值+上一个window的第一个byte+下一个byte）
+            这样可以快速地得出每个window的hash值，之后将该hash值mod一个P，
+            如果结果为0，则将该hash值作为一个sample的fingerprint。             
+    Fixed fingerprint：
+            这是一个position-based的fingerprint算法，即每隔P个byte算一个hash
+            （window size大小的byte），之后将其作为一个sample的fingerprint。
+</code></pre>
+
+<p>从这两个fingerprint算法可以很容易地看出对于ModP，由于它是一个content-based的算法，所以不管是不是有偏移都可以比较完整地得出内容上的重复性，但是它的效率太低了，因为它要算每一个byte的hash；而对于Fixed，它的效率远远大于ModP，但消除重复性的能力也相应地变小很多。</p>
+
+<p>于是作者提出提出的一种新的算法，叫SAMPLEBYTE fingerprint：</p>
+
+<pre><code>    提供一个256bit的数组A，遍历要发送的包的每一个字节，比如第一个字节是0x23，那么查找
+    数组A的第23个bit看它是否为1，如果为0则表示miss，继续查看后一个字节，如果为1则代表hit，
+    即将这个字节以及后window size个大小算一个hash作为fingerprint，然后跳过（p/2）个字节
+    （为了防止计算重复的hit）。
+</code></pre>
+
+<p>也就是说SAMPLEBYTE也是一个content-based的算法，而且跳过了每个byte都要检查的低效率从而达到更合理而又大粒度的sample机制。</p>
+
+<p>这是这篇paper的核心算法，至于最后如何利用得出的fingerprint，则可以通过下张图看出：</p>
+
+<p><img src="http://ytliu.github.com/images/2011-12-26-1.png" title="the overview of EndRE" alt="RE Overview" />
+<img src="http://ytliu.github.com/images/2011-12-26-2.png" title="Look up in fingerprint hash table" alt="Look up in fingerprint hash table" /></p>
+
+<p>在服务器端和客户端都要维护一个同步的cache，同时在服务器端有一个hash table，里面的key即为之前算出来的fingerprint，指向的是cache中的offset，当要传递一个包时，将算出的fingerprint在hash table里面查找，如果hit了，则从该fingerprint的第一个byte开始找出最大匹配的字符长度，从而省去了该重复内容的传递。而在客户端也只需要将接收到的内容按时间顺序写入cache中，保持和服务器的cache的同步性就好了。</p>
+
+<p>另外，这个数据重复性消除的问题还需要考虑的很重要的一点就是：在客户端不该有很复杂的计算，否则直接将包压缩传递岂不更高效？</p>
+
+<p>还有关于fingerprint算法和差抄袭算法的关系，问了下Naruil，他之前写的差抄袭算法也是用了fingerprint，不过用的是一个更健壮性的fingerprint算法，是基于一篇Sigmod&#8217;03的paper：<a href="http://dl.acm.org/citation.cfm?id=872770">Winnowing</a>。有机会可以去瞻仰下，据说效果相当好，反正我们这里的抄袭都是这么被检查出来的~</p>
+
+<hr />
+
+<p>另外一篇的题目是&#8221;Incoop: MapReduce for Incremental Computation&#8221;，发表在Socc&#8217;11上，做的是MapReduce上的Incremental computation。也就是说现在的MR架构对于两个输入，即使是有许多重复的输入也是从头开始重新计算一遍，而作者希望的是对于两个输入，对于不变的输入可以不再重复计算，而仅仅是变化的数据。因为DX是用英文说的，很多内容不是搞得太懂，只知道它用了&#8221;content-base chunking&#8221;和&#8221;reduce combiners&#8221;来分别解决stability和granularity的问题。至于具体的细节就搞不来了。</p>
+
+<hr />
+
+<p>The End.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Paper reading - Mobile security survey &amp; DS failure detection]]></title>
+    <link href="http://ytliu.github.com/blog/2011/12/23/paper-reading-mobile-security-survey-and-ds-failure-detection/"/>
+    <updated>2011-12-23T13:38:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2011/12/23/paper-reading-mobile-security-survey-and-ds-failure-detection</id>
+    <content type="html"><![CDATA[<p>今天考坑爹的专题讲座，昨天组会的paper reading只能拖到现在写了。  <br/>
+先稍微提下为什么要有这个section吧~我一直觉得自己进PPI一年半，开过的组会听过的paper到现在为止大部分都不记得了，效率太尼玛低下了！于是乎我就想把自己一些比较有感触的paper整理下，至少忘得会慢些吧~</p>
+
+<p>好了，废话结束。进入正题。</p>
+
+<p>昨天讲了两篇paper，一篇是S&amp;P的security section的，Z神讲的，这篇其实和我们现在的方向挺相关的，不过确实没有任何创新，是一片完完全全的survey，title is</p>
+
+<pre><code>    "Mobile Security Catching up? Revealing the Nuts and Boits of the Security of Mobile Devices"
+</code></pre>
+
+<p>作者是Michael Becher，它介绍了现在手机上存在的一些安全问题，包括和Desktop的比较，以及一些attack model，比如：</p>
+
+<pre><code>    Hardware-centric attack
+            MITM attack - 中间人攻击
+            JTAG attack
+            forensic attack - 没听懂。。。
+    Device-independent - 和普通服务器上的攻击差不多
+    Software-centric attack
+    user layer attack
+</code></pre>
+
+<p>其中，关于JTAG attack,</p>
+
+<blockquote><p>JTAG port is used for factory and field diagnostics and provides device-specific access to the internal flip-flops that store all the chip’s state.<br/>Since JTAG access gives the hardware equivalent of a software debugger, attackers have been using it from the beginning. The first attackers were probably competitors reverse engineering designs to copy them or improve their own. Currently, a packaged version of this attack has been in use for years to get free satellite TV.</p><footer><strong>@Nate Lawson</strong> <cite><a href='http://rdist.root.org/2007/04/06/jtag-attacks-and-pr-submarines'>rdist.root.org/2007/04/06/&hellip;</a></cite></footer></blockquote>
+
+
+<p>还有关于Software-centric attack, 小Z讲了一个例子，比如说对iOS的pdf漏洞的良性利用，至于用来干嘛的，大家都懂得，jailbreak，不过其实我完全不知道这个是怎么样就得到root权限的，这几天研究下。</p>
+
+<p>最后还有一点比较感兴趣的是小Z提到android的process isolation，我挺感兴趣的，它说android里面是用到context的概念进行进程间通讯，在kernel里面有一个binder进行管理，如果把kernel作为TPM那应该就没有什么安全问题了吧，不过其实还是存疑的，我不知道有没有一份关于android的安全机制的survey，上网搜了下，找到一篇宾大的&#8221;understand android security&#8221;，抽空看下。</p>
+
+<p>其实这篇是一个完完全全的survey，小Z讲的也比较简单，不过其实手机的安全问题还是蛮多的，比如有提到的一个隐私的保护，有很多这方面的研究，比如通过限制控制流，比如TaintDroid，我想还有没有更强的机制呢？比如把Nicholai的histar用在手机上？</p>
+
+<hr />
+
+<p>另一篇是SOSP&#8217;11的</p>
+
+<pre><code>    "Detecting Failures in Distributed Systems with the FALCON Spy Network"
+</code></pre>
+
+<p>其实是一篇想法很简单的paper，只不过之前的人没有把这个问题当做一个问题罢了。想法简单来说是这样的，现在在distributed system里面判断节点是否挂掉主要用的是end-to-end timeout机制，这样的缺点是发现节点挂掉可能会有比较长的延迟，比如说60s，那么在这60s里面机器A可能已经down掉了但却还被分配了任务从而造成availability变差，而这篇的目标就是：</p>
+
+<pre><code>    Fast detection + reliability,
+</code></pre>
+
+<p>用的方法也很直接：gather inside information, avoid end-to-end timeout。相当于在运行应用程序主机的每一层跑一个spy（说白了就是和应用程序同个进程的一个线程），而每一层包括应用程序、OS、VMM，甚至是switch，用两个图就很容易理解：</p>
+
+<p><img src="http://ytliu.github.com/images/2011-12-23-1.png" title="FALCON's Model" alt="FALCON's Model" />
+<img src="http://ytliu.github.com/images/2011-12-23-2.png" title="FALCON's Implementation" alt="FALCON's Implementation" /></p>
+
+<p>从后来的evaluation来看它的detection速度确实变小好多，CPU的overhead也很小，不过我觉得有两个问题：  <br/>
+第一，在分布式系统中一台机器挂掉的几率可能很小，真的有必要为这么小的几率做一件这么复杂的事吗？比如原来是10秒钟检查到一个一个月才挂一次的机器现在用1秒钟来检查，却要付出一直用client和spy交互的代价？    <br/>
+第二，如Model里每一层的spy都要和client端交互，那么网络带宽就要占用很多吧，为什么作者不测试网络带宽的占用率呢？CPU的overhead小可能是因为本来服务器的程序就不是CPU intensive的，但是确实IO intensive，那为什么不说下网络带宽被额外占用多少呢？还有，对于作者提出的架构来说，每一层spy与client的交互是走network的，如果用PV或HVM的话都得经过最下层的switch，那么按照作者的逻辑，既然其中一层的spy挂了就相当于全部挂了，那为什么不仅仅利用最下层的switch的spy提供的信息来判断呢？这样岂不是可以节省网络带宽？</p>
+
+<p>The End.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[开篇仪式]]></title>
+    <link href="http://ytliu.github.com/blog/2011/12/21/kai-pian-yi-shi/"/>
+    <updated>2011-12-21T15:58:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2011/12/21/kai-pian-yi-shi</id>
+    <content type="html"><![CDATA[<p>其实很早就一直在想要写博客了，之前也尝试过（<a href="http://blog.csdn.net/microtrain016" title="microtrain016's blog">一只小小小鸟</a>），但是最后还是没有坚持下来。   <br/>
+昨天看了鹏老大的一篇博文 - <a href="http://mindhacks.cn/2011/11/04/how-to-interview-a-person-for-two-years/">《怎样花两年时间去面试一个人》</a>，真的很有感触，其实我不能算一个geek，技术其实也挺一般的，在自己看来离人才还差得远，但是里面提到的&#8221;书单计划&#8221;和&#8221;github计划&#8221;应该是一个慢慢积累的过程，我还有半年的本科生涯，之后还有至少五年的博士，我没有要急于找工作的负担，为什么不趁这个最最珍贵的时间来积累呢？我一直相信于&#8221;厚积薄发&#8221;，还记得本科的时候看着自己与其他人的距离我写下&#8221;时间会拉近人与人之间的差距&#8221;，三年过去我觉得自己做到了一些，超过了一些当时在我心目中的牛人。但当我进入PPI，当我开始要考虑自己的博士生涯的时候发现，自己又成了一个更高层次的弱者，我为此感到兴奋，我未来的生活又可以在这种激情中度过，只是在这慢慢的积累中我希望看到一点一滴的进步，我很清楚自己在发散思维上的弱势，我急需一些方法提高。</p>
+
+<p>我写博客是希望将自己在这个学习的过程中的感悟、收获以一种相比于记忆更不会消逝的方式记录下来，如果还能引起别人带来那么一丁点儿的共鸣那再好不过了，我从不祈求于自己能写出多么牛逼的技术文章，任何技术上的收获、生活中的感悟我都会记录下来，我从不认为文字分所谓的&#8221;贫贱贵富&#8221;，只要是自己的就是最真实的。</p>
+
+<p>至于为什么要用Octopress+Github，是因为我们实验室的两个大牛（<a href="http://blog.yxwang.me">zellux</a>和<a href="http://chenyufei.info">ChenYufei</a>）都开始尝试着用了它，而且我也想感受用vi写博文的感觉所以就尝试写段时间，我希望这个尝试能一直进行下去。也希望能从中得到那些我希望得到的东西。</p>
+
+<p>开篇结束，坚持是未来最大的挑战！</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Markdown语法测试]]></title>
+    <link href="http://ytliu.github.com/blog/2011/12/21/markdownyu-fa-ce-shi/"/>
+    <updated>2011-12-21T15:17:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2011/12/21/markdownyu-fa-ce-shi</id>
+    <content type="html"><![CDATA[<p><a href="http://ytliu.github.com">http://ytliu.github.com</a></p>
+
+<p>[mctrain](http://ytliu.github.com &#8220;mctrain&#8217;s blog&#8221;)  <br/>
+<a href="http://ytliu.github.com" title="mctrain's blog">mctrain</a>  <br/>
+<a href="http://ytliu.github.com" title="mctrain's blog">mctrain-2</a></p>
+
+<pre><code>    ![pic](http://ytliu.github.com/images/search.png "pic")
+</code></pre>
+
+<p><img src="http://ytliu.github.com/images/search.png" title="pic" alt="pic" /></p>
+
+<pre><code>    #title1
+</code></pre>
+
+<h1>title1</h1>
+
+<pre><code>    ##title2
+</code></pre>
+
+<h2>title2</h2>
+
+<pre><code>    ###title3
+</code></pre>
+
+<h3>title3</h3>
+
+<pre><code>    ####title4
+</code></pre>
+
+<h4>title4</h4>
+
+<pre><code>    #####title5
+</code></pre>
+
+<h5>title5</h5>
+
+<pre><code>    ######title6
+</code></pre>
+
+<h6>title6</h6>
+
+<pre><code>    *italic*
+</code></pre>
+
+<p><em>italic</em></p>
+
+<pre><code>    **bold**
+</code></pre>
+
+<p><strong>bold</strong></p>
+
+<pre><code>    ***italic&amp;bold***
+</code></pre>
+
+<p><strong><em>italic&amp;bold</em></strong></p>
+
+<pre><code>    &gt;highlight
+</code></pre>
+
+<blockquote><p>highlight</p></blockquote>
+
+<pre><code>    &lt;html&gt; *a* &lt;/html&gt;
+</code></pre>
+
+<p><html> <em>a</em> </html></p>
+
+<ul>
+<li>1</li>
+<li>2</li>
+<li><p>3</p></li>
+<li><p>first</p></li>
+<li>second</li>
+<li>third</li>
+<li>fourth</li>
+</ul>
+
+
+<p>hr-high</p>
+
+<hr />
+
+<p>hr-below</p>
+
+<blockquote><p>highlight</p>
+
+<blockquote><p>highlight again</p></blockquote></blockquote>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Awesome code snippet</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="p">[</span><span class="n">rectangle</span> <span class="nl">setX:</span> <span class="mi">10</span> <span class="nl">y:</span> <span class="mi">10</span> <span class="nl">width:</span> <span class="mi">20</span> <span class="nl">height:</span> <span class="mi">20</span><span class="p">];</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Javascript Array Syntax </span><a href='http://j.mp/pPUUmW'>MDN Documentation </a></figcaption> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">var</span> <span class="nx">arr1</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">arrayLength</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">arr2</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">element0</span><span class="p">,</span> <span class="nx">element1</span><span class="p">,</span> <span class="p">...,</span> <span class="nx">elementN</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>中文测试
+这个测试中有很多很多很多字符</p>
+
+<blockquote><p>&#8220;C&#8221;是系统默认的locale，&#8221;POSIX&#8221;是&#8221;C&#8221;的别名。所以当我们新安装完一个系统时，默认的locale就是C或POSIX。</p><p>在Debian中安装locales的方法如下：</p><p>· 通过apt-get install locales命令安装locales包<br/>· 安装完成locales包后，系统会自动进行locale配置，你只要选择所需的locale，可以多选。最后指定一个系统默认的locale。这样系统就会帮你自动生成相应的locale和配置好系统的locale。</p><p>· 增加新的locale也很简单，用dpkg-reconfigure locales重新配置locale即可。</p><p>· 我们也可手动增加locale，只要把新的locale增加到/etc/locale.gen文件中，再运行locale-gen命令即可生成新的locale。再通过设置上面介绍的LC_*变量就可设置系统的locale了。下是一个locale.gen文件的样例。</p></blockquote>
+
+]]></content>
+  </entry>
   
 </feed>
