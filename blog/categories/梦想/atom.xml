@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: 梦想 | My Octopress Blog]]></title>
+  <title><![CDATA[Category: 梦想 | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/梦想/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2012-09-02T22:26:30+08:00</updated>
+  <updated>2012-09-05T12:21:02+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
-    <name><![CDATA[Your Name]]></name>
+    <name><![CDATA[Liu Yutao]]></name>
     
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
