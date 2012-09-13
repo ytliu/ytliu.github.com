@@ -11,16 +11,18 @@ categories:
 
 分开来说就是用了三种技术，application partitioning, thread migration, remote execution，主要是前面两个：
 
-application partitioning: 主要用了static和dynamic相结合的方式，先用static找出合法的可分割点，再用dynamic计算出cost model，然后得出最合适的分割方案，生成partition configuration，主要是要注意两点：
+**application partitioning**: 主要用了static和dynamic相结合的方式，先用static找出合法的可分割点，再用dynamic计算出cost model，然后得出最合适的分割方案，生成partition configuration，主要是要注意两点：
 
-1.这些都是在offline做的，在程序实际运行的时候直接获得configuration，然后在migrate point的时候进行migrate。
-2.按照作者的意思是不需要source code的，是通过分析二进制文件来得到合法的分割点，但需要重写二进制文件，加入一些annotation比如migrate point之类的。另外，合法的分割点作者提出了几个限制：
+* 1.这些都是在offline做的，在程序实际运行的时候直接获得configuration，然后在migrate point的时候进行migrate。
+* 2.按照作者的意思是不需要source code的，是通过分析二进制文件来得到合法的分割点，但需要重写二进制文件，加入一些annotation比如migrate point之类的。另外，合法的分割点作者提出了几个限制：
     a.首先，它必须是method entry and exit point，不能是core-system library，当然在method里面调用的core library是允许的;
     b.Methods that access specific features of a machine motivationust be pinned to the machine, 比如说location-based的调用或者camera这些没有被virtualized的服务都不能被分到远端，这也是我后面会详细说的；
     c.Methods that share native state must be collocated andt the same machine.也就是说那些调用native code同时share了native state的方法也不能被migrate
     d.Prevent nested migration.
 
-thread migrate: 在Dalvik VM执行到migrate point的时候，会有一个migrator thread将thread suspend住，并将当前的thread state打包，把它所需要的信息通过网络发给cloud端的clone。这里的state主要包括execution stack frames and relevant data objects in the process heap, and register contents at the migration point. Virtualized stack frames…在cloud端的clone接收到这些信息后会有一个migrator thread来将这些信息装入VM的内存中，并继续执行，当遇到reintegration的时候用同样的方式将该thread的state打包发回去，mobile端的thread继续执行~这些看起来很容易，但是有一个问题，因为每一个object都是通过内存地址进行reference的，在不同的platform中这些reference可能会不一样，这里作者用了一种叫做object mapping table的方式，用一张图（Figure 7）就可以很方便的说明：
+**thread migrate**: 在Dalvik VM执行到migrate point的时候，会有一个migrator thread将thread suspend住，并将当前的thread state打包，把它所需要的信息通过网络发给cloud端的clone。这里的state主要包括execution stack frames and relevant data objects in the process heap, and register contents at the migration point. Virtualized stack frames…在cloud端的clone接收到这些信息后会有一个migrator thread来将这些信息装入VM的内存中，并继续执行，当遇到reintegration的时候用同样的方式将该thread的state打包发回去，mobile端的thread继续执行~这些看起来很容易，但是有一个问题，因为每一个object都是通过内存地址进行reference的，在不同的platform中这些reference可能会不一样，这里作者用了一种叫做object mapping table的方式，用一张图（Figure 7）就可以很方便的说明：
+
+![object mapping table example](http://ytliu.github.com/images/2012-09-13.png "object mapping table example")
 
 另外，clonecloud系统是实现在AOS和Android x86 virtual machine上的，修改了大约8000行的Dalvik代码，用JChord工具进行static analysis，用Monsoon power monitor [Mon]测量了energy consumption来计算cost model，通过hprof(HPR)进行thread state的capture。最后evaluation就不细说了，据说提速20X，降低了20X的能耗，当然这个是怎么测的我也没细看。
 
@@ -36,17 +38,17 @@ thread migrate: 在Dalvik VM执行到migrate point的时候，会有一个migrat
 
 这又是一篇mobile和cloud结合的paper，和clonecloud不同的是它强调的是security，所以它使用的方法也就不是thread migration，而是replica。按照作者的说法，cloud端的emulator中有一个mobile端系统的replica，而它的做法这是控制那些所谓的non-deterministic的因素，按照作者的说法，只有某些system call和来自OS的signal。为了达到mobile和cloud端的synchronization，主要分为两部分，mobile端的record和cloud端的replay。
 
-Record：主要是在mobile端，为了减小trace数据的传输，这里有几个原则和方法来缩减trace的大小：
+**Record**：主要是在mobile端，为了减小trace数据的传输，这里有几个原则和方法来缩减trace的大小：
 
-1.Record only system calls that introduce non-layoutdeterminism. 对于比如创建socket，读文件，甚至是IPC的syscall都不需要记录，因为这些都是replica那里也可以直接做的；
-2.Use a network proxy so that inbound data are not logged in the trace. 这样可以避免网络数据传到mobile再从mobile传到replica，减小mobile端的负担和trace的大小；
-3.Compress data using three andlgorithms. 这个就没什么好说的，就是把trace进行加密，减小其大小。
+* 1.Record only system calls that introduce non-layoutdeterminism. 对于比如创建socket，读文件，甚至是IPC的syscall都不需要记录，因为这些都是replica那里也可以直接做的；
+* 2.Use a network proxy so that inbound data are not logged in the trace. 这样可以避免网络数据传到mobile再从mobile传到replica，减小mobile端的负担和trace的大小；
+* 3.Compress data using three andlgorithms. 这个就没什么好说的，就是把trace进行加密，减小其大小。
 
 在mobile端，整个系统的启动过程是这样的：
 
-1.Android的init进程先启动一个tracer进程，打开一个FIFO，等待其它进程的连接;
-2.之后在init启动其它进程的时候，先启动一个exec stub，它会把该进程的pid写入tracer的FIFO中，表示需要被trace，然后pause；
-3.tracer对这个进程进行attach，然后恢复exec stub的运行，stub运行exec命令执行进程的binary。
+* 1.Android的init进程先启动一个tracer进程，打开一个FIFO，等待其它进程的连接;
+* 2.之后在init启动其它进程的时候，先启动一个exec stub，它会把该进程的pid写入tracer的FIFO中，表示需要被trace，然后pause；
+* 3.tracer对这个进程进行attach，然后恢复exec stub的运行，stub运行exec命令执行进程的binary。
 
 其实总的来说record还是一个比较好理解的过程，但是对于replay，我觉得这是这篇文章中完全忽略的一个部分，它只是说有很多之前的工作对record和replay进行了研究，但是竟然一点都没有说明在replica端是如何进行replay的，这也就使得我对它所说的synchronization的效果产生了极大的怀疑。
 
