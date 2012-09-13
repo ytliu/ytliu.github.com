@@ -9,7 +9,7 @@
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="今天组会两篇paper，Naruil讲的第一篇听了蛮有收获的，DX讲的第二篇感觉是自己英文太差而且领域不熟最后听的不是很懂，就大致记录下吧。 第一篇是一个做数据中心之间数据传递重复消除的系统，叫End-to-end RE(redundancy elimination)，是发在NSDI&#8217; &hellip;">
+  <meta name="description" content="已经快十二点了，但是这周的任务还没完成。而这一周是自己要开始执行计划的第一周，因为周末去北京开会，以为今天会比较早回来，没想到到达寝室已经是这个时间了。不过，我决定就算再困也一定要把第一周的任务完成！执行力的退化就是一次又一次地寻找理由妥协而造成的，不过今年的计划最后能完成多少， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,183 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/02/12/wo-yao-ti-gao-zhi-xing-li-%21/">我要提高执行力！</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-12T23:24:00+08:00" pubdate data-updated="true">Feb 12<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>已经快十二点了，但是这周的任务还没完成。而这一周是自己要开始执行计划的第一周，因为周末去北京开会，以为今天会比较早回来，没想到到达寝室已经是这个时间了。不过，我决定就算再困也一定要把第一周的任务完成！执行力的退化就是一次又一次地寻找理由妥协而造成的，不过今年的计划最后能完成多少，如果第一次就因为一个或许比较不可避免的原因推迟了，我也就不相信自己将来能做的多好了。何况下周事情感觉比这周还要多，拖延只会造成更严重的滞后，这不是我希望的，也就强迫自己一次吧~~</p>
+
+<p>说实话，当放假在家的时候斌哥告诉我要去北京开会的时候我可高兴自豪了，不要嘲笑我，就是，开会有什么好开心的，又累又没有假期的，不过在这种时候有一种这么重要的锻炼，对于自己来说确实是一种感激。总的来说这次去北京收获真的很大，除了见识了这么多教授，对他们常说的基金有了实质性的了解之外，在路上和北京还和海波斌哥他们讨论了那么多有趣的东西，还和小杜杜逛了一个小时的清华，真的从内心里感到惬意，甚至于上飞机的时候还有那么一丝的不舍呢。</p>
+
+<p>基金的事情就不说了，可能还是谨慎点好，说说这次来北京吧，这是自己有生以来第二次来北京，第一次是初中毕业参加航模比赛和一堆好朋友来，想起当时的稚嫩，都有一种难以说出口的感受。今天在小杜杜的带领下小逛清货，更是感受到一种物是人非的感受。应该快7年了吧，我们就这样从未成年到成年，从幼稚到青春再到渐渐地成熟，依然不变的是那份最最纯真的友谊和我们共同的默契和关心。今年我一定要再去一次北京，自己去，看看同学，和你们更自由地聊聊。今天清华园二校门突然映入眼帘，将自己带回7年前的那么一瞬间的杜杜所谓的moment，在那些走过的石砖上听杜杜的介绍和聊话，真的是一份最最惬意的享受。相信不久之后一定能再次相见，谢谢你的热情款待哦。</p>
+
+<p>还有今天飞机上和斌哥的聊天，让我回想起了好多小时候的事，想起了自己某天的梦想，想起自己曾经对它那么地热爱，对他那么地崇敬，想起那时候的好朋友们现在都行走在自己的道路上，我们走在自己原先的梦想道路上吗？十年、二十年后我们又聚在一起还能那么清晰地回忆那段记忆，能够一个细数那么一些曾经的梦想吗？</p>
+
+<p>关于这个学期的计划，其实我已经列的很清楚了，同样我也很清楚自己很难将上面的东西全部很完美地完成，事情或许比想象的复杂许多，但就像斌哥提到的词&#8221;修炼&#8221;，我很庆幸自己在读博之前还有那么一大段可控的预修炼期，也很明白这段时间对于自己的重要性，不管怎样，我都希望明年的年度总结会上将计划和目标解密的那一瞬间不会那么地尴尬。相信天道酬勤。</p>
+
+<p>最后的篇幅留给这周必读的那篇paper，其实这篇是我去北京前一天才决定下来的，除了Evaluation其余的在来回的路上差不多看掉了，因为Naruil在周四的组会上讲过，当时就觉得这真的是一篇很牛逼的工作，真的属于一般超级有用的榔头，这次看了下里面真的有好多工具可以自己尝试用下。paper的title叫</p>
+
+<pre><code>    Virtuoso: Narrowing the Semantic Gap in Virtual Machine Introspection
+</code></pre>
+
+<p>发在S&amp;P&#8217;11上，是由MIT和GIT(Georgia Institute of Technology)的人做的，故事简单来说是这样的：</p>
+
+<pre><code>    在现在虚拟化环境中，虚拟机监控器很难获得虚拟机的高层语义，也就不能方便的对虚拟机进行检测保护，
+    由此很多研究者提出了VMI(Virtual Machine Introspection)技术，但是有个问题，如果虚拟机本身是不安
+    全的，那它所提供的信息也就不一定是可信赖的，于是乎对于这种技术，又有很多研究者针对该技术提出了
+    很多解决方案，但大多都要开发者对于系统的领域知识非常熟悉，而且针对每一种不同的操作系统甚至内核
+    版本都要设计其相对应的Introspection Tools，这样不但工作量太大，也容易写出error-prone的tools，于
+    是乎，该作者提出一种方法，用一种简单的方法将在一台虚拟机上跑的应用反向工程到另一种操作系统的环
+    境中来，由该操作系统作为secure domain，对客户虚拟机内存等资源进行监控。
+</code></pre>
+
+<p>其实讲了那么多，大部分是motivation，就是用一种反向工程的方式来做VMI。但我对这篇paper最感兴趣的是这个reverse engineering的方法！这个方法由作者的一张图可以很清晰地表达出来：
+<img src="http://ytliu.github.com/images/2012-02-12-1.png" title="An example of Virtuoso's usage" alt="Virtuoso's usage" /></p>
+
+<p>整个过程由log trace, trace analyze, instruction translator, run outside of VM等步骤组成，具体的流程或许说几千个字都说不完，这里也不纠缠了，如果有兴趣可以自己去看，这里想提下的就是里面提到的几个理论和工具，这些是我很想去尝试下的：</p>
+
+<pre><code>    dynamic slicing algorithm, Volatility(a framework for volatile memory analysis writen in Python), 
+    PyXa, XenAccess
+</code></pre>
+
+<p>这些留到过两天比较有空的时候去试吧~现在要洗澡睡觉觉啦~</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/01/03/paper-reading-x86-interrupt-and-sr-iov-interrupts-avoidance/">Paper Reading - X86 Interrupt and SR-IOV Interrupts Avoidance</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-03T21:37:00+08:00" pubdate data-updated="true">Jan 3<span>rd</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>元旦去奉化享受了，玩得超爽，吃的也超爽！感谢zbd和他爸妈的热情招呼，让我们享受了如此惬意的三天~</p>
+
+<p>好了，言归正传吧，讲讲这篇paper：</p>
+
+<pre><code>    "ELI: Bare-Metal Performance for I/O virtualization"
+</code></pre>
+
+<p>是由IBM和Technion的学者做的，发表在ASPLOS&#8217;12上，按照海波的说法是Muli教授推荐的一篇他们写的paper，现在还没公布出来，拿到的是DRAFT版本，所以不会讲太多的细节，主要是谈谈自己学到的东西吧。</p>
+
+<p>由于这篇paper是自己读的，所以也就看的比较仔细，说实话，看完整篇之后收获真的挺大的，加上之后Muli教授和他的同事对邮件的详细回答让我更加清楚了x86对interrupt的处理，特别是虚拟化环境下的一些细节，加上它最后做出来效果很好，对SR-IOV的优化（特别是万兆网络下小包的效率）提高很大，所以从总体来说我觉得这是一个很有趣而且有用的工作。</p>
+
+<p>先简要介绍下这篇paper的motivation吧：在现在虚拟化的环境中，SR-IOV（single root I/O virtualization）可以说使得整个I/O的效率相对于传统的PV也好，用qemu模拟的HVM也好，提高了一个层次，由于可以将一个特定的device（比如网卡）或者virtual function直接赋予一个domain虚拟机，从而从本质上减少了host（比如xen）在整个I/O路径上的介入时间，同时也减少了相当一部分的内存拷贝操作，使得I/O的performance、latency都得到了提高。但是不管是不是用SR-IOV技术，由于x86体系结构的限制，在由物理设备产生的interrupt发生时还是会陷入host，由host来对interrupt进行第一步的处理，或是直接调用自己的interrupt handler，或是向虚拟机插入软件中断，再调度回虚拟机由虚拟机的interrupt handler处理，在处理完成之后由于对EOI寄存器的写操作还会再一次陷入host；由于这两次的context切换造成的overhead，包括context switch、cache pollution&#8230;也就造成了作者在做evaluation时测出的40%的overhead。（其实刚开始看到这个40%我还觉得挺不可思议的，我们实验室之前也对SR-IOV进行过评估，当时得出的结论是SR-IOV的性能很好，和native的环境几乎没有差别。不过后来发现是因为我们的测试环境是千兆，而作者的环境是万兆，而且是小包~~~看来测试环境的优劣还是很重要啊:-)）。</p>
+
+<p><img src="http://ytliu.github.com/images/2012-01-04-1.png" title="guest/host context switch in interrupt handling" alt="baseline interrupt handle" /></p>
+
+<p>于是乎，这篇paper的作者就提出了ELI（ExitLess Interrupt），其目的就是最大程度地减少由这些interrupt造成的context切换，从而达到性能的最大化。</p>
+
+<p>简单来说，这个问题最大的障碍是以下两点：</p>
+
+<pre><code>    1.x86本身的架构不支持有虚拟机处理特定的硬件中断，也就是说，要不就让所有中断产生时
+    直接陷入host，要不就让所有中断都由当前正在运行的虚拟机来处理；
+    2.安全问题，如果让虚拟机能够随意直接处理硬件中断，那么会造成很多不可知的安全问题。
+</code></pre>
+
+<p>对于第一个问题，是由x86的specification定义的，除非改变整个x86架构，否则不会有本质的解决方案。那么，作者又是如何解决这个问题的呢？在这里，就像在virtual memory里的shadow page table一样，作者提出一个shadow IDT的概念。在解释这个shadow IDT之前，我想先介绍下x86虚拟化环境下的中断处理机制：</p>
+
+<p><img src="http://ytliu.github.com/images/2012-01-04-2.png" title="interrupt handle in x86 virtualization" alt="x86 virtualization interrupt handling" /></p>
+
+<pre><code>    由xen的机制举例，在整个系统中有两个IDT（Interrupt Descriptor Table），一个IDT由xen
+    维护，一个由客户虚拟机维护，在一个硬件中断产生时，不管当前是xen在执行还是虚拟机在执
+    行，都会先进入xen的IDT，由中断的vector相对应的handler进行处理，如果发现是由分配给虚
+    拟机的硬件产生的中断，则有xen向虚拟机手动插入一个软件中断（software interrupt），当
+    之后重新调度回虚拟机时会首先判断中断的flag是否有被置上，如果有某个vector的位被置上
+    则先跳入相关的handler进行处理，处理完之后会向LAPIC（之前）或是x2APIC（现在）的相对应
+    的EOI寄存器写入处理完成的标志，在写这个寄存器的同时，控制权会再次跳到xen，由xen对此
+    进行模拟，告诉真实的硬件这个中断处理完成了。这是一个最简单的硬件处理过程，如果遇到当
+    虚拟机在处理一个中断的时候又来了一个硬件中断，则会根据中断的优先级，或者这个中断是不
+    是NMI等进行更加复杂的判断，这又是后话了。
+</code></pre>
+
+<p>那么shadow IDT又是怎么一回事呢？既然x86只支持两种模式的中断处理模式，那么ELI又是如何将特定的硬件中断交给客户虚拟机处理，而将其余的重新让xen进行处理的呢？整个流程简单来说是这样的：</p>
+
+<pre><code>    ELI用的是第二种模式：当有硬件中断产生时，并不是直接陷入xen，而是跳到客户虚拟机的"IDT"，
+    当然这个IDT不是客户虚拟机本身的IDT，而是由host在客户虚拟机启动时为其配置的shadow IDT，
+    在这个IDT中，只有赋予客户虚拟机的设备（比如网卡）对应的中断处理函数是由意义的，而其它
+    的entry则是被置上了一个NP（Non-present）位，也就是说，如果这个中断是由正确的中断产生的，
+    则直接由客户虚拟机的handler处理，否则会向原来一样陷入xen，只是这次的陷入原因是NP，而不
+    是像原来一样的中断原因。而在xen的NP处理时会判断这次的NP是不是由shadow IDT引起的，如果是
+    则重新注入软中断，否则则按一般的NP（如page fault）进行处理。而对于EOI的写操作，ELI只支
+    持x2APIC机制，因为在这个机制中可以设置相对应的bitmap来指定哪些寄存器的写需要陷入xen，由
+    于这是可配置的，所以也就可以控制特定的硬件EOI直接由客户虚拟机处理而不需要陷入xen。这样
+    就使得只有特定硬件产生的中断才会直接由客户虚拟机处理，其余的由host处理。但是这样并没有
+    解决第二个问题：安全隐患。
+</code></pre>
+
+<p>对于第二个安全问题，有以下几点：</p>
+
+<pre><code>    1.既然shadow IDT是存在客户虚拟机的地址空间的，那么用户就有能力去篡改里面的值，比如修改
+    IDT的virtual-to-physical映射，将自己的恶意IDT映射上去从而实现某些攻击，比如将时间中断
+    截获从而让虚拟机不能调度。对于这种攻击，一种方法是shadow所有的virtual-to-physical映射，
+    但是这样会造成很大的性能损失，其他的方法是作者提出的preemption timer（在某个可配置的时
+    间内强制陷入xen），或者是NMI和IDT limiting的结合（详见paper）；
+    2.用户可以故意不写EOI寄存器，这个造成的危害是因为x86会自动屏蔽那些优先级小于正在被处理
+    的中断的中断，所以它会影响host的interruptibility。对于这个问题，ELI会在每次陷入xen的时
+    候，不过客户虚拟机有没有写EOI，就会自动模拟EOI的写操作，如果发现客户虚拟机确实还没有完
+    成相对应的中断处理，则会进入injection mode，直到客户虚拟机进行了EOI的写。
+</code></pre>
+
+<hr />
+
+<p>总的来说，这篇paper给我最大的收获是熟悉了x86及其虚拟化环境下的interrupt机制，它们用纯软件的方式实现了ExitLess Interrupt，而且得到了很好的评测结果，确实是一篇很有实力的paper。同时还要感谢Muli Ben-Yehuda教授和Nadav Amit学者的热心解答。</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -449,6 +626,14 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2012/09/13/guan-yu-shou-ji-he-yun-de-xue-zhu-yan-jiu/">关于手机和云的学术研究</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/09/09/progit-reading/">progit reading</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2012/09/04/quan-xin-de-kai-shi/">全新的开始</a>
       </li>
     
@@ -458,14 +643,6 @@
     
       <li class="post">
         <a href="/blog/2012/03/26/wo-de-meng-xiang/">我的梦想</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/03/17/exploitation-learning-outset/">Metasploit Learning Outset</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/03/09/wo-kan-bei-ai-and-wo-xue-ruby/">我看北爱&amp;我学ruby</a>
       </li>
     
   </ul>
