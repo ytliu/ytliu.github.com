@@ -105,11 +105,14 @@
 
 <ul>
 <li>1.这些都是在offline做的，在程序实际运行的时候直接获得configuration，然后在migrate point的时候进行migrate。</li>
-<li>2.按照作者的意思是不需要source code的，是通过分析二进制文件来得到合法的分割点，但需要重写二进制文件，加入一些annotation比如migrate point之类的。另外，合法的分割点作者提出了几个限制：
-  a.首先，它必须是method entry and exit point，不能是core-system library，当然在method里面调用的core library是允许的;
-  b.Methods that access specific features of a machine motivationust be pinned to the machine, 比如说location-based的调用或者camera这些没有被virtualized的服务都不能被分到远端，这也是我后面会详细说的；
-  c.Methods that share native state must be collocated andt the same machine.也就是说那些调用native code同时share了native state的方法也不能被migrate
-  d.Prevent nested migration.</li>
+<li><p>2.按照作者的意思是不需要source code的，是通过分析二进制文件来得到合法的分割点，但需要重写二进制文件，加入一些annotation比如migrate point之类的。另外，合法的分割点作者提出了几个限制：</p>
+
+<p>  a.首先，它必须是method entry and exit point，不能是core-system library，当然在method里面调用的core library是允许的;
+  b.Methods that access specific features of a machine motivationust be pinned to the machine, 比如说location-based的
+  调用或者camera这些没有被virtualized的服务都不能被分到远端，这也是我后面会详细说的；
+  c.Methods that share native state must be collocated andt the same machine.也就是说那些调用native code同时share了
+  native state的方法也不能被migrate
+  d.Prevent nested migration.</p></li>
 </ul>
 
 
