@@ -4,7 +4,7 @@
   <title><![CDATA[Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2012-09-18T00:14:20+08:00</updated>
+  <updated>2012-09-18T00:20:02+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -374,10 +374,10 @@ fetch = +refs/heads/*:refs/remotes/origin/*
 
 <p>的entry，其中origin是remote端在本地的reference，url是remote端的地址，fetch是你在执行fetch命令时的操作，格式为(+)src:dst，其中src是remote side的匹配模式，dst是local side的匹配模式，+为可选，表示即使不是fast-forward也要更新reference。当然你也可以在每次fetch的时候手动指定。另外对于push同样有这种模式，只需要在config中加上一个push行就行了。</p>
 
-<p>/<em>
- * ##remove object
- * 最后一个想讲的是如何真正地删除一个object。比如你有一个很大的object，你用</em>git rm<em>把他删除了，但是你并没有真正地把它从怎个历史中删除，任何一个其他人要fetch你的git仓库，都会把这个很大的object也一  * 起fetch过去。那么，要如何才能真正意义上地删除一个大的object呢？
- </em>/</p>
+<h2>remove object</h2>
+
+<p>最后一个想讲的是如何真正地删除一个object。比如你有一个很大的object，你用<em>git rm</em>把他删除了，但是你并没有真正地把它从怎个历史中删除，任何一个其他人要fetch你的git仓库，都会把这个很大的object也一  * 起fetch过去。那么，要如何才能真正意义上地删除一个大的object呢？
+/<em> fix me </em>/</p>
 ]]></content>
   </entry>
   
