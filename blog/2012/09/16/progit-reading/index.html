@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>开篇仪式 - Mctrain's Blog</title>
+  <title>progit reading - Mctrain's Blog</title>
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="其实很早就一直在想要写博客了，之前也尝试过（一只小小小鸟），但是最后还是没有坚持下来。 昨天看了鹏老大的一篇博文 - 《怎样花两年时间去面试一个人》，真的很有感触，其实我不能算一个geek，技术其实也挺一般的，在自己看来离人才还差得远，但是里面提到的&#8221;书单计划&#8221;和&# &hellip;">
+  <meta name="description" content="花了大概两周的时间吧，把《progit》那本书看完了（我看书实在是比较慢，特别是这种英文书）。发觉git实在是一个太强大的工具了，以至于我看完了一遍又把前面所说的功能忘记了。。。orz。。。于是乎决定花一周时间重新回顾一下，顺便把一些牛逼的地方记下来。 Plumbing &amp; &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://ytliu.github.com/blog/2011/12/21/kai-pian-yi-shi/">
+  <link rel="canonical" href="http://ytliu.github.com/blog/2012/09/16/progit-reading/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -69,7 +69,7 @@
   
   <header>
     
-      <h1 class="entry-title">开篇仪式</h1>
+      <h1 class="entry-title">Progit Reading</h1>
     
     
       <p class="meta">
@@ -85,21 +85,69 @@
   
 
 
-<time datetime="2011-12-21T15:58:00+08:00" pubdate data-updated="true">Dec 21<span>st</span>, 2011</time>
+<time datetime="2012-09-16T22:54:00+08:00" pubdate data-updated="true">Sep 16<span>th</span>, 2012</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>其实很早就一直在想要写博客了，之前也尝试过（<a href="http://blog.csdn.net/microtrain016" title="microtrain016's blog">一只小小小鸟</a>），但是最后还是没有坚持下来。   <br/>
-昨天看了鹏老大的一篇博文 - <a href="http://mindhacks.cn/2011/11/04/how-to-interview-a-person-for-two-years/">《怎样花两年时间去面试一个人》</a>，真的很有感触，其实我不能算一个geek，技术其实也挺一般的，在自己看来离人才还差得远，但是里面提到的&#8221;书单计划&#8221;和&#8221;github计划&#8221;应该是一个慢慢积累的过程，我还有半年的本科生涯，之后还有至少五年的博士，我没有要急于找工作的负担，为什么不趁这个最最珍贵的时间来积累呢？我一直相信于&#8221;厚积薄发&#8221;，还记得本科的时候看着自己与其他人的距离我写下&#8221;时间会拉近人与人之间的差距&#8221;，三年过去我觉得自己做到了一些，超过了一些当时在我心目中的牛人。但当我进入PPI，当我开始要考虑自己的博士生涯的时候发现，自己又成了一个更高层次的弱者，我为此感到兴奋，我未来的生活又可以在这种激情中度过，只是在这慢慢的积累中我希望看到一点一滴的进步，我很清楚自己在发散思维上的弱势，我急需一些方法提高。</p>
+<div class="entry-content"><p>花了大概两周的时间吧，把《progit》那本书看完了（我看书实在是比较慢，特别是这种英文书）。发觉git实在是一个太强大的工具了，以至于我看完了一遍又把前面所说的功能忘记了。。。orz。。。于是乎决定花一周时间重新回顾一下，顺便把一些牛逼的地方记下来。</p>
 
-<p>我写博客是希望将自己在这个学习的过程中的感悟、收获以一种相比于记忆更不会消逝的方式记录下来，如果还能引起别人带来那么一丁点儿的共鸣那再好不过了，我从不祈求于自己能写出多么牛逼的技术文章，任何技术上的收获、生活中的感悟我都会记录下来，我从不认为文字分所谓的&#8221;贫贱贵富&#8221;，只要是自己的就是最真实的。</p>
+<h2>Plumbing &amp; Porcelain</h2>
 
-<p>至于为什么要用Octopress+Github，是因为我们实验室的两个大牛（<a href="http://blog.yxwang.me">zellux</a>和<a href="http://chenyufei.info">ChenYufei</a>）都开始尝试着用了它，而且我也想感受用vi写博文的感觉所以就尝试写段时间，我希望这个尝试能一直进行下去。也希望能从中得到那些我希望得到的东西。</p>
+<p>因为这是progit的最后一章，也是我刚刚看完的一章，还比较有印象。更重要的是这是git的internal的机制，对于深入理解git有很大的帮助，所以想先把这章啃下来。</p>
 
-<p>开篇结束，坚持是未来最大的挑战！</p>
+<p>porcelain是瓷器的意思，在这里是指git中比较user-friendly的命令，比如文中介绍的将近30条git命令，包括checkout, brance, commit, 以及所有的remote命令等等。而plumbing是水管的意思，和porcelain相对的，指的是一些和unix style类似的low-level的可以直接在脚本中执行的命令（其实我也没搞懂为什么要交porcelain和plumbing两个名字，感觉没什么关系啊？）。事实上，如果我没有理解错的话，porcelain在git中应该就是由一系列plumbing命令组成的。比如git commit命令就是由一个叫做“git commit-tree”的plumbing命令完成的，至于什么是commit-tree，以及这个tree是怎么形成的，这个会再接下来慢慢解释。</p>
+
+<p>首先来看下.git目录下都有些什么。</p>
+
+<pre><code>$ ls .git
+HEAD
+config
+description
+hooks/
+index
+info/
+objects/
+refs/
+</code></pre>
+
+<p>这些是在<em>git init</em>的时候初始化就默认产生的，其中description现在还不需要考虑，config主要用来配置一些program-specific的参数选项，info是一个目录，包含了一些需要被ignore的文件模式，而hooks定义了一些client或server端用于用户进行脚本定制的功能，这会在接下来详细介绍。而在这一节中主要描述了以下四个对象：<strong>HEAD</strong>，<strong>index</strong>，<strong>objects</strong>，<strong>refs</strong>。这是git最internal的部分。</p>
+
+<h2>object</h2>
+
+<p>object主要由两种组成：<em>tree object</em>和<em>commit object</em>，在介绍这两个object之前首先要说明下git的文件系统，git是一个content-addressable文件系统，换句话来说，对于git的核心存储来说仅仅是一个key-value数据库，你能向里面插入任何数据，并得到一个相对应的hash值用于之后的访问。这里有两个plumbing命令<em>hash-object</em>和<em>cat-file</em>，比如在新建的git仓库中输入以下命令；</p>
+
+<pre><code>$ echo 'test content' | git hash-object -w --stdin
+</code></pre>
+
+<p><strong>-w</strong>表示对该object进行存储，将会返回：</p>
+
+<pre><code>d670460b4b4aece5915caf5c68d12f560a9fe3e4
+</code></pre>
+
+<p>这个时候你查看.git/objects目录下的内容将会看到：</p>
+
+<pre><code>$ find .git/objects -type f
+  .git/objects/d6/70460b4b4aece5915caf5c68d12f560a9fe3e4
+</code></pre>
+
+<p>其中d6是这个hash值的前两个数字，如果运行<em>cat-file</em>将会得到该object：</p>
+
+<pre><code>$ git cat-file -p d670460b4b4aece5915caf5c68d12f560a9fe3e4
+  test content
+</code></pre>
+
+<p><strong>-p</strong>表示把里面的内容打印出来，而另一个参数<strong>-t</strong>这是将该object的类型打印出来：</p>
+
+<pre><code>$ git cat-file -t d670460b4b4aece5915caf5c68d12f560a9fe3e4
+  blob
+</code></pre>
+
+<p>注意这里的<em>blob</em>是一种type，它是属于整个<em>tree object</em>的叶子节点的类型，而那些中间节点都可以叫做tree。于是现在就可以详细来说说<em>tree object</em>了：</p>
+
+<h3>tree object</h3>
 </div>
 
 
@@ -122,21 +170,15 @@
   
 
 
-<time datetime="2011-12-21T15:58:00+08:00" pubdate data-updated="true">Dec 21<span>st</span>, 2011</time>
+<time datetime="2012-09-16T22:54:00+08:00" pubdate data-updated="true">Sep 16<span>th</span>, 2012</time>
       
-
-<span class="categories">
-  
-    <a class='category' href='/blog/categories/杂/'>杂</a>
-  
-</span>
 
 
     </p>
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ytliu.github.com/blog/2011/12/21/kai-pian-yi-shi/" data-via="microtrain016" data-counturl="http://ytliu.github.com/blog/2011/12/21/kai-pian-yi-shi/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ytliu.github.com/blog/2012/09/16/progit-reading/" data-via="microtrain016" data-counturl="http://ytliu.github.com/blog/2012/09/16/progit-reading/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -147,10 +189,8 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2011/12/21/markdownyu-fa-ce-shi/" title="Previous Post: Markdown语法测试">&laquo; Markdown语法测试</a>
+        <a class="basic-alignment left" href="/blog/2012/09/13/guan-yu-shou-ji-he-yun-de-xue-zhu-yan-jiu/" title="Previous Post: 关于手机和云的学术研究">&laquo; 关于手机和云的学术研究</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2011/12/23/paper-reading-mobile-security-survey-and-ds-failure-detection/" title="Next Post: Paper reading - Mobile security survey &amp; DS failure detection">Paper reading - Mobile security survey &amp; DS failure detection &raquo;</a>
       
     </p>
   </footer>

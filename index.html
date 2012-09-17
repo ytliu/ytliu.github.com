@@ -9,7 +9,7 @@
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="这两天看了两篇关于手机和云结合的文章，两篇的motivation不同，所以所用的方法也就自然不一样了。下面对这两篇进行分别的介绍： 第一篇叫《CloneCloud: Elastic Execution between Mobile Device and Cloud》 分开来说就是用了三种技术， &hellip;">
+  <meta name="description" content="花了大概两周的时间吧，把《progit》那本书看完了（我看书实在是比较慢，特别是这种英文书）。发觉git实在是一个太强大的工具了，以至于我看完了一遍又把前面所说的功能忘记了。。。orz。。。于是乎决定花一周时间重新回顾一下，顺便把一些牛逼的地方记下来。 Plumbing &amp; &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,97 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/09/16/progit-reading/">Progit Reading</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-09-16T22:54:00+08:00" pubdate data-updated="true">Sep 16<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>花了大概两周的时间吧，把《progit》那本书看完了（我看书实在是比较慢，特别是这种英文书）。发觉git实在是一个太强大的工具了，以至于我看完了一遍又把前面所说的功能忘记了。。。orz。。。于是乎决定花一周时间重新回顾一下，顺便把一些牛逼的地方记下来。</p>
+
+<h2>Plumbing &amp; Porcelain</h2>
+
+<p>因为这是progit的最后一章，也是我刚刚看完的一章，还比较有印象。更重要的是这是git的internal的机制，对于深入理解git有很大的帮助，所以想先把这章啃下来。</p>
+
+<p>porcelain是瓷器的意思，在这里是指git中比较user-friendly的命令，比如文中介绍的将近30条git命令，包括checkout, brance, commit, 以及所有的remote命令等等。而plumbing是水管的意思，和porcelain相对的，指的是一些和unix style类似的low-level的可以直接在脚本中执行的命令（其实我也没搞懂为什么要交porcelain和plumbing两个名字，感觉没什么关系啊？）。事实上，如果我没有理解错的话，porcelain在git中应该就是由一系列plumbing命令组成的。比如git commit命令就是由一个叫做“git commit-tree”的plumbing命令完成的，至于什么是commit-tree，以及这个tree是怎么形成的，这个会再接下来慢慢解释。</p>
+
+<p>首先来看下.git目录下都有些什么。</p>
+
+<pre><code>$ ls .git
+HEAD
+config
+description
+hooks/
+index
+info/
+objects/
+refs/
+</code></pre>
+
+<p>这些是在<em>git init</em>的时候初始化就默认产生的，其中description现在还不需要考虑，config主要用来配置一些program-specific的参数选项，info是一个目录，包含了一些需要被ignore的文件模式，而hooks定义了一些client或server端用于用户进行脚本定制的功能，这会在接下来详细介绍。而在这一节中主要描述了以下四个对象：<strong>HEAD</strong>，<strong>index</strong>，<strong>objects</strong>，<strong>refs</strong>。这是git最internal的部分。</p>
+
+<h2>object</h2>
+
+<p>object主要由两种组成：<em>tree object</em>和<em>commit object</em>，在介绍这两个object之前首先要说明下git的文件系统，git是一个content-addressable文件系统，换句话来说，对于git的核心存储来说仅仅是一个key-value数据库，你能向里面插入任何数据，并得到一个相对应的hash值用于之后的访问。这里有两个plumbing命令<em>hash-object</em>和<em>cat-file</em>，比如在新建的git仓库中输入以下命令；</p>
+
+<pre><code>$ echo 'test content' | git hash-object -w --stdin
+</code></pre>
+
+<p><strong>-w</strong>表示对该object进行存储，将会返回：</p>
+
+<pre><code>d670460b4b4aece5915caf5c68d12f560a9fe3e4
+</code></pre>
+
+<p>这个时候你查看.git/objects目录下的内容将会看到：</p>
+
+<pre><code>$ find .git/objects -type f
+  .git/objects/d6/70460b4b4aece5915caf5c68d12f560a9fe3e4
+</code></pre>
+
+<p>其中d6是这个hash值的前两个数字，如果运行<em>cat-file</em>将会得到该object：</p>
+
+<pre><code>$ git cat-file -p d670460b4b4aece5915caf5c68d12f560a9fe3e4
+  test content
+</code></pre>
+
+<p><strong>-p</strong>表示把里面的内容打印出来，而另一个参数<strong>-t</strong>这是将该object的类型打印出来：</p>
+
+<pre><code>$ git cat-file -t d670460b4b4aece5915caf5c68d12f560a9fe3e4
+  blob
+</code></pre>
+
+<p>注意这里的<em>blob</em>是一种type，它是属于整个<em>tree object</em>的叶子节点的类型，而那些中间节点都可以叫做tree。于是现在就可以详细来说说<em>tree object</em>了：</p>
+
+<h3>tree object</h3>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -172,42 +263,6 @@ key = key′
 <hr />
 
 <p>现在cloud和mobile相结合的概念提出的越来越多了，但真正运用到世纪生活中的还很少很少，一方面是很多东西还停留在research阶段，没有比较稳定的工程实现，另一方面就是关于流量的考虑，mobile和cloud的结合离不开稳定的网络给予保障，而这些在现在的实际生活中还不能很完美的实现。不过我相信在不久之后，这两个当前及其流行的设备一定能非常好的结合在一起，方便大家的生活，并为mobile提供非常强有力的能源，性能和安全保障的。</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/09/09/progit-reading/">Progit Reading</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-09-09T22:54:00+08:00" pubdate data-updated="true">Sep 9<span>th</span>, 2012</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content">
 </div>
   
   
@@ -1000,11 +1055,11 @@ cd /pentest/sniffers/xspy/
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2012/09/13/guan-yu-shou-ji-he-yun-de-xue-zhu-yan-jiu/">关于手机和云的学术研究</a>
+        <a href="/blog/2012/09/16/progit-reading/">progit reading</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2012/09/09/progit-reading/">progit reading</a>
+        <a href="/blog/2012/09/13/guan-yu-shou-ji-he-yun-de-xue-zhu-yan-jiu/">关于手机和云的学术研究</a>
       </li>
     
       <li class="post">
