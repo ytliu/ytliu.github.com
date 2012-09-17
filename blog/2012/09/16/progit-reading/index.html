@@ -177,9 +177,11 @@ $ git cat-file -t dc7a
   tree
 </code></pre>
 
-<p>到目前为止，在first commit之后，整个数据存储的树结构是这样的：
-<img src="http://ytliu.github.com/images/2012-09-16-1.png" title="tree object 1" alt="tree object 1" />
-记下来我们新建一个目录dir，并再次commit一次：</p>
+<p>到目前为止，在first commit之后，整个数据存储的树结构是这样的：</p>
+
+<p><img src="http://ytliu.github.com/images/2012-09-16-1.png" title="tree object 1" alt="tree object 1" /></p>
+
+<p>记下来我们新建一个目录dir，并再次commit一次：</p>
 
 <pre><code>$ mkdir dir
 $ vi dir/test3
@@ -217,8 +219,9 @@ $ git cat-file -p c504
   100644 blob df6b0d2bcc76e6ec0fca20c227104a4f28bac41b test3
 </code></pre>
 
-<p>可以看出，现在多了两个<em>tree object</em>，当前的树结构是这样的：
-<img src="http://ytliu.github.com/images/2012-09-16-2.png" title="tree object 2" alt="tree object1 2" /></p>
+<p>可以看出，现在多了两个<em>tree object</em>，当前的树结构是这样的：</p>
+
+<p><img src="http://ytliu.github.com/images/2012-09-16-2.png" title="tree object 2" alt="tree object1 2" /></p>
 
 <p>也就是说在新建一个dir的时候会新建一个<em>tree object</em>，而它指向的是这个dir下的blob或其它tree，另外，在进行一次commit的时候也会新建一个<em>tree object</em>，其包含的内容是staging area里面的所有东西。另外，git也提供了和<em>tree object</em>相关的plumbing命令：<em>write-tree</em>和<em>read-tree</em>。<em>write-tree</em>用于新建一个tree，把staging area里面的object就涵盖进来，而<em>read-tree</em>则是将一个tree读入staging area，比如运行以下命令：</p>
 
@@ -277,23 +280,23 @@ $ echo 'second commit' | git commit-tree 389a -p d8c7
 <p>具体的就不详说了，前面的echo是commit message，<strong>-p</strong>选项表示parent。这个时候如果你运行git log:</p>
 
 <pre><code>$ git log
-commit 84ddd13670be5f3636586915421cd98035ad9c66
-Author: ytliu &lt;mctrain016@gmail.com&gt;
-Date:   Mon Sep 17 15:03:46 2012 +0800
+  commit 84ddd13670be5f3636586915421cd98035ad9c66
+  Author: ytliu &lt;mctrain016@gmail.com&gt;
+  Date:   Mon Sep 17 15:03:46 2012 +0800
 
-second commit
+  second commit
 
-commit 92bfc1480834507340a9bb30ac05fb4965785875
-Author: ytliu &lt;mctrain016@gmail.com&gt;
-Date:   Mon Sep 17 15:02:27 2012 +0800
+  commit 92bfc1480834507340a9bb30ac05fb4965785875
+  Author: ytliu &lt;mctrain016@gmail.com&gt;
+  Date:   Mon Sep 17 15:02:27 2012 +0800
 
-first commit
+  first commit
 </code></pre>
 
 <p>它只显示了之前commit的记录，那么新commit的third commit和fourth commit呢？原因很简单，因为我在commit-tree third commit的时候并没有指定<strong>-p</strong>，所以它并没有接着second commit下去，而是自己新开了一个：</p>
 
 <pre><code>$ git log fc45
-  ommit fc45c76849a24fe3e6b98fec5f17194c0c5f52a3
+  commit fc45c76849a24fe3e6b98fec5f17194c0c5f52a3
   Author: ytliu &lt;mctrain016@gmail.com&gt;
   Date:   Mon Sep 17 16:20:10 2012 +0800
 
@@ -311,8 +314,9 @@ first commit
 <pre><code>$ git co fc4f -b new_branch
 </code></pre>
 
-<p>到目前为止，整个git仓库的objects的关系可以用下图来表示：
-<img src="http://ytliu.github.com/images/2012-09-16-3.png" title="object 1" alt="object 1" /></p>
+<p>到目前为止，整个git仓库的objects的关系可以用下图来表示：</p>
+
+<p><img src="http://ytliu.github.com/images/2012-09-16-3.png" title="object 1" alt="object 1" /></p>
 
 <h2>git references</h2>
 
@@ -373,6 +377,81 @@ $ cat .git/HEAD
 </code></pre>
 
 <h2>packfiles</h2>
+
+<p>接下来是一个很重要的概念——packfile。具体的场景是这样的：</p>
+
+<p>假设我们有一个很大的文件largefile，它的hash是fb699e017d85f1f0d037f0417a7e17a449533ecc：</p>
+
+<pre><code>$ git cat-file -s fb69
+  132480
+</code></pre>
+
+<p><strong>-s</strong>表示object的大小，这个时候我们对其进行了一个小小的修改，并重新commit：</p>
+
+<pre><code>$ echo "modify a little" &gt;&gt; largefile
+$ git add largefile
+$ git ci -m "modify largefile"
+</code></pre>
+
+<p>这个时候largefile的hash就变成了084d9fa99e4558d38cba7006e3b28f6c87a8fd86；</p>
+
+<pre><code>$ git cat-file -s 084d
+  132496
+</code></pre>
+
+<p>可以看出，在git里面存了两个基本差不多的largefile的object，这样是非常浪费空间的。其实git在disk上存的object是一种叫做<em>loose object</em>的格式，而在一段时间之后git会将这些<em>loose object</em>打包。当然这种情况一般会在两种情况下发生: 执行<em>git gc</em>命令，以及push到remote server：</p>
+
+<pre><code>$ git gc
+$ find .git/objects/ -type f
+  .git/objects//1e/f02bee3de76100febdefb8c55bf99fcfbdf714
+  .git/objects//45/699e25f45a743e08c0909ce1925641f9c03e2e
+  .git/objects//info/packs
+  .git/objects//pack/pack-4ba1c4a110a95c95d7fc1a33d0c5916bb4c10a34.idx
+  .git/objects//pack/pack-4ba1c4a110a95c95d7fc1a33d0c5916bb4c10a34.pack
+</code></pre>
+
+<p>可以看到，现在只剩下5行了，若我们用plumbing命令verify-pack来查看的话可以看到：</p>
+
+<pre><code>$ git verify-pack -v .git/objects/pack/pack-4ba1c4a110a95c95d7fc1a33d0c5916bb4c10a34.pack 
+  eb5efdaed6e57b4356a6758e77c998f1efd009ed commit 221 151 12
+  5a937dca309316f541a433e624868dfe5196c165 commit 218 150 163
+  fc45c76849a24fe3e6b98fec5f17194c0c5f52a3 commit 218 149 313
+  84ddd13670be5f3636586915421cd98035ad9c66 commit 218 149 462
+  d8c7554eb5ee1a0eca359f3d58b99529ac94529c commit 43 53 611 1 84ddd13670be5f3636586915421cd98035ad9c66
+  92bfc1480834507340a9bb30ac05fb4965785875 commit 169 119 664
+  902c38d7fbadea10287a581b9c557fea63d8b00c tree   133 131 783
+  c504b82867a9a4104974edd54c56f01856d9426b tree   33 44 914
+  df6b0d2bcc76e6ec0fca20c227104a4f28bac41b blob   6 15 958
+  084d9fa99e4558d38cba7006e3b28f6c87a8fd86 blob   132496 316 973
+  9f71d140ff7712ec3a6dda42c09078fd290a3a61 blob   7 16 1289
+  180cf8328022becee9aaa2577a8f84ea2b9f3827 blob   6 15 1305
+  f5adadb9b7cf88c0aa57bc4c810d5c2a68d93c5c tree   133 131 1320
+  fb699e017d85f1f0d037f0417a7e17a449533ecc blob   13 22 1451 1 084d9fa99e4558d38cba7006e3b28f6c87a8fd86
+  389a980f31bfb78f9bf7e41d85fb3a1736a54f8c tree   126 126 1473
+  4177687db29c641515b10f13536dd70fae4ed142 tree   96 98 1599
+  dc7a09861107e178fa0016fb48300b569de5c64c tree   66 70 1697
+  non delta: 15 objects
+  chain length = 1: 2 objects
+  .git/objects/pack/pack-4ba1c4a110a95c95d7fc1a33d0c5916bb4c10a34.pack: ok
+</code></pre>
+
+<p>原来第一个largefile的object fb69 现在指向了084d，而其大小也变成了13，而084d作为修改过的largefile，大小还是132496。另外，git还把其它的一些类似的object进行了pack，更充分地缩减了空间。</p>
+
+<h2>refspec</h2>
+
+<p>这个是和remote branch相关的，即当你运行了<em>git remote add</em>命令后，在.git/config下面会有一个诸如：</p>
+
+<pre><code>[remote "origin"]
+url = git@github.com:something.git
+fetch = +refs/heads/*:refs/remotes/origin/*
+</code></pre>
+
+<p>的entry，其中origin是remote端在本地的reference，url是remote端的地址，fetch是你在执行fetch命令时的操作，格式为(+)src:dst，其中src是remote side的匹配模式，dst是local side的匹配模式，+为可选，表示即使不是fast-forward也要更新reference。当然你也可以在每次fetch的时候手动指定。另外对于push同样有这种模式，只需要在config中加上一个push行就行了。</p>
+
+<p>/<em>
+ * ##remove object
+ * 最后一个想讲的是如何真正地删除一个object。比如你有一个很大的object，你用</em>git rm<em>把他删除了，但是你并没有真正地把它从怎个历史中删除，任何一个其他人要fetch你的git仓库，都会把这个很大的object也一  * 起fetch过去。那么，要如何才能真正意义上地删除一个大的object呢？
+ </em>/</p>
 </div>
 
 
