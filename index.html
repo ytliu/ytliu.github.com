@@ -97,11 +97,11 @@
 
   <div class="entry-content"><p>这几天搞opennebula这个项目，一个很大的感受就是对于environement setup一定要有详细的笔记，不然过了一段时间就什么也想不起来了，遇到和以前一样的问题也不懂该如何解决。实在浪费时间，于是就把它记下来。</p>
 
-<h3>基本命令</h3>
+<h2>基本命令</h2>
 
 <p>首先是opennebula里面的一些基本命令，这里以kvm为例：</p>
 
-<h2>Cloud Infrastructure Setup</h2>
+<h3>Cloud Infrastructure Setup</h3>
 
 <p>On Cluster:</p>
 
@@ -128,7 +128,7 @@ $ onedatastore update 100
 
 <p>add SAFE_DIRS=&#8221;/var/lib/one/datastores/&#8221;, mount actual datastore to /var/lib/one/datastores/<datastore_id></p>
 
-<h2>Set up Virtual Resource</h2>
+<h3>Set up Virtual Resource</h3>
 
 <p>Virtual Machine Image</p>
 
@@ -156,7 +156,7 @@ $ onevm stop debian1
 $ onevm delete debian1
 </code></pre>
 
-<h2>qemu/kvm</h2>
+<h3>qemu/kvm</h3>
 
 <p>create image:</p>
 
@@ -178,15 +178,15 @@ $ onevm delete debian1
 <pre><code>$ /usr/local/kvm/bin/qemu-system-x86_64 -k en-us -hda vdisk.img -m 512
 </code></pre>
 
-<h3>权限问题</h3>
+<h2>权限问题</h2>
 
-<h2>ssh 权限</h2>
+<h3>ssh 权限</h3>
 
 <p>需要把front的oneadmin用户的.ssh/id_rsa.pub拷贝到host的oneadmin用户的.ssh/authorized_keys里面</p>
 
 <p>需要把host的oneadmin用户的.ssh/id_rsa.pub拷贝到front的oneadmin用户的.ssh/authorized_keys里面（optional）</p>
 
-<h2>账户设置</h2>
+<h3>账户设置</h3>
 
 <p>两边oneadmin账户的uid，gid一定要相同！</p>
 
@@ -212,7 +212,7 @@ $ useradd --uid 1002 -g oneadmin -d /var/lib/one oneadmin
 <pre><code>$ usermod -a -G root oneadmin
 </code></pre>
 
-<h2>libvirt</h2>
+<h3>libvirt</h3>
 
 <p>！！！！搞了我好久，一直莫名其妙地出一个错误：</p>
 
@@ -244,9 +244,9 @@ DRIVER        = qcow2
 
 <p>之后配host2的时候还会碰到一个问题就是/var/run/libvirt/libvirt-sock和/var/tmp/one目录下的permission denied，对于前者，给oneadmin再加一个libvirtd的group，对于后者，把/var/tmp/one chown一下就好了</p>
 
-<h3>NFS</h3>
+<h2>NFS</h2>
 
-<h2>On front</h2>
+<h3>On front</h3>
 
 <pre><code>$ vi /etc/hosts
 203.95.3.3 host1
@@ -257,7 +257,7 @@ $ vi /etc/exports
 /var/lib/one/datastores/104     host1(rw,no_root_squash)   #104是file system datastore的编号，由onedatastore自动创建的
 </code></pre>
 
-<h2>On host</h2>
+<h3>On host</h3>
 
 <pre><code>$ cd
 $ mkdir datasdores
