@@ -4,7 +4,7 @@
   <title><![CDATA[Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2012-09-18T00:24:59+08:00</updated>
+  <updated>2012-10-02T11:23:51+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -12,6 +12,15 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[progit reaopennebula setup note]]></title>
+    <link href="http://ytliu.github.com/blog/2012/09/28/progit-reaopennebula-setup-note/"/>
+    <updated>2012-09-28T14:30:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2012/09/28/progit-reaopennebula-setup-note</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[progit reading]]></title>
@@ -376,7 +385,7 @@ fetch = +refs/heads/*:refs/remotes/origin/*
 
 <h2>remove object</h2>
 
-<p>最后一个想讲的是如何真正地删除一个object。比如你有一个很大的object，你用<em>git rm</em>把他删除了，但是你并没有真正地把它从怎个历史中删除，任何一个其他人要fetch你的git仓库，都会把这个很大的object也一  * 起fetch过去。那么，要如何才能真正意义上地删除一个大的object呢？</p>
+<p>最后一个想讲的是如何真正地删除一个object。比如你有一个很大的object，你用<em>git rm</em>把他删除了，但是你并没有真正地把它从怎个历史中删除，任何一个其他人要fetch你的git仓库，都会把这个很大的object也一起fetch过去。那么，要如何才能真正意义上地删除一个大的object呢？</p>
 
 <p>/<em> fix me </em>/</p>
 
@@ -385,6 +394,117 @@ fetch = +refs/heads/*:refs/remotes/origin/*
 <p>接下来我会从头开始回顾：<strong>git basic</strong>, <strong>git branch</strong>, <strong>git distribution</strong>, <strong>git tools</strong>, 以及<strong>git customization</strong>。</p>
 
 <h1>git basic</h1>
+
+<p>git中的文件有以下几种状态，而所有的命令也就是对于这几种状态的查看和转换：</p>
+
+<p><img src="http://ytliu.github.com/images/2012-09-16-4.png" title="git file status" alt="git file status" /></p>
+
+<p>一般情况下，在新建一个文件后，需要<strong>git add</strong>将其变成tracked file，如果修改了一个该文件，则同样需要使用<strong>git add</strong>将其变成staged file，只有staged的文件才会在<strong>git commit</strong>的时候commit成功。</p>
+
+<p><strong>git status</strong></p>
+
+<p>这个可以用来查看当前文件的状态。如果我们在commit的参数中加上<strong>-a</strong>，就可以自动将tracked file变成staged file了。当然也可以忽略一些文件，这些都是写在.gitignore文件下的，那么，如何unstage一个文件呢？其实在你使用<strong>git stage</strong>命令的时候就会有提示:</p>
+
+<pre><code>$ git reset HEAD &lt;file&gt;
+</code></pre>
+
+<p>同样的，我们也可以把一个modified file变成unmodified file:</p>
+
+<pre><code>$ git checkout -- &lt;file&gt;
+</code></pre>
+
+<p><strong>git diff</strong></p>
+
+<p>由于<strong>git status</strong>只能告诉我们哪些文件被修改了，而不能告诉我们都修改了哪些具体内容，所以有一个<strong>git diff</strong>命令来补充这个功能。</p>
+
+<p><strong>git diff</strong>显示的是changed but not staged的文件，而<strong>git diff &#8211;cached</strong>显示的是staged的文件</p>
+
+<p><strong>git commit</strong></p>
+
+<p>这个就是将stage area里面的东西进行提交，在提交的时候需要指定<strong>-m</strong>参数。另外还有一个比较有用的命令叫<strong>git commit &#8211;amend</strong>用来返回到最近的一次commit之前，然后加一些其它文件，然后再自动提交一遍，这样就不会有两个相似的commit了。</p>
+
+<p><strong>git rm</strong></p>
+
+<p>如果只是简单地用<strong>rm</strong>命令，那么它还是处于unstage的状态，用<strong>git rm</strong>会将其变成untrack状态。另外，如果你加了参数<strong>-f</strong>则可以将其从index中删除，这样如果之前没有commit这个文件的话之后也就无法恢复了。</p>
+
+<p>还有一个比较有用的命令是:</p>
+
+<pre><code>$ git rm --cached &lt;file&gt;
+</code></pre>
+
+<p>这个命令可以在硬盘上保留file，但是将其从working tree中删除。比如说你忘记把file添加到.gitignore文件中的话就可以用这个命令。</p>
+
+<p>同样，这个命令也支持正则表达式。</p>
+
+<p><em>git mv</em></p>
+
+<p>在git中，如果你用<strong>git mv</strong>命令，在git history中应该是没有renaming这个记录的，那么为什么还有mv这个命令呢？在git中：<strong>git mv file_from file_to</strong>这一个命令相当于</p>
+
+<pre><code>$ mv file_from file_to
+$ git rm file_from
+$ git add file_to
+</code></pre>
+
+<p>这三条命令。</p>
+
+<p><em>git log</em></p>
+
+<p>用来查看git commit history，有许多有用的参数，比如<strong>&#8211;stat</strong>可以查看一些简略的信息，<strong>-p -2</strong>可以列出最近的两条entris，<strong>&#8211;pretty=oneline</strong>可以将history简略成一行，同样可以指定format——**&#8211;pretty=format:&#8221;%h - %an, %ar : %s&#8221;，而这些参数的意义如下:</p>
+
+<pre><code>Option  Description of Output
+%H  Commit hash
+%h  Abbreviated commit hash
+%T  Tree hash
+%t  Abbreviated tree hash
+%P  Parent hashes
+%p  Abbreviated parent hashes
+%an  Author name
+%ae  Author e-mail
+%ad  Author date (format respects the –date= option)
+%ar  Author date, relative
+%cn  Committer name
+%ce  Committer email
+%cd  Committer date
+%cr  Committer date, relative
+%s  Subject
+</code></pre>
+
+<p>另外还有<strong>&#8211;graph</strong>用来列出一个history graph，还有一些和时间相关的log，比如<strong>&#8211;since=2.weeks</strong>，列出两周内的commit信息&#8230;</p>
+
+<pre><code>Option  Description
+-(n)  Show only the last n commits
+--since, --after  Limit the commits to those made after the specified date.
+--until, --before  Limit the commits to those made before the specified date.
+--author  Only show commits in which the author entry matches the specified string.
+--committer  Only show commits in which the committer entry matches the specified strin
+</code></pre>
+
+<p><strong>git tag</strong></p>
+
+<p>这个先不说了，感觉用不太到&#8230;</p>
+
+<p><strong>git remote</strong></p>
+
+<p>主要就7个命令：</p>
+
+<pre><code>$ git remote add local_name url
+$ git remote -v
+$ git remote show local_name
+$ git fetch [local_name | url]
+$ git push [local_name | url] [branch_name]
+$ git remote rename old_name new_name
+$ git remote rm local_name
+</code></pre>
+
+<p><strong>tips and tricks</strong></p>
+
+<p><em>git aliases</em>: 可以将很多命令缩写，比如:</p>
+
+<pre><code>$ git config --global alias.co checkout
+......
+$ git config --global alias.unstage 'reset HEAD --'
+$ git config --global alias.last 'log -1 HEAD'
+</code></pre>
 
 <h1>git branch</h1>
 
