@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Markdown语法测试 - Mctrain's Blog</title>
+  <title>android messaging mechanism - Mctrain's Blog</title>
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="http://ytliu.github.com [mctrain](http://ytliu.github.com &#8220;mctrain&#8217;s blog&#8221;) mctrain mctrain-2 ![pic](http://ytliu.github.com/images &hellip;">
+  <meta name="description" content="这两天做remote binder遇到一个bug，具体是什么就不细说了，总之是和android的message机制相关，在Handler.java里面通过mQueue.enqueueMessage()成功后却没有办法从Looper.java里面的mQueue.next()中读出该条message。 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://ytliu.github.com/blog/2011/12/21/markdownyu-fa-ce-shi/">
+  <link rel="canonical" href="http://ytliu.github.com/blog/2012/10/12/android-messaging-mechanism/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -69,7 +69,7 @@
   
   <header>
     
-      <h1 class="entry-title">Markdown语法测试</h1>
+      <h1 class="entry-title">Android Messaging Mechanism</h1>
     
     
       <p class="meta">
@@ -85,125 +85,46 @@
   
 
 
-<time datetime="2011-12-21T15:17:00+08:00" pubdate data-updated="true">Dec 21<span>st</span>, 2011</time>
+<time datetime="2012-10-12T21:43:00+08:00" pubdate data-updated="true">Oct 12<span>th</span>, 2012</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p><a href="http://ytliu.github.com">http://ytliu.github.com</a></p>
+<div class="entry-content"><p>这两天做remote binder遇到一个bug，具体是什么就不细说了，总之是和android的message机制相关，在Handler.java里面通过mQueue.enqueueMessage()成功后却没有办法从Looper.java里面的mQueue.next()中读出该条message。搞了半天，打印了一堆log，最后发现竟然是因为Looper的线程被我自己block住了。这个主要是由于自己对其理解的错误造成的，之前我一直以为对于每个Activity（或Service）来说，除了主线程之外，都会有一个专用的Looper线程进行消息队列的轮询，今天和乃正讨论了下，其实不是这样的。对于一个进程来说，如果你没有需求说需要有某个线程做某些特定的事（比如socket监听），那么你的主线程就会进入Looper循环进行消息队列的轮询，否则你就需要自己再新建一个线程，或者重新开一个looper，或者进行socket监听&#8230;</p>
 
-<p>[mctrain](http://ytliu.github.com &#8220;mctrain&#8217;s blog&#8221;)  <br/>
-<a href="http://ytliu.github.com" title="mctrain's blog">mctrain</a>  <br/>
-<a href="http://ytliu.github.com" title="mctrain's blog">mctrain-2</a></p>
+<p>此外还有一点，looper是thread local的，对于这个的理解，应该是这样的：在每个线程新建之后，都会有一个原来线程的mQueue的引用，而如果你要自己做一些特定的事，比如重新开一个新的Looper进行其它消息的轮询，那么没有问题，你新建一个looper，但是要注意，你的mQueue是唯一的，也就是说，你之前的对原来线程的mQueue的引用就没了，也就是说，对于一个线程来说只可能有唯一的mQueue。</p>
 
-<pre><code>    ![pic](http://ytliu.github.com/images/search.png "pic")
-</code></pre>
-
-<p><img src="http://ytliu.github.com/images/search.png" title="pic" alt="pic" /></p>
-
-<pre><code>    #title1
-</code></pre>
-
-<h1>title1</h1>
-
-<pre><code>    ##title2
-</code></pre>
-
-<h2>title2</h2>
-
-<pre><code>    ###title3
-</code></pre>
-
-<h3>title3</h3>
-
-<pre><code>    ####title4
-</code></pre>
-
-<h4>title4</h4>
-
-<pre><code>    #####title5
-</code></pre>
-
-<h5>title5</h5>
-
-<pre><code>    ######title6
-</code></pre>
-
-<h6>title6</h6>
-
-<pre><code>    *italic*
-</code></pre>
-
-<p><em>italic</em></p>
-
-<pre><code>    **bold**
-</code></pre>
-
-<p><strong>bold</strong></p>
-
-<pre><code>    ***italic&amp;bold***
-</code></pre>
-
-<p><strong><em>italic&amp;bold</em></strong></p>
-
-<pre><code>    &gt;highlight
-</code></pre>
-
-<blockquote><p>highlight</p></blockquote>
-
-<pre><code>    &lt;html&gt; *a* &lt;/html&gt;
-</code></pre>
-
-<p><html> <em>a</em> </html></p>
+<p>之后就是message的流程。有两种可能的情况：</p>
 
 <ul>
-<li>1</li>
-<li>2</li>
-<li><p>3</p></li>
-<li><p>first</p></li>
-<li>second</li>
-<li>third</li>
-<li>fourth</li>
+<li>sendMessage(): 这是最常见的形式，这个msg就是一个普通的message，它会依次调用sendMessageDelayed(), sendMessageAtTime(), queue.enqueueMessage()，最后将消息插到队列中去。</li>
+<li>post(): 我这次遇到的就是这种形式，在ServiceDispatcher中用到的就是它，它传递的message是一个Runnable对象，叫RunConnection，在post里面会逐步调用sendMessageDelayed(), sendMessageAtTime(), queue.enqueueMessage()，并且会将msg.callback设成RunConnection对象。</li>
 </ul>
 
 
-<p>hr-high</p>
+<p>之后在Looper中会进入while循环，每次取出一个msg(<em>queue.next()</em>)，然后调用dispatchMessage()，在里面会有下面这段代码：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>if (msg.callback != null) {
+</span><span class='line'>    msg.callback.run();
+</span><span class='line'>}
+</span><span class='line'>else {
+</span><span class='line'>    ...
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>也就是说如果是post传进来的RunConnection对象的msg的话将会直接运行它的run函数，否则会直接调用handleMessage()进行处理。</p>
 
 <hr />
 
-<p>hr-below</p>
-
-<blockquote><p>highlight</p>
-
-<blockquote><p>highlight again</p></blockquote></blockquote>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Awesome code snippet</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="p">[</span><span class="n">rectangle</span> <span class="nl">setX:</span> <span class="mi">10</span> <span class="nl">y:</span> <span class="mi">10</span> <span class="nl">width:</span> <span class="mi">20</span> <span class="nl">height:</span> <span class="mi">20</span><span class="p">];</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span>Javascript Array Syntax </span><a href='http://j.mp/pPUUmW'>MDN Documentation </a></figcaption> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">var</span> <span class="nx">arr1</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">arrayLength</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">arr2</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">element0</span><span class="p">,</span> <span class="nx">element1</span><span class="p">,</span> <span class="p">...,</span> <span class="nx">elementN</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>中文测试
-这个测试中有很多很多很多字符</p>
-
-<blockquote><p>&#8220;C&#8221;是系统默认的locale，&#8221;POSIX&#8221;是&#8221;C&#8221;的别名。所以当我们新安装完一个系统时，默认的locale就是C或POSIX。</p><p>在Debian中安装locales的方法如下：</p><p>· 通过apt-get install locales命令安装locales包<br/>· 安装完成locales包后，系统会自动进行locale配置，你只要选择所需的locale，可以多选。最后指定一个系统默认的locale。这样系统就会帮你自动生成相应的locale和配置好系统的locale。</p><p>· 增加新的locale也很简单，用dpkg-reconfigure locales重新配置locale即可。</p><p>· 我们也可手动增加locale，只要把新的locale增加到/etc/locale.gen文件中，再运行locale-gen命令即可生成新的locale。再通过设置上面介绍的LC_*变量就可设置系统的locale了。下是一个locale.gen文件的样例。</p></blockquote>
-
+<p>android的message机制其实就是一种异步消息处理机制，进程通过Handler的sendMessage或post将msg进行enqueueMessage，然后通过该线程自己的Looper进行消息队列轮询并根据相应的情况进行handle。</p>
 </div>
 
 
@@ -226,21 +147,15 @@
   
 
 
-<time datetime="2011-12-21T15:17:00+08:00" pubdate data-updated="true">Dec 21<span>st</span>, 2011</time>
+<time datetime="2012-10-12T21:43:00+08:00" pubdate data-updated="true">Oct 12<span>th</span>, 2012</time>
       
-
-<span class="categories">
-  
-    <a class='category' href='/blog/categories/杂/'>杂</a>
-  
-</span>
 
 
     </p>
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ytliu.github.com/blog/2011/12/21/markdownyu-fa-ce-shi/" data-via="microtrain016" data-counturl="http://ytliu.github.com/blog/2011/12/21/markdownyu-fa-ce-shi/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ytliu.github.com/blog/2012/10/12/android-messaging-mechanism/" data-via="microtrain016" data-counturl="http://ytliu.github.com/blog/2012/10/12/android-messaging-mechanism/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -251,8 +166,8 @@
     
     <p class="meta">
       
+        <a class="basic-alignment left" href="/blog/2012/09/28/opennebula-setup-note/" title="Previous Post: opennebula setup note">&laquo; opennebula setup note</a>
       
-        <a class="basic-alignment right" href="/blog/2011/12/21/kai-pian-yi-shi/" title="Next Post: 开篇仪式">开篇仪式 &raquo;</a>
       
     </p>
   </footer>
