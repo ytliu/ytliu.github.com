@@ -140,6 +140,184 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2012/10/05/android-service-startup/">Android Service Startup</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-10-05T10:25:00+08:00" pubdate data-updated="true">Oct 5<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>现在要写一个service，在启动之后开启socket监听，等待用户端发消息给它进行处理。而这个service是不会有Activity的，于是乎就要考虑如何让这个service启动起来。</p>
+
+<h4>System Service Startup</h4>
+
+<p>最早想的是将这个service写成system service，然后通过SystemServer启动，这样是可行的，也蛮方便，具体的做法是这样的：</p>
+
+<p>在framework/base/core/java/android/os/app/目录中写一个NewService类extends Service，之后在SystemServer.java中添加</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">Slog</span><span class="o">.</span><span class="na">i</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;New Service&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">ServiceManager</span><span class="o">.</span><span class="na">addService</span><span class="o">(</span><span class="s">&quot;newservice&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">NewService</span><span class="o">(</span><span class="n">context</span><span class="o">));</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Throwable</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">Slog</span><span class="o">.</span><span class="na">e</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;Failure starting New Service&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>之后NewService就会开机启动，但是这样有一个问题，就是这个NewService的pid也就是SystemServer的pid，它们是处于同一个进程中的。于是由于种种原因我不希望启动一个系统服务，而是一个application level的service，这样就遇到一个问题：如果是一个单纯的没有activity的service应用，在通过<em>adb install</em>进系统后并不会自动启动，而是需要其它进程通过<em>startService()</em>或者<em>bindService()</em>启动，那么有没有什么其它方法让一个service在每次install之后启动呢？</p>
+
+<h4>App Level Service Startup upon Installe</h4>
+
+<p>这里有两种方案：</p>
+
+<ul>
+<li>1 通过先启动一个Activity，然后<em>startService()</em>启动该service，之后在Activity中将自己finish掉；</li>
+<li>2 在application中注册一个BroadcastReceiver，监听PackageManager的<em>android.intent.action.PACKAGE_ADDED</em>的intent-filter，然后在Receiver的onReceive()里面通过</li>
+</ul>
+
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Intent</span> <span class="n">serviceIntent</span> <span class="o">=</span><span class="k">new</span> <span class="n">Intent</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">NewService</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span><span class='line'><span class="n">context</span><span class="o">.</span><span class="na">startService</span><span class="o">(</span><span class="n">serviceIntent</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>进行启动。</p>
+
+<p>在我看来第二种方案更符合我的要求，因为这样我就可以不用每次点击一下某个Activity才能启动service，但是这也是我最先否决的方案，因为我在Stack Overflow里面看到好多个讨论这个问题的帖子，其中有一个回复是这么说的：</p>
+
+<blockquote><p>all applications, upon installation, are placed in a &#8220;stopped&#8221; state. This is the same state that the application winds up in after the user force-stops the app from the Settings application. While in this &#8220;stopped&#8221; state, the application will not run for any reason, except by a manual launch of an activity. Notably, noBroadcastReceviers will be invoked, regardless of the event for which they have registered, until the user runs the app manually.</p></blockquote>
+
+
+<p>也就是说任何app level的应用都不可能在没有得到用户同意的情况下自动启动（特别是在android3.1之后，它们在安装后被置于了“stopped”的状态，只有当用户点击了某个Activity的图标才能启动起来，service也只有通过某个启动的Activity或Service通过startService()或bindService()才能启动起来。</p>
+
+<p>所以第二个方案不可行，下面我们来看第一个方案：</p>
+
+<p>在第一个方案里面，当Activity通过startService()启动service之后，就通过finish()将自己退出。这个时候按照android的specification，通过startService()启动的service是不会退出的（通过bindService()启动的service会随着activity的退出而退出），为了确定这一点，可以通过Settings->Apps->Running Service来查看。</p>
+
+<h5>startForeground()</h5>
+
+<p>另外，为了防止你在background运行的service在low memory的时候被系统强制退出，可以通过startForeground()将该service定义在foreground中，而这个所谓的foreground就是我们平时看到的位于android上方的消息栏，里面可以设置该service需要显示的信息，以及时间间隔&#8230;具体可以参见<a href="http://ytliu.github.com" title="Service API">Service API</a>，这里有一个简单的示例：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Notification</span> <span class="n">note</span><span class="o">=</span><span class="k">new</span> <span class="n">Notification</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">stat_notify_chat</span><span class="o">,</span>
+</span><span class='line'>  <span class="s">&quot;Can you hear the music?&quot;</span><span class="o">,</span>
+</span><span class='line'>  <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">());</span>
+</span><span class='line'><span class="n">Intent</span> <span class="n">i</span><span class="o">=</span><span class="k">new</span> <span class="n">Intent</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">FakePlayer</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span><span class='line'><span class="n">i</span><span class="o">.</span><span class="na">setFlags</span><span class="o">(</span><span class="n">Intent</span><span class="o">.</span><span class="na">FLAG_ACTIVITY_CLEAR_TOP</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">Intent</span><span class="o">.</span><span class="na">FLAG_ACTIVITY_SINGLE_TOP</span><span class="o">);</span>
+</span><span class='line'><span class="n">PendingIntent</span> <span class="n">pi</span><span class="o">=</span><span class="n">PendingIntent</span><span class="o">.</span><span class="na">getActivity</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">i</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+</span><span class='line'><span class="n">note</span><span class="o">.</span><span class="na">setLatestEventInfo</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="s">&quot;Fake Player&quot;</span><span class="o">,</span>
+</span><span class='line'>  <span class="s">&quot;Now Playing: \&quot;Ummmm, Nothing\&quot;&quot;</span><span class="o">,</span>
+</span><span class='line'>  <span class="n">pi</span><span class="o">);</span>
+</span><span class='line'><span class="n">note</span><span class="o">.</span><span class="na">flags</span><span class="o">|=</span><span class="n">Notification</span><span class="o">.</span><span class="na">FLAG_NO_CLEAR</span><span class="o">;</span>
+</span><span class='line'><span class="n">startForeground</span><span class="o">(</span><span class="mi">1337</span><span class="o">,</span> <span class="n">note</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>App Level Service Startup when Bootup</h4>
+
+<p>这是一种理论中的方法，因为我也没尝试过，具体方法参见<a href="http://" title="service startup when bootup">this article</a>，大概的意思是在application的Android.manifest文件中添加一个user-permission和一个receiver的intent-filter：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;application</span> <span class="err">...</span><span class="nt">&gt;</span>
+</span><span class='line'>    ......
+</span><span class='line'>    <span class="nt">&lt;receiver</span> <span class="na">android:name=</span><span class="s">&quot;.MyReceiver &quot;</span><span class="na">android:enabled=</span><span class="s">&quot;true&quot;</span> <span class="na">android:exported=</span><span class="s">&quot;false&quot;</span><span class="err">]]</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;intent-filter&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;action</span> <span class="na">android:name=</span><span class="s">&quot;android.intent.action.BOOT_COMPLETED&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/intent-filter&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/receiver&gt;</span>
+</span><span class='line'><span class="nt">&lt;/application&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;uses-permission</span> <span class="na">android:name=</span><span class="s">&quot;android.permission.RECEIVE_BOOT_COMPLETED&quot;</span><span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>然后在MyReceiver类里面的onReceive()函数中开启相应的service：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">MyReceiver</span> <span class="kd">extends</span> <span class="n">BroadcastReceiver</span> <span class="o">{</span>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onReceive</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">,</span><span class="n">Intent</span> <span class="n">intent</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="n">Intent</span> <span class="n">serviceIntent</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Intent</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">NewService</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">context</span><span class="o">.</span><span class="na">startService</span><span class="o">(</span><span class="n">serviceIntent</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这种方法看上去应该是可行的，但是问题是用户每次装你的应用都要让系统重启一遍，那还有谁会那么好心情去安装你的应用啊？</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2012/09/28/opennebula-setup-note/">Opennebula Setup Note</a></h1>
     
     
@@ -1616,72 +1794,6 @@ cd /pentest/sniffers/xspy/
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/03/09/wo-kan-bei-ai-and-wo-xue-ruby/">我看北爱&amp;我学ruby</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-03-09T21:30:00+08:00" pubdate data-updated="true">Mar 9<span>th</span>, 2012</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><strong>我看北爱</strong></p>
-
-<p>这两周花了晚上睡前的时间加上几次地铁上的时间把传说中的《北京爱情故事》看完了，蛮有感触的。没想到看到最后几集的时候竟然躺在床上任由眼泪从脸颊流下咽入口内，就像很多人所说的，这真的是一部展现无比残酷现实的爱情故事片，尽管我对其中很多思想做法不置可否，觉得或许很多太绝对，太不现实或者根本就不符合我的价值观。可能是受了前段时间很激动地看过的《十七岁不哭》里面简宁的影响吧，我对吴狄还是蛮喜欢的，虽然他有时候感觉太&#8221;迂腐&#8221;，对小伍太不公平，对小曦太过没来由地好，但当他最后和吴魏争论，和伍媚掏尽心窝的那些话使得我越来越喜欢他。在三个男主角中，吴狄是最中庸也是最让人揪心的一个，但他对朋友的付出，对责任心的诠释，还有对情感的从不背叛，让我认识了一个真正活着这个世上的或许被许多人埋怨为幼稚却内心无比强大的人。我想说，在十七岁不哭中简宁所向往的从容，向往的&#8221;无论这个世界如何喧闹都活的从容&#8221;曾经无限地感染过我；而在北爱中他对情感对亲情、爱情、友情的无条件的忠诚也让我在这部现实而残酷的剧中感受到一种不一样的宁静。</p>
-
-<p>或许是性格上的相似吧，我也从不希望自己能有多么地成功，能挣那么多的财产，如果要我像石小孟那样拿沈冰来交换所谓&#8221;成功&#8221;，我怎么也做不到！不要说我只是还没有经历这种场面，更不要说我从没有体会过什么叫贫穷，什么叫身世不济，我不知道为什么石小孟一定要坚持北漂被砸的头破血流，如果是我，我一定选择放弃，选择回家。当沈冰问小猛&#8221;大不了我们就回老家去吧&#8221;而小猛给出坚决的态度的时候我就感觉这是一个悲剧的开始。在我看来人生最重要的是要知道该什么时候放弃什么东西，知道自己最想要的是什么。很喜欢沈冰的那句话：能被买走的东西，迟早会失去的；买不走的，它永远是属于你的。或许小猛只是这千千万万个人中的一个典型，或许他是可怜的，值得我们同情的，或许一个正常的人处在他的状况说不定也会像他一样选择。或许他没有错，不管怎么样，不管他有多么有说服力的理由，有一点是肯定的，他没有沈冰爱他那样地爱沈冰！为什么每个男人都要以为女人一定要你无论用什么代价都要给她物质上的满足呢？两个人简简单单地相爱真的有那么难吗？或许我太年轻太幼稚太没见过世面吧，可是就算我达到所谓的&#8221;成熟&#8221;了，就算我经历过无数这样子的分分合合，我依然希望自己能像吴狄那样坚持自己内心最深处的判断，没了情感的寄托，有再多的钱财又有什么用呢？</p>
-
-<p>再说说疯子吧，疯子这个人我还是蛮喜欢的，敢作敢当，敢爱敢恨，明白自己最爱什么，一句话，够大气！</p>
-
-<p>关于沈冰、林夏、小曦和伍媚，我赞佩于伍媚的智慧和能干，但那太过于强势的女人或许真的不会是吴狄的菜吧。说实话，刚开始我听不喜欢杨紫曦的，但是怎么说呢，当一个女人在提到她的身世提到她的可怜之处时，或许她一切的错都可以原谅吧~我很喜欢林夏，喜欢她的专情，她的大气，她的善解人意和宽容，我喜欢她和疯子之间的斗嘴，但是她真的好可怜，好可怜，好可怜&#8230;然后我最喜欢的就是沈冰了，我也说不出为什么，这么一个纯洁、善解人意的姑娘又有谁会不喜欢呢~</p>
-
-<p>最后的结尾不知道想要表达什么，为什么要让结局这样，总之我还是蛮喜欢这部剧的，喜欢里面刻画的每一个鲜活的角色，陈思成确实挺牛逼的。</p>
-
-<hr />
-
-<p><strong>我学ruby</strong></p>
-
-<p>这周还有一件事就是开始上SaaS这门课，RoR是我的主要目的，ruby真的是一门很牛逼的语言，之前一直在犹豫是要学python呢还是学ruby呢？还曾经将要决定学python呢，毕竟国内应该还是python流行些，不过既然有一个这么好的机会又有什么理由浪费呢，先从ruby开始吧。</p>
-
-<p>昨天看《Ruby Programming Language》的时候看到一个ruby里面很牛逼的东西叫<em>tainting object</em>:</p>
-
-<pre><code>    在程序读入输入数据的时候会自动为数据taint，在数据的传输过程中被感染的数据也会被taint上，如果环境变量
-    $SAFE大于1，则ruby则会限制一些built-in的方法使它们不能使用被taint的数据。当然开发人员也可以手动taint
-    一些变量，比如*s.taint*，则之后任何和*s*有关的变量都会被标记为tainted，以此来跟踪一些可能有危险的数据，
-    增强系统的安全性。
-</code></pre>
-
-<p>当然，ruby还有很多特性，希望这个学期过后能更深入地掌握这门语言！之后碰到一些比较有趣的东西也会记录在这里。</p>
-
-<hr />
-
-<p>话说这周正事似乎没做一件，真的不知道应该怎么想idea，不懂现在该做些什么。想去真实地了解些攻击，不枉说自己是做安全的，不然感觉说的都很勉强。昨天看到一个<a href="http://www.xfocus.net/" title="xfocus">网站</a>感觉很不错，我想为自己订一个计划：这个月能早睡，每天白天7点半起床到实验室学习。我不知道结果会怎么样，我只是想尝试一下，不要让自己后悔吧。</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -1701,6 +1813,10 @@ cd /pentest/sniffers/xspy/
       </li>
     
       <li class="post">
+        <a href="/blog/2012/10/05/android-service-startup/">android service startup</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2012/09/28/opennebula-setup-note/">opennebula setup note</a>
       </li>
     
@@ -1710,10 +1826,6 @@ cd /pentest/sniffers/xspy/
     
       <li class="post">
         <a href="/blog/2012/09/16/progit-reading-1/">progit reading 1</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/09/13/guan-yu-shou-ji-he-yun-de-xue-zhu-yan-jiu/">关于手机和云的学术研究</a>
       </li>
     
   </ul>
