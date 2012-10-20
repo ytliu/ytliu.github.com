@@ -4,7 +4,7 @@
   <title><![CDATA[Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2012-10-14T17:07:35+08:00</updated>
+  <updated>2012-10-20T14:17:44+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -12,6 +12,165 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[regain my VM's account]]></title>
+    <link href="http://ytliu.github.com/blog/2012/10/20/regain-my-vms-account/"/>
+    <updated>2012-10-20T13:53:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2012/10/20/regain-my-vms-account</id>
+    <content type="html"><![CDATA[<p>这两天在做opennebula项目的时候遇到一个问题，我忘记掉之前那几个虚拟机的用户密码了！试了好多可能的密码都不对，只能想办法把密码改掉了。</p>
+
+<p>虚拟机的好处在于我可以把它直接mount到物理主机上对其进行操作，不过镜像文件不是一个普通的设备块，不能通过一般的方法mount，只能用不一般的方法了：</p>
+
+<p>首先我有两种镜像，一个是普通的qemu镜像，以.img结尾的文件，一种是KVM的qcow2文件。</p>
+
+<h5>.img镜像</h5>
+
+<p>对于第一种，飞机教了我一个办法：</p>
+
+<pre><code>$ fdisk -l vm.img
+Disk datastores/vm.img: 8589 MB, 8589934592 bytes
+255 heads, 63 sectors/track, 1044 cylinders, total 16777216 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0x0004bacc
+Device Boot      Start         End      Blocks   Id  System
+datastores/vm3.img1   *        2048    15958015     7977984   83  Linux
+datastores/vm3.img2        15960062    16775167      407553    5  Extended
+datastores/vm3.img5        15960064    16775167      407552   82  Linux swap / Solaris
+</code></pre>
+
+<p>注意里面的一个数2048，然后执行下面一条指令：</p>
+
+<pre><code>$ mount -o offset=$((2048*512)),loop vm.img /mnt
+</code></pre>
+
+<p>然后就mount到/mnt上去了。</p>
+
+<h5>.qcow2镜像</h5>
+
+<p>第二种镜像得用另外一个方法，这个是从<a href="http://blog.loftninjas.org/2008/10/27/mounting-kvm-qcow2-qemu-disk-images/">这里</a>看到的：</p>
+
+<p>首先要先aptitude install 一个nbd-client，通过</p>
+
+<pre><code>$ sudo modprobe nbd max_part=8
+$ sudo qemu-nbd --connect=/dev/nbd0 vm.qcow2
+$ sudo fdisk /dev/nbd0
+$ sudo mount /dev/nbd0p1 /mnt
+</code></pre>
+
+<p>即完成了mount，当然我对其中的原理也不太了解就是了。</p>
+
+<h5>chroot</h5>
+
+<p>最后是如何改密码，我是痛过chroot来做的，这里想简单介绍下这个命令：</p>
+
+<p>刚开始我直接运行：</p>
+
+<pre><code>$ sudo chroot .
+</code></pre>
+
+<p>然后报了一个这个错误：</p>
+
+<pre><code>chroot: failed to run command `/bin/zsh': No such file or directory`
+</code></pre>
+
+<p>之后了解了chroot的<a href="http://www.ibm.com/developerworks/cn/linux/l-cn-chroot/">工作流程</a>才知道这是怎么回事：</p>
+
+<p>一个相对完整的chroot流程是这样的：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;unistd.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="n">argc</span><span class="o">&lt;</span><span class="mi">2</span><span class="p">){</span>
+</span><span class='line'>  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Usage: chroot NEWROOT [COMMAND...] </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;newroot = %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="n">chroot</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">perror</span><span class="p">(</span><span class="s">&quot;chroot&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="n">chdir</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">perror</span><span class="p">(</span><span class="s">&quot;chdir&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">getenv</span><span class="p">(</span><span class="s">&quot;SHELL&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span><span class='line'>      <span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="s">&quot;/bin/sh&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="s">&quot;-i&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">argv</span> <span class="o">+=</span> <span class="mi">2</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">execvp</span> <span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">argv</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;chroot: cannot run command `%s`</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">argv</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>在chdir之后会先看看用户有没有指定特定的shell，如果没有则根据环境变量中的SHELL来指定相同的shell，否则会使用用户指定的shell运行（argv += 2)。由于我原来用户的shell是<em>/bin/zsh</em>, 且我没有指定特定的shell，所以在chroot之后就默认使用<em>/bin/zsh</em>，但是在这个镜像的文件系统中并没有<em>/bin/zsh</em>，所以就会报错。</p>
+
+<p>所以我只需要（1）将环境变量中的shell设成<em>/bin/bash</em>或者（2）指定一个shell（$ sudo chroot . /bin/bash）就可以了</p>
+
+<p>之后就可以通过运行</p>
+
+<pre><code>$ passwd root
+</code></pre>
+
+<p>来改变root的密码了。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[android messaging mechanism]]></title>
@@ -2026,126 +2185,6 @@ cd /pentest/sniffers/xspy/
 <p>至于为什么要用Octopress+Github，是因为我们实验室的两个大牛（<a href="http://blog.yxwang.me">zellux</a>和<a href="http://chenyufei.info">ChenYufei</a>）都开始尝试着用了它，而且我也想感受用vi写博文的感觉所以就尝试写段时间，我希望这个尝试能一直进行下去。也希望能从中得到那些我希望得到的东西。</p>
 
 <p>开篇结束，坚持是未来最大的挑战！</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Markdown语法测试]]></title>
-    <link href="http://ytliu.github.com/blog/2011/12/21/markdownyu-fa-ce-shi/"/>
-    <updated>2011-12-21T15:17:00+08:00</updated>
-    <id>http://ytliu.github.com/blog/2011/12/21/markdownyu-fa-ce-shi</id>
-    <content type="html"><![CDATA[<p><a href="http://ytliu.github.com">http://ytliu.github.com</a></p>
-
-<p>[mctrain](http://ytliu.github.com &#8220;mctrain&#8217;s blog&#8221;)  <br/>
-<a href="http://ytliu.github.com" title="mctrain's blog">mctrain</a>  <br/>
-<a href="http://ytliu.github.com" title="mctrain's blog">mctrain-2</a></p>
-
-<pre><code>    ![pic](http://ytliu.github.com/images/search.png "pic")
-</code></pre>
-
-<p><img src="http://ytliu.github.com/images/search.png" title="pic" alt="pic" /></p>
-
-<pre><code>    #title1
-</code></pre>
-
-<h1>title1</h1>
-
-<pre><code>    ##title2
-</code></pre>
-
-<h2>title2</h2>
-
-<pre><code>    ###title3
-</code></pre>
-
-<h3>title3</h3>
-
-<pre><code>    ####title4
-</code></pre>
-
-<h4>title4</h4>
-
-<pre><code>    #####title5
-</code></pre>
-
-<h5>title5</h5>
-
-<pre><code>    ######title6
-</code></pre>
-
-<h6>title6</h6>
-
-<pre><code>    *italic*
-</code></pre>
-
-<p><em>italic</em></p>
-
-<pre><code>    **bold**
-</code></pre>
-
-<p><strong>bold</strong></p>
-
-<pre><code>    ***italic&amp;bold***
-</code></pre>
-
-<p><strong><em>italic&amp;bold</em></strong></p>
-
-<pre><code>    &gt;highlight
-</code></pre>
-
-<blockquote><p>highlight</p></blockquote>
-
-<pre><code>    &lt;html&gt; *a* &lt;/html&gt;
-</code></pre>
-
-<p><html> <em>a</em> </html></p>
-
-<ul>
-<li>1</li>
-<li>2</li>
-<li><p>3</p></li>
-<li><p>first</p></li>
-<li>second</li>
-<li>third</li>
-<li>fourth</li>
-</ul>
-
-
-<p>hr-high</p>
-
-<hr />
-
-<p>hr-below</p>
-
-<blockquote><p>highlight</p>
-
-<blockquote><p>highlight again</p></blockquote></blockquote>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Awesome code snippet</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="p">[</span><span class="n">rectangle</span> <span class="nl">setX:</span> <span class="mi">10</span> <span class="nl">y:</span> <span class="mi">10</span> <span class="nl">width:</span> <span class="mi">20</span> <span class="nl">height:</span> <span class="mi">20</span><span class="p">];</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span>Javascript Array Syntax </span><a href='http://j.mp/pPUUmW'>MDN Documentation </a></figcaption> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">var</span> <span class="nx">arr1</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">arrayLength</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">arr2</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">element0</span><span class="p">,</span> <span class="nx">element1</span><span class="p">,</span> <span class="p">...,</span> <span class="nx">elementN</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>中文测试
-这个测试中有很多很多很多字符</p>
-
-<blockquote><p>&#8220;C&#8221;是系统默认的locale，&#8221;POSIX&#8221;是&#8221;C&#8221;的别名。所以当我们新安装完一个系统时，默认的locale就是C或POSIX。</p><p>在Debian中安装locales的方法如下：</p><p>· 通过apt-get install locales命令安装locales包<br/>· 安装完成locales包后，系统会自动进行locale配置，你只要选择所需的locale，可以多选。最后指定一个系统默认的locale。这样系统就会帮你自动生成相应的locale和配置好系统的locale。</p><p>· 增加新的locale也很简单，用dpkg-reconfigure locales重新配置locale即可。</p><p>· 我们也可手动增加locale，只要把新的locale增加到/etc/locale.gen文件中，再运行locale-gen命令即可生成新的locale。再通过设置上面介绍的LC_*变量就可设置系统的locale了。下是一个locale.gen文件的样例。</p></blockquote>
-
 ]]></content>
   </entry>
   
