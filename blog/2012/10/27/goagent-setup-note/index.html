@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: 生活 - Mctrain's Blog</title>
+  <title>GoAgent setup note - Mctrain's Blog</title>
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="Category: 生活">
+  <meta name="description" content="这次去武汉开会的时候听翔哥提到GoAgent很好用，就尝试着去搭了下环境。 原文地址 说实话这个环境搭起来真的很方便，主要分为四步： 申请Google App Engine的请用，这个就不细说了，具体参看原文，唯一一个要注意的是在里面有一个Storage Schema的选项要选择High &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://ytliu.github.comblog/categories/生活/">
+  <link rel="canonical" href="http://ytliu.github.com/blog/2012/10/27/goagent-setup-note/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -65,63 +65,116 @@
   <div id="main">
     <div id="content">
       <div>
-<article role="article">
+<article class="hentry" role="article">
   
   <header>
-    <h1 class="entry-title">Category: 生活</h1>
+    
+      <h1 class="entry-title">GoAgent Setup Note</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-10-27T12:21:00+08:00" pubdate data-updated="true">Oct 27<span>th</span>, 2012</time>
+        
+      </p>
     
   </header>
-  
-  <div id="blog-archives" class="category">
 
 
+<div class="entry-content"><p>这次去武汉开会的时候听翔哥提到GoAgent很好用，就尝试着去搭了下环境。</p>
 
-  
-  <h2>2012</h2>
+<p><a href="http://irising.me/2012/02/13376/%20GoAgent">原文地址</a></p>
 
-<article>
-  
-<h1><a href="/blog/2012/09/04/quan-xin-de-kai-shi/">全新的开始</a></h1>
-<time datetime="2012-09-04T09:35:00+08:00" pubdate><span class='month'>Sep</span> <span class='day'>04</span> <span class='year'>2012</span></time>
+<p>说实话这个环境搭起来真的很方便，主要分为四步：</p>
 
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/生活/'>生活</a></span>
-</footer>
-
-
-</article>
+<ul>
+<li>申请Google App Engine的请用，这个就不细说了，具体参看原文，唯一一个要注意的是在里面有一个Storage Schema的选项要选择High Replication (我之前注册的应用没有这一项，要转变成这个还挺麻烦的)。</li>
+<li>安装GoAgent的客户端：代码的地址在<a href="http://code.google.com/p/goagent/">这里</a>，然后要修改local目录下的proxy.ini文件，之后要安装一个证书（不过据说不安装也行）。最后上传到GAE上：
+  $ cd goagent/server
+  $ python uploader.zip update ./</li>
+</ul>
 
 
+<p>会在后面提示输入appid和GAE账户信息。
+* 设置代理：新建一个网络位置，例如：命名为代理，并将Web代理、安全Web代理两项勾选上，代理服务器地址均为，127.0.0.1,端口为8087。
+* GoAgent使用：首先先在终端运行如下命令：</p>
 
-<article>
-  
-<h1><a href="/blog/2012/03/03/wei-lai-zai-na-li/">未来在哪里</a></h1>
-<time datetime="2012-03-03T20:23:00+08:00" pubdate><span class='month'>Mar</span> <span class='day'>03</span> <span class='year'>2012</span></time>
+<pre><code>$ cd goagent/local
+$ python proxy.python
+</code></pre>
 
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/人生/'>人生</a>, <a class='category' href='/blog/categories/生活/'>生活</a></span>
-</footer>
+<p>然后再在苹果菜单下切换location成代理。</p>
 
+<p>这样就可以通过GoAgent上网了。</p>
 
-</article>
+<h4>GoAgentX</h4>
 
+<p>由于这个需要每次都在终端下输入命令，切换网络位置，最关键的是如果换了一个代理服务器的地址的话还要手动更新，所以在P哥的推荐下我选择了使用GoAgentX，这个是GoAgent的图形界面版，而且可以自动更新，十分方便。</p>
 
+<h6>安装</h6>
 
-<article>
-  
-<h1><a href="/blog/2012/02/12/wo-yao-ti-gao-zhi-xing-li-%21/">我要提高执行力！</a></h1>
-<time datetime="2012-02-12T23:24:00+08:00" pubdate><span class='month'>Feb</span> <span class='day'>12</span> <span class='year'>2012</span></time>
+<p>下载地址在<a href="https://github.com/downloads/ohdarling/GoAgentX/GoAgentX-v1.3.6.dmg%20GoAgentX">这里</a>，直接点击安装就可以了。然后会在桌面上方的任务栏里有个戴帽子的小人图像出现，点击显示主窗口，在服务配置里面修改端口和appid，在代理配置里面勾选“不修改系统代理配置”，之后启动，并修改网络位置就可以了。</p>
 
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/周计划/'>周计划</a>, <a class='category' href='/blog/categories/生活/'>生活</a></span>
-</footer>
+<hr />
 
-
-</article>
-
+<p>我感觉苹果电脑配置这些东西都非常的方便，而且程序运行的也很稳定，相当赞啊~</p>
 </div>
 
+
+  <footer>
+    <p class="meta">
+      
   
+
+<span class="byline author vcard">Posted by <span class="fn">Liu Yutao</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-10-27T12:21:00+08:00" pubdate data-updated="true">Oct 27<span>th</span>, 2012</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ytliu.github.com/blog/2012/10/27/goagent-setup-note/" data-via="microtrain016" data-counturl="http://ytliu.github.com/blog/2012/10/27/goagent-setup-note/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/10/20/regain-my-vms-account/" title="Previous Post: regain my VM's account">&laquo; regain my VM's account</a>
+      
+      
+    </p>
+  </footer>
 </article>
 
 </div>
