@@ -4,7 +4,7 @@
   <title><![CDATA[Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2012-10-27T17:04:19+08:00</updated>
+  <updated>2012-10-27T17:05:27+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -25,11 +25,12 @@
 <p>说实话这个环境搭起来真的很方便，主要分为四步：</p>
 
 <ul>
-<li>申请Google App Engine的请用，这个就不细说了，具体参看原文，唯一一个要注意的是在里面有一个Storage Schema的选项要选择High Replication (我之前注册的应用没有这一项，要转变成这个还挺麻烦的)。</li>
+<li><p>申请Google App Engine的请用，这个就不细说了，具体参看原文，唯一一个要注意的是在里面有一个Storage Schema的选项要选择High Replication (我之前注册的应用没有这一项，要转变成这个还挺麻烦的)。</p></li>
 <li><p>安装GoAgent的客户端：代码的地址在<a href="http://code.google.com/p/goagent/">这里</a>，然后要修改local目录下的proxy.ini文件，之后要安装一个证书（不过据说不安装也行）。最后上传到GAE上：</p>
 
-<p>  $ cd goagent/server
-  $ python uploader.zip update ./</p></li>
+<p>  $ cd goagent/server</p>
+
+<p>  $ python uploader.zip update ./</p></li>
 </ul>
 
 
@@ -37,12 +38,15 @@
 
 <ul>
 <li><p>设置代理：新建一个网络位置，例如：命名为代理，并将Web代理、安全Web代理两项勾选上，代理服务器地址均为，127.0.0.1,端口为8087。</p></li>
-<li><p>GoAgent使用：首先先在终端运行如下命令：
-  $ cd goagent/local
-  $ python proxy.python
-然后再在苹果菜单下切换location成代理。</p></li>
+<li><p>GoAgent使用：首先先在终端运行如下命令：</p>
+
+<p>  $ cd goagent/local</p>
+
+<p>  $ python proxy.python</p></li>
 </ul>
 
+
+<p>然后再在苹果菜单下切换location成代理。</p>
 
 <p>这样就可以通过GoAgent上网了。</p>
 
