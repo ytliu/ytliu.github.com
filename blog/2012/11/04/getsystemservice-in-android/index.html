@@ -1,0 +1,445 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>getSystemService() in android - Mctrain's Blog</title>
+  <meta name="author" content="Liu Yutao">
+
+  
+  <meta name="description" content="在之前研究了那么久的bindService()这个API，一直没搞清楚一个问题： 为什么我看到的基本上都是和AMS相关的代码，而之前所学到说如果application要和service打交道都是需要通过ServiceManager获得某个service的binder才可以。 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://ytliu.github.com/blog/2012/11/04/getsystemservice-in-android/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Mctrain's Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Mctrain's Blog</a></h1>
+  
+    <h2>Security, Virtualization, Network, as well as life moments</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss email">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+    <li><a href="ytliu.cc@gmail.com" rel="subscribe-email" title="subscribe via email">Email</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:ytliu.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">getSystemService() in Android</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-11-04T20:18:00+08:00" pubdate data-updated="true">Nov 4<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>在之前研究了那么久的bindService()这个API，一直没搞清楚一个问题：</p>
+
+<p>为什么我看到的基本上都是和AMS相关的代码，而之前所学到说如果application要和service打交道都是需要通过ServiceManager获得某个service的binder才可以。那么AMS和ServiceManager到底是什么关系呢？如果AMS是通过ServiceManager获得的service binder，那么相关的代码又是在哪里呢？</p>
+
+<p>这个问题困扰了我很久，直到我看到一个<a href="http://blog.csdn.net/windskier/article/details/6625883" title="杜文涛的专栏">博客</a>，我才发现其实我把一个很重要的概念混起来了：</p>
+
+<p>Android中主要通过2种方法来获得service binder：</p>
+
+<ul>
+<li>通过一些API如bindService，来获得application service的binder。因为app service都是直接和AMS注册的，AMS运行在system_server进程；</li>
+<li>通过ServiceManager.getService(String Descriptor)来获得Service Manager管理的service的binder，ServiceManager运行在servicemanager进程。</li>
+</ul>
+
+
+<p>也就是说，尼玛bindService只是用来bind application level的service！！！</p>
+
+<p>而我们更在意的system service应该是由ServiceManager.getService()来获得的！！！</p>
+
+<p>发现这个问题之后我整个人都有些凌乱了。。。不过静下来想想其实自己从bindService这里入手也学到很多东西，也就不纠结了！</p>
+
+<p>那么现在的问题是，应用程序到底是如何获得system service的binder的？</p>
+
+<p>在这个问题的探索过程初期，我又一次惊奇地发现android.os.ServiceManager竟然是@hide的！！！！</p>
+
+<p>尼玛hide的啊！！！也就是如果不是和framework一起编译的话是找不到的啊！我在网上看到一个很无语的<a href="http://www.oschina.net/question/54100_32232?sort=time" title="隐藏类的使用">解决方案</a>，但是，我还是不知道应用程序到底是怎么调用system service的啊？总不可能每个人都懂得什么变态的“隐藏类的使用”吧？</p>
+
+<p>后来不知道是怎么回事，我突然发现在android里面竟然有一个API叫getSystemService()！我问了下乃正，他竟然和我说“你们干嘛不问我，这不是很显然的吗？应用里面就是调用这个获得system service的啊”！尼玛伤不起啊，一个没写过android应用程序的还要研究android framework的人伤不起啊！！</p>
+
+<hr />
+
+<h3>getSystemService()</h3>
+
+<p>好了，还是言归正传吧，到底getSystemService()是如何得到system service的呢？其实这个也没有想象的那么好理解。而且我查了下网上的资料，大部分还是讲ServiceManager.getService()是如何得到system service的，而基本上都没有涉及到getSystemService()是怎么和ServiceManager.getService()搭上关系的。</p>
+
+<p>于是经过一番研究，我终于搞清楚了这里面所涉及的种种“复杂而又充满基情”的关系，请听我娓娓道来：</p>
+
+<hr />
+
+<p>在一个月黑风高的夜晚，一个郁郁不得志的少年Activity调用了一个具有扭转乾坤概率的大API&#8212;getSystemService()。</p>
+
+<p>算了，没有写小说的潜质。。。还是老实点正常写着吧。。。早点写完早点洗洗睡吧。。。</p>
+
+<p>在调用Activity.getSystemService()之后，就进入ContextImpl.getSystemService()。</p>
+
+<p>至于是怎么进来的，其实也很简单，Activity继承ContextThemeWrapper，再继承ContextWrapper。里面会调用mBase.getSystemService()。这个mBase是一个ContextImpl实例变量，于是就调到了。</p>
+
+<p>于是在ContextImpl.getSystemService()是这样的：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
+</span><span class='line'><span class="kd">public</span> <span class="n">Object</span> <span class="nf">getSystemService</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">ServiceFetcher</span> <span class="n">fetcher</span> <span class="o">=</span> <span class="n">SYSTEM_SERVICE_MAP</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">name</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">fetcher</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">?</span> <span class="kc">null</span> <span class="o">:</span> <span class="n">fetcher</span><span class="o">.</span><span class="na">getService</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>话说这个SYSTEM_SERVICE_MAP是怎么来的呢？这就要扯得远点了：</p>
+
+<p>在每个Activity启动的时候都要运行一大段的static的代码（在android.app.ContextImpl.java）里面：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">static</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">registerService</span><span class="o">(</span><span class="n">ACCESSIBILITY_SERVICE</span><span class="o">,</span> <span class="k">new</span> <span class="n">ServiceFetcher</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="kd">public</span> <span class="n">Object</span> <span class="nf">getService</span><span class="o">(</span><span class="n">ContextImpl</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">AccessibilityManager</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">ctx</span><span class="o">);</span>
+</span><span class='line'>      <span class="o">}});</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">registerService</span><span class="o">(</span><span class="n">ACCOUNT_SERVICE</span><span class="o">,</span> <span class="k">new</span> <span class="n">ServiceFetcher</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="kd">public</span> <span class="n">Object</span> <span class="nf">createService</span><span class="o">(</span><span class="n">ContextImpl</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">IBinder</span> <span class="n">b</span> <span class="o">=</span> <span class="n">ServiceManager</span><span class="o">.</span><span class="na">getService</span><span class="o">(</span><span class="n">ACCOUNT_SERVICE</span><span class="o">);</span>
+</span><span class='line'>      <span class="n">IAccountManager</span> <span class="n">service</span> <span class="o">=</span> <span class="n">IAccountManager</span><span class="o">.</span><span class="na">Stub</span><span class="o">.</span><span class="na">asInterface</span><span class="o">(</span><span class="n">b</span><span class="o">);</span>
+</span><span class='line'>      <span class="k">return</span> <span class="k">new</span> <span class="nf">AccountManager</span><span class="o">(</span><span class="n">ctx</span><span class="o">,</span> <span class="n">service</span><span class="o">);</span>
+</span><span class='line'>      <span class="o">}});</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">registerService</span><span class="o">(</span><span class="n">ACTIVITY_SERVICE</span><span class="o">,</span> <span class="k">new</span> <span class="n">ServiceFetcher</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="kd">public</span> <span class="n">Object</span> <span class="nf">createService</span><span class="o">(</span><span class="n">ContextImpl</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="k">new</span> <span class="nf">ActivityManager</span><span class="o">(</span><span class="n">ctx</span><span class="o">.</span><span class="na">getOuterContext</span><span class="o">(),</span> <span class="n">ctx</span><span class="o">.</span><span class="na">mMainThread</span><span class="o">.</span><span class="na">getHandler</span><span class="o">());</span>
+</span><span class='line'>      <span class="o">}});</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>它会在自己的SYSTEM_SERVICE_MAP为每一个系统服务注册一个ServiceFetcher的类，在这个类中，大部分的服务为重写一个函数叫<em>createService(ContextImpl)</em>，这个方法之后会用到，现在只需要知道我们从SYSTEM_SERVICE_MAP获得了某个服务的ServiceFetcher对象fetcher，并通过fetcher.getService(this)获得了该服务的对象。</p>
+
+<p>fetcher.getService(ContextImpl):</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Object</span> <span class="nf">getService</span><span class="o">(</span><span class="n">ContextImpl</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">cache</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">mServiceCache</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">Object</span> <span class="n">service</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">synchronized</span> <span class="o">(</span><span class="n">cache</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">cache</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="c1">// Initialize the cache vector on first access.</span>
+</span><span class='line'>      <span class="c1">// At this point sNextPerContextServiceCacheIndex</span>
+</span><span class='line'>      <span class="c1">// is the number of potential services that are</span>
+</span><span class='line'>      <span class="c1">// cached per-Context.</span>
+</span><span class='line'>      <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">sNextPerContextServiceCacheIndex</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">cache</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">service</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">mContextCacheIndex</span><span class="o">);</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">service</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">service</span><span class="o">;</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="n">service</span> <span class="o">=</span> <span class="n">createService</span><span class="o">(</span><span class="n">ctx</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">cache</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">mContextCacheIndex</span><span class="o">,</span> <span class="n">service</span><span class="o">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">service</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>也就是说每个Activity都有一个mServiceCache，它cache了所有用到的service的ServiceFetcher类。如果hit了，那么直接返回该对象，否则会调用这个fetcher的createService()方法，这也就是我们刚才提到的每一个ServiceFetcher在注册的时候会重写的那个方法。</p>
+
+<p>可以看到，大部分重写的方式都是类似于这样的：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Object</span> <span class="nf">createService</span><span class="o">(</span><span class="n">ContextImpl</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">IBinder</span> <span class="n">b</span> <span class="o">=</span> <span class="n">ServiceManager</span><span class="o">.</span><span class="na">getService</span><span class="o">(</span><span class="n">XXX_SERVICE</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">IXXXManager</span> <span class="n">service</span> <span class="o">=</span> <span class="n">IXXXManager</span><span class="o">.</span><span class="na">Stub</span><span class="o">.</span><span class="na">asInterface</span><span class="o">(</span><span class="n">b</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nf">XXXManager</span><span class="o">(</span><span class="n">ctx</span><span class="o">,</span> <span class="n">service</span><span class="o">);</span>
+</span><span class='line'><span class="o">}});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>于是乎，getSystemService()就在这里和ServiceManager.getService()无缝地结合在了一起！</p>
+
+<hr />
+
+<p>对于ServiceManager.getService()，在网上有很多关于它的说明和讨论，这里想通过其中一个再简单地说明下，如果有什么不清楚的可以到原文中去理解。</p>
+
+<p>这里选择<a href="http://blog.csdn.net/Luoshengyang" title="老罗的android之旅">老罗</a>的<a href="http://blog.csdn.net/luoshengyang/article/details/6633311" title="getService">这篇文章</a>来进行介绍：</p>
+
+<h3>ServiceManager.getService()</h3>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Liu Yutao</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-11-04T20:18:00+08:00" pubdate data-updated="true">Nov 4<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android/'>android</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ytliu.github.com/blog/2012/11/04/getsystemservice-in-android/" data-via="microtrain016" data-counturl="http://ytliu.github.com/blog/2012/11/04/getsystemservice-in-android/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/11/03/parcel-object-in-android/" title="Previous Post: Parcel object in android">&laquo; Parcel object in android</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/11/04/getsystemservice-in-android/">getSystemService() in android</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/11/03/parcel-object-in-android/">Parcel object in android</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/27/goagent-setup-note/">GoAgent setup note</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/20/regain-my-vms-account/">regain my VM's account</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/12/android-messaging-mechanism/">android messaging mechanism</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("microtrain016", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/microtrain016" class="twitter-follow-button" data-show-count="false">Follow @microtrain016</a>
+  
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/mctrain016@gmail.com?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Liu Yutao -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -4,7 +4,7 @@
   <title><![CDATA[Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2012-11-04T20:05:47+08:00</updated>
+  <updated>2012-11-04T21:18:23+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -12,6 +12,206 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[getSystemService() in android]]></title>
+    <link href="http://ytliu.github.com/blog/2012/11/04/getsystemservice-in-android/"/>
+    <updated>2012-11-04T20:18:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2012/11/04/getsystemservice-in-android</id>
+    <content type="html"><![CDATA[<p>在之前研究了那么久的bindService()这个API，一直没搞清楚一个问题：</p>
+
+<p>为什么我看到的基本上都是和AMS相关的代码，而之前所学到说如果application要和service打交道都是需要通过ServiceManager获得某个service的binder才可以。那么AMS和ServiceManager到底是什么关系呢？如果AMS是通过ServiceManager获得的service binder，那么相关的代码又是在哪里呢？</p>
+
+<p>这个问题困扰了我很久，直到我看到一个<a href="http://blog.csdn.net/windskier/article/details/6625883" title="杜文涛的专栏">博客</a>，我才发现其实我把一个很重要的概念混起来了：</p>
+
+<p>Android中主要通过2种方法来获得service binder：</p>
+
+<ul>
+<li>通过一些API如bindService，来获得application service的binder。因为app service都是直接和AMS注册的，AMS运行在system_server进程；</li>
+<li>通过ServiceManager.getService(String Descriptor)来获得Service Manager管理的service的binder，ServiceManager运行在servicemanager进程。</li>
+</ul>
+
+
+<p>也就是说，尼玛bindService只是用来bind application level的service！！！</p>
+
+<p>而我们更在意的system service应该是由ServiceManager.getService()来获得的！！！</p>
+
+<p>发现这个问题之后我整个人都有些凌乱了。。。不过静下来想想其实自己从bindService这里入手也学到很多东西，也就不纠结了！</p>
+
+<p>那么现在的问题是，应用程序到底是如何获得system service的binder的？</p>
+
+<p>在这个问题的探索过程初期，我又一次惊奇地发现android.os.ServiceManager竟然是@hide的！！！！</p>
+
+<p>尼玛hide的啊！！！也就是如果不是和framework一起编译的话是找不到的啊！我在网上看到一个很无语的<a href="http://www.oschina.net/question/54100_32232?sort=time" title="隐藏类的使用">解决方案</a>，但是，我还是不知道应用程序到底是怎么调用system service的啊？总不可能每个人都懂得什么变态的“隐藏类的使用”吧？</p>
+
+<p>后来不知道是怎么回事，我突然发现在android里面竟然有一个API叫getSystemService()！我问了下乃正，他竟然和我说“你们干嘛不问我，这不是很显然的吗？应用里面就是调用这个获得system service的啊”！尼玛伤不起啊，一个没写过android应用程序的还要研究android framework的人伤不起啊！！</p>
+
+<hr />
+
+<h3>getSystemService()</h3>
+
+<p>好了，还是言归正传吧，到底getSystemService()是如何得到system service的呢？其实这个也没有想象的那么好理解。而且我查了下网上的资料，大部分还是讲ServiceManager.getService()是如何得到system service的，而基本上都没有涉及到getSystemService()是怎么和ServiceManager.getService()搭上关系的。</p>
+
+<p>于是经过一番研究，我终于搞清楚了这里面所涉及的种种“复杂而又充满基情”的关系，请听我娓娓道来：</p>
+
+<hr />
+
+<p>在一个月黑风高的夜晚，一个郁郁不得志的少年Activity调用了一个具有扭转乾坤概率的大API&#8212;getSystemService()。</p>
+
+<p>算了，没有写小说的潜质。。。还是老实点正常写着吧。。。早点写完早点洗洗睡吧。。。</p>
+
+<p>在调用Activity.getSystemService()之后，就进入ContextImpl.getSystemService()。</p>
+
+<p>至于是怎么进来的，其实也很简单，Activity继承ContextThemeWrapper，再继承ContextWrapper。里面会调用mBase.getSystemService()。这个mBase是一个ContextImpl实例变量，于是就调到了。</p>
+
+<p>于是在ContextImpl.getSystemService()是这样的：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
+</span><span class='line'><span class="kd">public</span> <span class="n">Object</span> <span class="nf">getSystemService</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">ServiceFetcher</span> <span class="n">fetcher</span> <span class="o">=</span> <span class="n">SYSTEM_SERVICE_MAP</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">name</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">fetcher</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">?</span> <span class="kc">null</span> <span class="o">:</span> <span class="n">fetcher</span><span class="o">.</span><span class="na">getService</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>话说这个SYSTEM_SERVICE_MAP是怎么来的呢？这就要扯得远点了：</p>
+
+<p>在每个Activity启动的时候都要运行一大段的static的代码（在android.app.ContextImpl.java）里面：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">static</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">registerService</span><span class="o">(</span><span class="n">ACCESSIBILITY_SERVICE</span><span class="o">,</span> <span class="k">new</span> <span class="n">ServiceFetcher</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="kd">public</span> <span class="n">Object</span> <span class="nf">getService</span><span class="o">(</span><span class="n">ContextImpl</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">AccessibilityManager</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">ctx</span><span class="o">);</span>
+</span><span class='line'>      <span class="o">}});</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">registerService</span><span class="o">(</span><span class="n">ACCOUNT_SERVICE</span><span class="o">,</span> <span class="k">new</span> <span class="n">ServiceFetcher</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="kd">public</span> <span class="n">Object</span> <span class="nf">createService</span><span class="o">(</span><span class="n">ContextImpl</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">IBinder</span> <span class="n">b</span> <span class="o">=</span> <span class="n">ServiceManager</span><span class="o">.</span><span class="na">getService</span><span class="o">(</span><span class="n">ACCOUNT_SERVICE</span><span class="o">);</span>
+</span><span class='line'>      <span class="n">IAccountManager</span> <span class="n">service</span> <span class="o">=</span> <span class="n">IAccountManager</span><span class="o">.</span><span class="na">Stub</span><span class="o">.</span><span class="na">asInterface</span><span class="o">(</span><span class="n">b</span><span class="o">);</span>
+</span><span class='line'>      <span class="k">return</span> <span class="k">new</span> <span class="nf">AccountManager</span><span class="o">(</span><span class="n">ctx</span><span class="o">,</span> <span class="n">service</span><span class="o">);</span>
+</span><span class='line'>      <span class="o">}});</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">registerService</span><span class="o">(</span><span class="n">ACTIVITY_SERVICE</span><span class="o">,</span> <span class="k">new</span> <span class="n">ServiceFetcher</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="kd">public</span> <span class="n">Object</span> <span class="nf">createService</span><span class="o">(</span><span class="n">ContextImpl</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="k">new</span> <span class="nf">ActivityManager</span><span class="o">(</span><span class="n">ctx</span><span class="o">.</span><span class="na">getOuterContext</span><span class="o">(),</span> <span class="n">ctx</span><span class="o">.</span><span class="na">mMainThread</span><span class="o">.</span><span class="na">getHandler</span><span class="o">());</span>
+</span><span class='line'>      <span class="o">}});</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>它会在自己的SYSTEM_SERVICE_MAP为每一个系统服务注册一个ServiceFetcher的类，在这个类中，大部分的服务为重写一个函数叫<em>createService(ContextImpl)</em>，这个方法之后会用到，现在只需要知道我们从SYSTEM_SERVICE_MAP获得了某个服务的ServiceFetcher对象fetcher，并通过fetcher.getService(this)获得了该服务的对象。</p>
+
+<p>fetcher.getService(ContextImpl):</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Object</span> <span class="nf">getService</span><span class="o">(</span><span class="n">ContextImpl</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">cache</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">mServiceCache</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">Object</span> <span class="n">service</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">synchronized</span> <span class="o">(</span><span class="n">cache</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">cache</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="c1">// Initialize the cache vector on first access.</span>
+</span><span class='line'>      <span class="c1">// At this point sNextPerContextServiceCacheIndex</span>
+</span><span class='line'>      <span class="c1">// is the number of potential services that are</span>
+</span><span class='line'>      <span class="c1">// cached per-Context.</span>
+</span><span class='line'>      <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">sNextPerContextServiceCacheIndex</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">cache</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">service</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">mContextCacheIndex</span><span class="o">);</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">service</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">service</span><span class="o">;</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="n">service</span> <span class="o">=</span> <span class="n">createService</span><span class="o">(</span><span class="n">ctx</span><span class="o">);</span>
+</span><span class='line'>  <span class="n">cache</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">mContextCacheIndex</span><span class="o">,</span> <span class="n">service</span><span class="o">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">service</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>也就是说每个Activity都有一个mServiceCache，它cache了所有用到的service的ServiceFetcher类。如果hit了，那么直接返回该对象，否则会调用这个fetcher的createService()方法，这也就是我们刚才提到的每一个ServiceFetcher在注册的时候会重写的那个方法。</p>
+
+<p>可以看到，大部分重写的方式都是类似于这样的：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Object</span> <span class="nf">createService</span><span class="o">(</span><span class="n">ContextImpl</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">IBinder</span> <span class="n">b</span> <span class="o">=</span> <span class="n">ServiceManager</span><span class="o">.</span><span class="na">getService</span><span class="o">(</span><span class="n">XXX_SERVICE</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">IXXXManager</span> <span class="n">service</span> <span class="o">=</span> <span class="n">IXXXManager</span><span class="o">.</span><span class="na">Stub</span><span class="o">.</span><span class="na">asInterface</span><span class="o">(</span><span class="n">b</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nf">XXXManager</span><span class="o">(</span><span class="n">ctx</span><span class="o">,</span> <span class="n">service</span><span class="o">);</span>
+</span><span class='line'><span class="o">}});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>于是乎，getSystemService()就在这里和ServiceManager.getService()无缝地结合在了一起！</p>
+
+<hr />
+
+<p>对于ServiceManager.getService()，在网上有很多关于它的说明和讨论，这里想通过其中一个再简单地说明下，如果有什么不清楚的可以到原文中去理解。</p>
+
+<p>这里选择<a href="http://blog.csdn.net/Luoshengyang" title="老罗的android之旅">老罗</a>的<a href="http://blog.csdn.net/luoshengyang/article/details/6633311" title="getService">这篇文章</a>来进行介绍：</p>
+
+<h3>ServiceManager.getService()</h3>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Parcel object in android]]></title>
@@ -38,6 +238,7 @@
 <span class='line-number'>10</span>
 <span class='line-number'>11</span>
 <span class='line-number'>12</span>
+<span class='line-number'>13</span>
 </pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">String</span> <span class="nf">sayHello</span><span class="o">(</span><span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">String</span> <span class="n">message</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">RemoteException</span>
 </span><span class='line'><span class="o">{</span>
 </span><span class='line'>    <span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">Parcel</span> <span class="n">_data</span> <span class="o">=</span> <span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">Parcel</span><span class="o">.</span><span class="na">obtain</span><span class="o">();</span>
@@ -50,6 +251,7 @@
 </span><span class='line'>  <span class="n">_reply</span><span class="o">.</span><span class="na">readException</span><span class="o">();</span>
 </span><span class='line'>  <span class="n">_result</span> <span class="o">=</span> <span class="n">_reply</span><span class="o">.</span><span class="na">readString</span><span class="o">();</span>
 </span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -391,11 +593,11 @@
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
 </pre></td><td class='code'><pre><code class='c'><span class='line'>    <span class="kt">uint8_t</span><span class="o">*</span> <span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint8_t</span><span class="o">*</span><span class="p">)</span><span class="n">writeInplace</span><span class="p">(</span><span class="n">len</span><span class="o">+</span><span class="k">sizeof</span><span class="p">(</span><span class="n">char16_t</span><span class="p">));</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="n">memcpy</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">str</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
-</span><span class='line'>            <span class="o">*</span><span class="n">reinterpret_cast</span><span class="o">&lt;</span><span class="n">char16_t</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">data</span><span class="o">+</span><span class="n">len</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>            <span class="k">return</span> <span class="n">NO_ERROR</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">memcpy</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">str</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+</span><span class='line'>  <span class="o">*</span><span class="n">reinterpret_cast</span><span class="o">&lt;</span><span class="n">char16_t</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">data</span><span class="o">+</span><span class="n">len</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">NO_ERROR</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -2625,67 +2827,6 @@ cd /pentest/sniffers/xspy/
 <hr />
 
 <p>总的来说，这篇paper给我最大的收获是熟悉了x86及其虚拟化环境下的interrupt机制，它们用纯软件的方式实现了ExitLess Interrupt，而且得到了很好的评测结果，确实是一篇很有实力的paper。同时还要感谢Muli Ben-Yehuda教授和Nadav Amit学者的热心解答。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[paper reading: TCP RE and incremental MR]]></title>
-    <link href="http://ytliu.github.com/blog/2011/12/26/paper-reading-tcp-re-and-incremental-mr/"/>
-    <updated>2011-12-26T20:57:00+08:00</updated>
-    <id>http://ytliu.github.com/blog/2011/12/26/paper-reading-tcp-re-and-incremental-mr</id>
-    <content type="html"><![CDATA[<p>今天组会两篇paper，Naruil讲的第一篇听了蛮有收获的，DX讲的第二篇感觉是自己英文太差而且领域不熟最后听的不是很懂，就大致记录下吧。</p>
-
-<p>第一篇是一个做数据中心之间数据传递重复消除的系统，叫End-to-end RE(redundancy elimination)，是发在NSDI&#8217;11上的，题目叫&#8221;EndRE: An End-System Redundancy Elimination Service for Enterprises&#8221;，主要由微软的人做的。简单来说它的motivation就是现在在网络中传递的数据有很大一部分是重复的，比如两个包有大量的重复数据，而这些重复数据占用了大量的带宽，而这篇paper的工作就是如何在减少重复数据的同时也不减少太多的性能。</p>
-
-<p>现在在用的关于这种重复数据消除的技术主要是&#8221;Middlebox-based&#8221;，它有几个缺点：  <br/>
-*       关于安全方面的问题，网络数据在middlebox里面是明文，这样才能更好地判断重复性，这样就势必减弱了网络数据的安全级别；    <br/>
-*       对于一些终端的手机设备，它需要和PC终端传递数据，在这过程中同样有数据的重复，而这种情况就不适宜用Middlebox技术了；      <br/>
-*       代价比较大，现在用的middlebox都是很强大的服务器，配备巨大的内存来存储内容的cache。</p>
-
-<p>于是作者就提出一种end-to-end的RE技术。通篇听下来最大的收获是对传统的fingerprint算法和作者提出的一种新的SAMPLEBYTE fingerprint算法的理解。</p>
-
-<p>这篇paper里面提到了两种传统的fingerprint算法：</p>
-
-<pre><code>    ModP fingerprint：
-            这是一种content-based的fingerprint算法，用一种特殊的hash算法
-            （每一个window的hash值 = 上一个window的hash值+上一个window的第一个byte+下一个byte）
-            这样可以快速地得出每个window的hash值，之后将该hash值mod一个P，
-            如果结果为0，则将该hash值作为一个sample的fingerprint。             
-    Fixed fingerprint：
-            这是一个position-based的fingerprint算法，即每隔P个byte算一个hash
-            （window size大小的byte），之后将其作为一个sample的fingerprint。
-</code></pre>
-
-<p>从这两个fingerprint算法可以很容易地看出对于ModP，由于它是一个content-based的算法，所以不管是不是有偏移都可以比较完整地得出内容上的重复性，但是它的效率太低了，因为它要算每一个byte的hash；而对于Fixed，它的效率远远大于ModP，但消除重复性的能力也相应地变小很多。</p>
-
-<p>于是作者提出提出的一种新的算法，叫SAMPLEBYTE fingerprint：</p>
-
-<pre><code>    提供一个256bit的数组A，遍历要发送的包的每一个字节，比如第一个字节是0x23，那么查找
-    数组A的第23个bit看它是否为1，如果为0则表示miss，继续查看后一个字节，如果为1则代表hit，
-    即将这个字节以及后window size个大小算一个hash作为fingerprint，然后跳过（p/2）个字节
-    （为了防止计算重复的hit）。
-</code></pre>
-
-<p>也就是说SAMPLEBYTE也是一个content-based的算法，而且跳过了每个byte都要检查的低效率从而达到更合理而又大粒度的sample机制。</p>
-
-<p>这是这篇paper的核心算法，至于最后如何利用得出的fingerprint，则可以通过下张图看出：</p>
-
-<p><img src="http://ytliu.github.com/images/2011-12-26-1.png" title="the overview of EndRE" alt="RE Overview" />
-<img src="http://ytliu.github.com/images/2011-12-26-2.png" title="Look up in fingerprint hash table" alt="Look up in fingerprint hash table" /></p>
-
-<p>在服务器端和客户端都要维护一个同步的cache，同时在服务器端有一个hash table，里面的key即为之前算出来的fingerprint，指向的是cache中的offset，当要传递一个包时，将算出的fingerprint在hash table里面查找，如果hit了，则从该fingerprint的第一个byte开始找出最大匹配的字符长度，从而省去了该重复内容的传递。而在客户端也只需要将接收到的内容按时间顺序写入cache中，保持和服务器的cache的同步性就好了。</p>
-
-<p>另外，这个数据重复性消除的问题还需要考虑的很重要的一点就是：在客户端不该有很复杂的计算，否则直接将包压缩传递岂不更高效？</p>
-
-<p>还有关于fingerprint算法和差抄袭算法的关系，问了下Naruil，他之前写的差抄袭算法也是用了fingerprint，不过用的是一个更健壮性的fingerprint算法，是基于一篇Sigmod&#8217;03的paper：<a href="http://dl.acm.org/citation.cfm?id=872770">Winnowing</a>。有机会可以去瞻仰下，据说效果相当好，反正我们这里的抄袭都是这么被检查出来的~</p>
-
-<hr />
-
-<p>另外一篇的题目是&#8221;Incoop: MapReduce for Incremental Computation&#8221;，发表在Socc&#8217;11上，做的是MapReduce上的Incremental computation。也就是说现在的MR架构对于两个输入，即使是有许多重复的输入也是从头开始重新计算一遍，而作者希望的是对于两个输入，对于不变的输入可以不再重复计算，而仅仅是变化的数据。因为DX是用英文说的，很多内容不是搞得太懂，只知道它用了&#8221;content-base chunking&#8221;和&#8221;reduce combiners&#8221;来分别解决stability和granularity的问题。至于具体的细节就搞不来了。</p>
-
-<hr />
-
-<p>The End.</p>
 ]]></content>
   </entry>
   

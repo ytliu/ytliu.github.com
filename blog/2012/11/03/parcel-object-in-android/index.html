@@ -112,6 +112,7 @@
 <span class='line-number'>10</span>
 <span class='line-number'>11</span>
 <span class='line-number'>12</span>
+<span class='line-number'>13</span>
 </pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">String</span> <span class="nf">sayHello</span><span class="o">(</span><span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">String</span> <span class="n">message</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">RemoteException</span>
 </span><span class='line'><span class="o">{</span>
 </span><span class='line'>    <span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">Parcel</span> <span class="n">_data</span> <span class="o">=</span> <span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">Parcel</span><span class="o">.</span><span class="na">obtain</span><span class="o">();</span>
@@ -124,6 +125,7 @@
 </span><span class='line'>  <span class="n">_reply</span><span class="o">.</span><span class="na">readException</span><span class="o">();</span>
 </span><span class='line'>  <span class="n">_result</span> <span class="o">=</span> <span class="n">_reply</span><span class="o">.</span><span class="na">readString</span><span class="o">();</span>
 </span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -465,11 +467,11 @@
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
 </pre></td><td class='code'><pre><code class='c'><span class='line'>    <span class="kt">uint8_t</span><span class="o">*</span> <span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint8_t</span><span class="o">*</span><span class="p">)</span><span class="n">writeInplace</span><span class="p">(</span><span class="n">len</span><span class="o">+</span><span class="k">sizeof</span><span class="p">(</span><span class="n">char16_t</span><span class="p">));</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="n">memcpy</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">str</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
-</span><span class='line'>            <span class="o">*</span><span class="n">reinterpret_cast</span><span class="o">&lt;</span><span class="n">char16_t</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">data</span><span class="o">+</span><span class="n">len</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>            <span class="k">return</span> <span class="n">NO_ERROR</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">memcpy</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">str</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+</span><span class='line'>  <span class="o">*</span><span class="n">reinterpret_cast</span><span class="o">&lt;</span><span class="n">char16_t</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">data</span><span class="o">+</span><span class="n">len</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">NO_ERROR</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -662,6 +664,8 @@
         <a class="basic-alignment left" href="/blog/2012/10/27/goagent-setup-note/" title="Previous Post: GoAgent setup note">&laquo; GoAgent setup note</a>
       
       
+        <a class="basic-alignment right" href="/blog/2012/11/04/getsystemservice-in-android/" title="Next Post: getSystemService() in android">getSystemService() in android &raquo;</a>
+      
     </p>
   </footer>
 </article>
@@ -673,6 +677,10 @@
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/11/04/getsystemservice-in-android/">getSystemService() in android</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2012/11/03/parcel-object-in-android/">Parcel object in android</a>
@@ -688,10 +696,6 @@
     
       <li class="post">
         <a href="/blog/2012/10/12/android-messaging-mechanism/">android messaging mechanism</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/10/05/android-service-startup/">android service startup</a>
       </li>
     
   </ul>
