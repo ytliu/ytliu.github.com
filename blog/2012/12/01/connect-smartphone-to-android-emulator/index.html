@@ -1,0 +1,324 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>connect smartphone to android emulator - Mctrain's Blog</title>
+  <meta name="author" content="Liu Yutao">
+
+  
+  <meta name="description" content="这两天碰到一个难题，如何让手机中的某应用程序通过网络连接PC中的android emulator里面的服务。 即我在emulator里面开启了一个服务，该服务通过socket监听2012端口，那么在我的手机中，如何通过socket连接到这个服务中，也就是说，我的IP要设为什么，端口号要设为什么？ &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://ytliu.github.com/blog/2012/12/01/connect-smartphone-to-android-emulator/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Mctrain's Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Mctrain's Blog</a></h1>
+  
+    <h2>Security, Virtualization, Network, as well as life moments</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss email">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+    <li><a href="ytliu.cc@gmail.com" rel="subscribe-email" title="subscribe via email">Email</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:ytliu.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Connect Smartphone to Android Emulator</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-01T15:37:00+08:00" pubdate data-updated="true">Dec 1<span>st</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>这两天碰到一个难题，如何让手机中的某应用程序通过网络连接PC中的android emulator里面的服务。</p>
+
+<p>即我在emulator里面开启了一个服务，该服务通过socket监听2012端口，那么在我的手机中，如何通过socket连接到这个服务中，也就是说，我的IP要设为什么，端口号要设为什么？</p>
+
+<p>这个问题在于PC为emulator分配了一个端口号（这里为5554），所以在PC中可以很方便地和emulator进行交互，但是emulator并没有一个对外可见的IP地址。</p>
+
+<p>在<a href="http://stackoverflow.com,%20stackoverflow">stackoverflow</a>上查了好久，有一个说如何连接两个emulator的（http://stackoverflow.com/questions/7108326/how-can-we-change-the-ip-of-android-emulator），还有一个介绍了一个非常复杂但经过我的测试有效的方法（http://stackoverflow.com/questions/7108326/how-can-we-change-the-ip-of-android-emulator）。这里简单介绍一下：</p>
+
+<h3>两个emulator相连</h3>
+
+<p>为了两个emulator能进行网络相连，首先必须满足一下三个条件：</p>
+
+<ul>
+<li>A为PC</li>
+<li>B为运行在A中的一个emulator，端口为5554</li>
+<li>C为运行在A中的另一个emulator，端口为5556</li>
+</ul>
+
+
+<p>是不是很废话&#8230;好了，进入正题，我们要做的就是一下三步：</p>
+
+<p>在B中起一个server，可以让C进行连接</p>
+
+<p>  B listening on 10.0.2.15:80</p>
+
+<p>telnet到B的console里面对端口进行重定向：</p>
+
+<p>  $ telnet localhost 5554
+  # redir add tcp:8080:90</p>
+
+<p>在C中连接10.0.2.2:8080就可以和B进行交互了。</p>
+
+<p>这里补充一下，你如果进入adb shell在里面查看自己的IP会发现其为10.0.2.15，其通过10.0.2.2和PC进行连接。redir相当于将到达PC的8080端口的信息全部重定向到5554端口emulator的80端口。这样就完成而来emulator之间的连接了。</p>
+
+<hr />
+
+<h3>手机和emulator相连</h3>
+
+<p>照理来说按照上面的说法，手机和emulator的连接应该也很简单，只需要将手机连接到PC的ip加上一个端口P1，然后将P1重定向到emulator中server监听的端口P2就可以了。</p>
+
+<p>但是显示总是残酷的，包括redir和adb forwarding（功能似乎和redir是一样的）都只能将PC自己向端口P中写的信息forward到emulator里面的端口，而不能把其它地方从端口进来的forward。</p>
+
+<p>于是在<a href="http://stackoverflow.com/questions/7108326/how-can-we-change-the-ip-of-android-emulator%20question">这个问题</a>的回答中提到一种方法，在中间再加一个proxy，接下来我来介绍下这种方法：</p>
+
+<p>这是现在的框架：</p>
+
+<p><img src="http://ytliu.github.com/images/2012-12-01-1.jpg" title="framework of smartphone and emulator" alt="framework" /></p>
+
+<p>原理和两个模拟器相连很像，但是中间加了一个proxy：</p>
+
+<ul>
+<li>首先在emulator中server监听2012端口</li>
+<li>在PC上通过<em>adb forward</em>命令将PC上的2012端口forward到emulator中的2012端口（<em>adb forward tcp:2012 tcp:2012</em>）</li>
+<li>在proxy中将从外面来的2013端口forward到2012端口</li>
+<li>而在手机端则直接向PC的2013端口发送数据</li>
+</ul>
+
+
+<p>经过尝试这样是可行的。</p>
+
+<hr />
+
+<h3>tap/tun</h3>
+
+<p>虽然说上面的方法是可行的，但是并没有很好地解决这个问题，因为如果是通过这种方法，则我的emulator没开启一个server，都要起一个相应的proxy，这样就显得很废。有没有什么一劳永逸的方法呢？</p>
+
+<p>听斌哥说之前他在配qemu的时候通过tap/tun的技术来配置qemu的网络，于是我也尝试着配置tap/tun，不过虽然已经将其在PC中启动好了，但是由于对其原理还是不清楚，所以还是没有搞明白要如何使得emulator有一个自己独立的对外可见的IP，这块内容可能会等自己完全搞明白了再写吧。</p>
+
+<p>这里推荐下wikibook中对qemu networking的配置：</p>
+
+<p>http://en.wikibooks.org/wiki/QEMU/Networking</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Liu Yutao</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-01T15:37:00+08:00" pubdate data-updated="true">Dec 1<span>st</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android/'>Android</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ytliu.github.com/blog/2012/12/01/connect-smartphone-to-android-emulator/" data-via="microtrain016" data-counturl="http://ytliu.github.com/blog/2012/12/01/connect-smartphone-to-android-emulator/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/11/25/isfjian-wen-yu-shou-huo/" title="Previous Post: ISF见闻与收获">&laquo; ISF见闻与收获</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/12/01/connect-smartphone-to-android-emulator/">connect smartphone to android emulator</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/11/25/isfjian-wen-yu-shou-huo/">ISF见闻与收获</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/11/12/android-partition-explaination/">Android Partition Explaination</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/11/11/getsystemservice-in-android/">getSystemService() in android</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/11/03/parcel-object-in-android/">Parcel object in android</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("microtrain016", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/microtrain016" class="twitter-follow-button" data-show-count="false">Follow @microtrain016</a>
+  
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/mctrain016@gmail.com?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Liu Yutao -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
