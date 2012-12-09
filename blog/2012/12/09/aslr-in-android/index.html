@@ -1,0 +1,393 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>ASLR in android - Mctrain's Blog</title>
+  <meta name="author" content="Liu Yutao">
+
+  
+  <meta name="description" content="这两篇看了两篇文章分析aslr in androi4.0和android 4.1，觉得蛮有趣的，这里简单介绍下。 ASLR with Liux Kernel 首先介绍下linux中的ASLR，ASLR可以对任意内存进行随机化： stack：The userspace stack mapping &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://ytliu.github.com/blog/2012/12/09/aslr-in-android/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Mctrain's Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Mctrain's Blog</a></h1>
+  
+    <h2>Security, Virtualization, Network, as well as life moments</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss email">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+    <li><a href="ytliu.cc@gmail.com" rel="subscribe-email" title="subscribe via email">Email</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:ytliu.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">ASLR in Android</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-09T11:07:00+08:00" pubdate data-updated="true">Dec 9<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>这两篇看了两篇文章分析<a href="https://blog.duosecurity.com/2012/02/a-look-at-aslr-in-android-ice-cream-sandwich-4-0/" title="asli in 4.0">aslr in androi4.0</a>和<a href="https://blog.duosecurity.com/2012/07/exploit-mitigations-in-android-jelly-bean-4-1/" title="aslr in 4.1">android 4.1</a>，觉得蛮有趣的，这里简单介绍下。</p>
+
+<h3>ASLR with Liux Kernel</h3>
+
+<p>首先介绍下linux中的ASLR，ASLR可以对任意内存进行随机化：</p>
+
+<ul>
+<li>stack：The userspace stack mapping set up by the kernel during exec(2) should be sufficiently randomized. Stack randomization is performed by the randomize_stack_top() function.</li>
+<li>Heap：The heap location returned by the brk(2) system call when a program is first exec’ed should be randomized. Heap randomization is performed by the arch_randomize_brk() function.</li>
+<li>Libs and mmap：After NX was introduced, static library mapping led to the popularity of ret-to-libc and more generic ret-to-lib attacks. The location of libraries and other mmap’ed regions should be randomized.</li>
+<li>Exec：Even if you’re randomized the mapping of all the shared libaries that an executable uses, you still need to randomize the location of the executable itself when it is mapped into the address space. Otherwise, the executable mapping can be used as a source for ROP gadgets.</li>
+<li>Linker：On most Linux systems, the ld.so dynamic linker provided by glibc can self-relocate itself, so its mapping is randomized. However, as we’ll see, this isn’t the case for all linkers.</li>
+<li>VDSO(Virtual Dynamically-linked Shared Object)：an executable mapping of a virtual shared library provided by the kernel for syscall transitions. However, most Android devices run on the ARM architecture, which doesn’t use a VDSO.</li>
+</ul>
+
+
+<h3>ASLR in Android 2.x</h3>
+
+<p>在Android 2.x开始，唯一对ASLR支持的是stack（这可以通过多次查看/proc/pid/maps来发现），其通过load_elf_binary()函数调用randomize_stack_top()来实现：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#ifndef STACK\_RND\_MASK</span>
+</span><span class='line'><span class="cp">#define STACK\_RND\_MASK (0x7ff &gt;&gt; (PAGE\_SHIFT - 12)) </span><span class="cm">/* 8MB of VA */</span><span class="cp"></span>
+</span><span class='line'><span class="cp">#endif</span>
+</span><span class='line'><span class="k">static</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">randomize</span><span class="err">\</span><span class="n">_stack</span><span class="err">\</span><span class="n">_top</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack</span><span class="err">\</span><span class="n">_top</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">random_variable</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">((</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">PF_RANDOMIZE</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
+</span><span class='line'>              <span class="o">!</span><span class="p">(</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">personality</span> <span class="o">&amp;</span> <span class="n">ADDR_NO_RANDOMIZE</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">random_variable</span> <span class="o">=</span> <span class="n">get_random_int</span><span class="p">()</span> <span class="o">&amp;</span> <span class="n">STACK_RND_MASK</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">random_variable</span> <span class="o">&lt;&lt;=</span> <span class="n">PAGE_SHIFT</span><span class="p">;</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'><span class="cp">#ifdef CONFIG\_STACK\_GROWSUP</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">PAGE_ALIGN</span><span class="p">(</span><span class="n">stack</span><span class="err">\</span><span class="n">_top</span><span class="p">)</span> <span class="o">+</span> <span class="n">random_variable</span><span class="p">;</span>
+</span><span class='line'><span class="cp">#else</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">PAGE_ALIGN</span><span class="p">(</span><span class="n">stack</span><span class="err">\</span><span class="n">_top</span><span class="p">)</span> <span class="o">-</span> <span class="n">random_variable</span><span class="p">;</span>
+</span><span class='line'><span class="cp">#endif</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>ASLR in Android 4.0</h3>
+
+<p>而在4.0，即其所谓的支持ASLR的版本上，其实ASLR也仅仅增加了对libc等一些shared libraries进行了随机化，而对于heap, executable和linker还是static的。</p>
+
+<p>对于heap的随机化来说，可以通过</p>
+
+<pre><code>echo 2 &gt; /proc/sys/kernel/randomize_va_space
+</code></pre>
+
+<p>来开启。</p>
+
+<p>而对于executable的随机化，由于大部分的binary没有加GCC的-pie -fPIE选项，所以编译出来的是EXEC，而不是DYN这种shared object file，因此不是PIE（Position Independent Executable），所以没有办法随机化；</p>
+
+<p>同样的linker也没有做到ASLR。</p>
+
+<h3>ASLR in Android 4.1</h3>
+
+<p>终于，在4.1 Jelly Bean中，Android终于支持了所有内存的ASLR。在第二个对4.1ASLR介绍中，作者列出了从Android 1.5开始用到的安全加强机制：</p>
+
+<h5>Android 1.5+</h5>
+
+<ul>
+<li>ProPolice to prevent stack buffer overruns (-fstack-protector)</li>
+<li>safe_iop to reduce integer overflows</li>
+<li>Extensions to OpenBSD dlmalloc to prevent double free() vulnerabilities and to prevent chunk consolidation attacks. Chunk consolidation attacks are a common way to exploit heap corruption.</li>
+<li>OpenBSD calloc to prevent integer overflows during memory allocation</li>
+</ul>
+
+
+<h5>Android 2.3+</h5>
+
+<ul>
+<li>Format string vulnerability protections (-Wformat-security -Werror=format-security)</li>
+<li>Hardware-based No eXecute (NX) to prevent code execution on the stack and heap</li>
+<li>Linux mmap_min_addr to mitigate null pointer dereference privilege escalation (further enhanced in Android 4.1)</li>
+</ul>
+
+
+<h5>Android 4.0+</h5>
+
+<ul>
+<li>Address Space Layout Randomization (ASLR) to randomize key locations in memory</li>
+</ul>
+
+
+<h5>Android 4.1+</h5>
+
+<ul>
+<li>PIE (Position Independent Executable) support</li>
+<li>Read-only relocations / immediate binding (-Wl,-z,relro -Wl,-z,now)</li>
+<li>dmesg_restrict enabled (avoid leaking kernel addresses)</li>
+<li>kptr_restrict enabled (avoid leaking kernel addresses)</li>
+</ul>
+
+
+<p>在Android 4.1中，基本上所有binary都被编译和连接成了PIE模式（可以通过readelf查看其Type）。所以，相比于4.0，4.1对Heap，executable和linker都提供了ASLR的支持。</p>
+
+<p>另外，4.1还增加了几个小的安全加强机制：</p>
+
+<ul>
+<li>大部分系统binary都添加了RELRO和BIND_NOW的编译flag，起作用主要是将GOT表设置成只读，防止之前出现过的<a href="http://jon.oberheide.org/files/bsides11-dontrootrobots.pdf" title="don't root robot">Gingerbreak</a>攻击。</li>
+<li>另外，对dmesg_restrict / kptr_restrict的sysctl的利用，有效防止了一些低权限的用户从dmesg/klogctl中读取一些敏感信息，或者读取一些kernel内存中的敏感数据（比如很多/proc下的接口）。</li>
+</ul>
+
+
+<h3>What&#8217;s next</h3>
+
+<p>之后作者还提到一些还需要继续努力的事：</p>
+
+<ul>
+<li>ASLR的弱点 - 32-bit，容易破解</li>
+<li>一些安全的libc调用，比如FORTIFY_SOURCE</li>
+<li>PaX Hardening，虽然很多不适合手机，但是也可以cherry pick一些啦</li>
+<li>MAC/RBAC，其实这个现在也已经有了，比如SEAndroid&#8230;</li>
+<li>Mandatory Code Signing，向IPhone学习吧</li>
+</ul>
+
+
+<p>另外，作者还提到一个Zygote的问题，为了性能问题，现在Android上所有的进程都是Zygote fork出来的，也就是说很多的地址空间在fork出来后是固定不变的，这样也就出现了一种可能性：a malicious app on a victim’s device leaks address mappings from its own process off to an attacker to assist in exploiting another process (eg. the browser) that might have higher privilege or valuable data.</p>
+
+<p>当然，作者认为这种场景可能性比较小，所以还不算一个大问题。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Liu Yutao</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-09T11:07:00+08:00" pubdate data-updated="true">Dec 9<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android/'>Android</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ytliu.github.com/blog/2012/12/09/aslr-in-android/" data-via="microtrain016" data-counturl="http://ytliu.github.com/blog/2012/12/09/aslr-in-android/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/12/08/get-root-in-my-android/" title="Previous Post: get root in my android">&laquo; get root in my android</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/12/15/dynamic-linker/" title="Next Post: Dynamic Linker">Dynamic Linker &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/12/15/dynamic-linker/">Dynamic Linker</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/12/09/aslr-in-android/">ASLR in android</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/12/08/get-root-in-my-android/">get root in my android</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/12/01/connect-smartphone-to-android-emulator/">connect smartphone to android emulator</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/11/25/isfjian-wen-yu-shou-huo/">ISF见闻与收获</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("microtrain016", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/microtrain016" class="twitter-follow-button" data-show-count="false">Follow @microtrain016</a>
+  
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/mctrain016@gmail.com?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Liu Yutao -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

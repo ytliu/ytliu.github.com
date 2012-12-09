@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: 人生 - Mctrain's Blog</title>
+  <title>get root in my android - Mctrain's Blog</title>
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="Category: 人生">
+  <meta name="description" content="首先申明，这其实并不是一篇android root教程，因为我并没有用什么exploit的方法，也没有用CWM等这些第三方ROM，而是该了ASOP，然后把它刷到机子上，然后对其进行所谓的root，装了一个dSploit和busybox。 具体的做法是这样的： 更新到ASOP的最新版 - 4.2.4 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://ytliu.github.comblog/categories/人生/">
+  <link rel="canonical" href="http://ytliu.github.com/blog/2012/12/08/get-root-in-my-android/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -65,49 +65,122 @@
   <div id="main">
     <div id="content">
       <div>
-<article role="article">
+<article class="hentry" role="article">
   
   <header>
-    <h1 class="entry-title">Category: 人生</h1>
+    
+      <h1 class="entry-title">Get Root in My Android</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-08T16:28:00+08:00" pubdate data-updated="true">Dec 8<span>th</span>, 2012</time>
+        
+      </p>
     
   </header>
-  
-  <div id="blog-archives" class="category">
 
 
+<div class="entry-content"><p>首先申明，这其实并不是一篇android root教程，因为我并没有用什么exploit的方法，也没有用CWM等这些第三方ROM，而是该了ASOP，然后把它刷到机子上，然后对其进行所谓的root，装了一个dSploit和busybox。</p>
 
-  
-  <h2>2012</h2>
+<p>具体的做法是这样的：</p>
 
-<article>
-  
-<h1><a href="/blog/2012/03/09/wo-kan-bei-ai-and-wo-xue-ruby/">我看北爱&amp;我学ruby</a></h1>
-<time datetime="2012-03-09T21:30:00+08:00" pubdate><span class='month'>Mar</span> <span class='day'>09</span> <span class='year'>2012</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/ruby/'>ruby</a>, <a class='category' href='/blog/categories/人生/'>人生</a></span>
-</footer>
-
-
-</article>
+<ul>
+<li>更新到ASOP的最新版 - 4.2.4</li>
+<li>lunch full-maguro, make</li>
+<li>fastboot to smartphone</li>
+<li>把手机连到电脑上，通过adb shell上去，进入su模式</li>
+<li>通过<a href="http://www.cypherpunk.at/2011/10/08/manual-rooting-android-on-linux-2/" title="manual rooting">这里</a>的方法进行root</li>
+</ul>
 
 
+<p>即：</p>
 
-<article>
-  
-<h1><a href="/blog/2012/03/03/wei-lai-zai-na-li/">未来在哪里</a></h1>
-<time datetime="2012-03-03T20:23:00+08:00" pubdate><span class='month'>Mar</span> <span class='day'>03</span> <span class='year'>2012</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/人生/'>人生</a>, <a class='category' href='/blog/categories/生活/'>生活</a></span>
-</footer>
+<ul>
+<li>mount -o remount,rw /dev/block/&#8230;/system /system</li>
+<li>mv path/to/modified/su /system/xbin/su</li>
+<li>mount -o remount,ro /dev/block/&#8230;/system /system</li>
+</ul>
 
 
-</article>
+<p>但是发现失败了，我怀疑是su这个文件不兼容，于是，我想了一个更贱的方法：</p>
 
+<ul>
+<li>把ASOP代码中的/system/extras/su/su.c该掉，把检查的部分全部去掉</li>
+<li>然后刷机</li>
+</ul>
+
+
+<p>这样就直接root了！不过这只能用于我的测试机啦，正常的手机千万不敢那么做，太危险了！</p>
+
+<hr />
+
+<p>另外，我用了两款软件，<a href="https://github.com/evilsocket/dsploit" title="dsploit">dSploit</a>和<a href="github.com/mwrlabs/mercury" title="mercury">Mercury</a>，而且都有源码，准备之后两周研究下，学习下android编程和如何进行penetration</p>
 </div>
 
+
+  <footer>
+    <p class="meta">
+      
   
+
+<span class="byline author vcard">Posted by <span class="fn">Liu Yutao</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-08T16:28:00+08:00" pubdate data-updated="true">Dec 8<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android/'>Android</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ytliu.github.com/blog/2012/12/08/get-root-in-my-android/" data-via="microtrain016" data-counturl="http://ytliu.github.com/blog/2012/12/08/get-root-in-my-android/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/12/01/connect-smartphone-to-android-emulator/" title="Previous Post: connect smartphone to android emulator">&laquo; connect smartphone to android emulator</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/12/09/aslr-in-android/" title="Next Post: ASLR in android">ASLR in android &raquo;</a>
+      
+    </p>
+  </footer>
 </article>
 
 </div>

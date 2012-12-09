@@ -9,7 +9,7 @@
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="这两天碰到一个难题，如何让手机中的某应用程序通过网络连接PC中的android emulator里面的服务。 即我在emulator里面开启了一个服务，该服务通过socket监听2012端口，那么在我的手机中，如何通过socket连接到这个服务中，也就是说，我的IP要设为什么，端口号要设为什么？ &hellip;">
+  <meta name="description" content="在了解dynamic linker之前，得先对ELF文件有一个初步的了解： 在jollen的博客中有一断对ELF Session的表格: 很有参考价值。 另外在Computer Science from the Bottom Up中有一章对dynamic linker进行了详细的说明。 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,295 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/12/15/dynamic-linker/">Dynamic Linker</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-15T13:03:00+08:00" pubdate data-updated="true">Dec 15<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>在了解dynamic linker之前，得先对ELF文件有一个初步的了解：</p>
+
+<p>在<a href="http://www.jollen.org/blog/2006/12/enabling_dynamic_loader_1.html" title="elf">jollen</a>的博客中有一断对ELF Session的表格:</p>
+
+<p><img src="http://ytliu.github.com/images/2012-12-09-1.png" title="elf section" alt="elf section" /></p>
+
+<p>很有参考价值。</p>
+
+<p>另外在<a href="http://www.bottomupcs.com/" title="computer science from bottom up">Computer Science from the Bottom Up</a>中有一章对dynamic linker进行了详细的说明。以下的内容基本上来自于该文档中。</p>
+
+<p>问题的产生是这样子的：当我们使用一段shared library的时候，它并没有指定说一定要把相应的代码放在那个内存地址，而是由dynamic linker根据当前内存情况选择一段最合适的内存区域用于放置相应的code和data。那么dynamic linker是怎么做的呢？我觉得还是把这个问题放在一篇单独的文章里面说吧</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/12/09/aslr-in-android/">ASLR in Android</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-09T11:07:00+08:00" pubdate data-updated="true">Dec 9<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>这两篇看了两篇文章分析<a href="https://blog.duosecurity.com/2012/02/a-look-at-aslr-in-android-ice-cream-sandwich-4-0/" title="asli in 4.0">aslr in androi4.0</a>和<a href="https://blog.duosecurity.com/2012/07/exploit-mitigations-in-android-jelly-bean-4-1/" title="aslr in 4.1">android 4.1</a>，觉得蛮有趣的，这里简单介绍下。</p>
+
+<h3>ASLR with Liux Kernel</h3>
+
+<p>首先介绍下linux中的ASLR，ASLR可以对任意内存进行随机化：</p>
+
+<ul>
+<li>stack：The userspace stack mapping set up by the kernel during exec(2) should be sufficiently randomized. Stack randomization is performed by the randomize_stack_top() function.</li>
+<li>Heap：The heap location returned by the brk(2) system call when a program is first exec’ed should be randomized. Heap randomization is performed by the arch_randomize_brk() function.</li>
+<li>Libs and mmap：After NX was introduced, static library mapping led to the popularity of ret-to-libc and more generic ret-to-lib attacks. The location of libraries and other mmap’ed regions should be randomized.</li>
+<li>Exec：Even if you’re randomized the mapping of all the shared libaries that an executable uses, you still need to randomize the location of the executable itself when it is mapped into the address space. Otherwise, the executable mapping can be used as a source for ROP gadgets.</li>
+<li>Linker：On most Linux systems, the ld.so dynamic linker provided by glibc can self-relocate itself, so its mapping is randomized. However, as we’ll see, this isn’t the case for all linkers.</li>
+<li>VDSO(Virtual Dynamically-linked Shared Object)：an executable mapping of a virtual shared library provided by the kernel for syscall transitions. However, most Android devices run on the ARM architecture, which doesn’t use a VDSO.</li>
+</ul>
+
+
+<h3>ASLR in Android 2.x</h3>
+
+<p>在Android 2.x开始，唯一对ASLR支持的是stack（这可以通过多次查看/proc/pid/maps来发现），其通过load_elf_binary()函数调用randomize_stack_top()来实现：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#ifndef STACK\_RND\_MASK</span>
+</span><span class='line'><span class="cp">#define STACK\_RND\_MASK (0x7ff &gt;&gt; (PAGE\_SHIFT - 12)) </span><span class="cm">/* 8MB of VA */</span><span class="cp"></span>
+</span><span class='line'><span class="cp">#endif</span>
+</span><span class='line'><span class="k">static</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">randomize</span><span class="err">\</span><span class="n">_stack</span><span class="err">\</span><span class="n">_top</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack</span><span class="err">\</span><span class="n">_top</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">random_variable</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">((</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">PF_RANDOMIZE</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
+</span><span class='line'>              <span class="o">!</span><span class="p">(</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">personality</span> <span class="o">&amp;</span> <span class="n">ADDR_NO_RANDOMIZE</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">random_variable</span> <span class="o">=</span> <span class="n">get_random_int</span><span class="p">()</span> <span class="o">&amp;</span> <span class="n">STACK_RND_MASK</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">random_variable</span> <span class="o">&lt;&lt;=</span> <span class="n">PAGE_SHIFT</span><span class="p">;</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'><span class="cp">#ifdef CONFIG\_STACK\_GROWSUP</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">PAGE_ALIGN</span><span class="p">(</span><span class="n">stack</span><span class="err">\</span><span class="n">_top</span><span class="p">)</span> <span class="o">+</span> <span class="n">random_variable</span><span class="p">;</span>
+</span><span class='line'><span class="cp">#else</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">PAGE_ALIGN</span><span class="p">(</span><span class="n">stack</span><span class="err">\</span><span class="n">_top</span><span class="p">)</span> <span class="o">-</span> <span class="n">random_variable</span><span class="p">;</span>
+</span><span class='line'><span class="cp">#endif</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>ASLR in Android 4.0</h3>
+
+<p>而在4.0，即其所谓的支持ASLR的版本上，其实ASLR也仅仅增加了对libc等一些shared libraries进行了随机化，而对于heap, executable和linker还是static的。</p>
+
+<p>对于heap的随机化来说，可以通过</p>
+
+<pre><code>echo 2 &gt; /proc/sys/kernel/randomize_va_space
+</code></pre>
+
+<p>来开启。</p>
+
+<p>而对于executable的随机化，由于大部分的binary没有加GCC的-pie -fPIE选项，所以编译出来的是EXEC，而不是DYN这种shared object file，因此不是PIE（Position Independent Executable），所以没有办法随机化；</p>
+
+<p>同样的linker也没有做到ASLR。</p>
+
+<h3>ASLR in Android 4.1</h3>
+
+<p>终于，在4.1 Jelly Bean中，Android终于支持了所有内存的ASLR。在第二个对4.1ASLR介绍中，作者列出了从Android 1.5开始用到的安全加强机制：</p>
+
+<h5>Android 1.5+</h5>
+
+<ul>
+<li>ProPolice to prevent stack buffer overruns (-fstack-protector)</li>
+<li>safe_iop to reduce integer overflows</li>
+<li>Extensions to OpenBSD dlmalloc to prevent double free() vulnerabilities and to prevent chunk consolidation attacks. Chunk consolidation attacks are a common way to exploit heap corruption.</li>
+<li>OpenBSD calloc to prevent integer overflows during memory allocation</li>
+</ul>
+
+
+<h5>Android 2.3+</h5>
+
+<ul>
+<li>Format string vulnerability protections (-Wformat-security -Werror=format-security)</li>
+<li>Hardware-based No eXecute (NX) to prevent code execution on the stack and heap</li>
+<li>Linux mmap_min_addr to mitigate null pointer dereference privilege escalation (further enhanced in Android 4.1)</li>
+</ul>
+
+
+<h5>Android 4.0+</h5>
+
+<ul>
+<li>Address Space Layout Randomization (ASLR) to randomize key locations in memory</li>
+</ul>
+
+
+<h5>Android 4.1+</h5>
+
+<ul>
+<li>PIE (Position Independent Executable) support</li>
+<li>Read-only relocations / immediate binding (-Wl,-z,relro -Wl,-z,now)</li>
+<li>dmesg_restrict enabled (avoid leaking kernel addresses)</li>
+<li>kptr_restrict enabled (avoid leaking kernel addresses)</li>
+</ul>
+
+
+<p>在Android 4.1中，基本上所有binary都被编译和连接成了PIE模式（可以通过readelf查看其Type）。所以，相比于4.0，4.1对Heap，executable和linker都提供了ASLR的支持。</p>
+
+<p>另外，4.1还增加了几个小的安全加强机制：</p>
+
+<ul>
+<li>大部分系统binary都添加了RELRO和BIND_NOW的编译flag，起作用主要是将GOT表设置成只读，防止之前出现过的<a href="http://jon.oberheide.org/files/bsides11-dontrootrobots.pdf" title="don't root robot">Gingerbreak</a>攻击。</li>
+<li>另外，对dmesg_restrict / kptr_restrict的sysctl的利用，有效防止了一些低权限的用户从dmesg/klogctl中读取一些敏感信息，或者读取一些kernel内存中的敏感数据（比如很多/proc下的接口）。</li>
+</ul>
+
+
+<h3>What&#8217;s next</h3>
+
+<p>之后作者还提到一些还需要继续努力的事：</p>
+
+<ul>
+<li>ASLR的弱点 - 32-bit，容易破解</li>
+<li>一些安全的libc调用，比如FORTIFY_SOURCE</li>
+<li>PaX Hardening，虽然很多不适合手机，但是也可以cherry pick一些啦</li>
+<li>MAC/RBAC，其实这个现在也已经有了，比如SEAndroid&#8230;</li>
+<li>Mandatory Code Signing，向IPhone学习吧</li>
+</ul>
+
+
+<p>另外，作者还提到一个Zygote的问题，为了性能问题，现在Android上所有的进程都是Zygote fork出来的，也就是说很多的地址空间在fork出来后是固定不变的，这样也就出现了一种可能性：a malicious app on a victim’s device leaks address mappings from its own process off to an attacker to assist in exploiting another process (eg. the browser) that might have higher privilege or valuable data.</p>
+
+<p>当然，作者认为这种场景可能性比较小，所以还不算一个大问题。</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/12/08/get-root-in-my-android/">Get Root in My Android</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-08T16:28:00+08:00" pubdate data-updated="true">Dec 8<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>首先申明，这其实并不是一篇android root教程，因为我并没有用什么exploit的方法，也没有用CWM等这些第三方ROM，而是该了ASOP，然后把它刷到机子上，然后对其进行所谓的root，装了一个dSploit和busybox。</p>
+
+<p>具体的做法是这样的：</p>
+
+<ul>
+<li>更新到ASOP的最新版 - 4.2.4</li>
+<li>lunch full-maguro, make</li>
+<li>fastboot to smartphone</li>
+<li>把手机连到电脑上，通过adb shell上去，进入su模式</li>
+<li>通过<a href="http://www.cypherpunk.at/2011/10/08/manual-rooting-android-on-linux-2/" title="manual rooting">这里</a>的方法进行root</li>
+</ul>
+
+
+<p>即：</p>
+
+<ul>
+<li>mount -o remount,rw /dev/block/&#8230;/system /system</li>
+<li>mv path/to/modified/su /system/xbin/su</li>
+<li>mount -o remount,ro /dev/block/&#8230;/system /system</li>
+</ul>
+
+
+<p>但是发现失败了，我怀疑是su这个文件不兼容，于是，我想了一个更贱的方法：</p>
+
+<ul>
+<li>把ASOP代码中的/system/extras/su/su.c该掉，把检查的部分全部去掉</li>
+<li>然后刷机</li>
+</ul>
+
+
+<p>这样就直接root了！不过这只能用于我的测试机啦，正常的手机千万不敢那么做，太危险了！</p>
+
+<hr />
+
+<p>另外，我用了两款软件，<a href="https://github.com/evilsocket/dsploit" title="dsploit">dSploit</a>和<a href="github.com/mwrlabs/mercury" title="mercury">Mercury</a>，而且都有源码，准备之后两周研究下，学习下android编程和如何进行penetration</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1657,458 +1946,6 @@ $ sudo mount /dev/nbd0p1 /mnt
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/10/12/android-messaging-mechanism/">Android Messaging Mechanism</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-10-12T21:43:00+08:00" pubdate data-updated="true">Oct 12<span>th</span>, 2012</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>这两天做remote binder遇到一个bug，具体是什么就不细说了，总之是和android的message机制相关，在Handler.java里面通过mQueue.enqueueMessage()成功后却没有办法从Looper.java里面的mQueue.next()中读出该条message。搞了半天，打印了一堆log，最后发现竟然是因为Looper的线程被我自己block住了。这个主要是由于自己对其理解的错误造成的，之前我一直以为对于每个Activity（或Service）来说，除了主线程之外，都会有一个专用的Looper线程进行消息队列的轮询，今天和乃正讨论了下，其实不是这样的。对于一个进程来说，如果你没有需求说需要有某个线程做某些特定的事（比如socket监听），那么你的主线程就会进入Looper循环进行消息队列的轮询，否则你就需要自己再新建一个线程，或者重新开一个looper，或者进行socket监听&#8230;</p>
-
-<p>此外还有一点，looper是thread local的，对于这个的理解，应该是这样的：在每个线程新建之后，都会有一个原来线程的mQueue的引用，而如果你要自己做一些特定的事，比如重新开一个新的Looper进行其它消息的轮询，那么没有问题，你新建一个looper，但是要注意，你的mQueue是唯一的，也就是说，你之前的对原来线程的mQueue的引用就没了，也就是说，对于一个线程来说只可能有唯一的mQueue。</p>
-
-<p>之后就是message的流程。有两种可能的情况：</p>
-
-<ul>
-<li>sendMessage(): 这是最常见的形式，这个msg就是一个普通的message，它会依次调用sendMessageDelayed(), sendMessageAtTime(), queue.enqueueMessage()，最后将消息插到队列中去。</li>
-<li>post(): 我这次遇到的就是这种形式，在ServiceDispatcher中用到的就是它，它传递的message是一个Runnable对象，叫RunConnection，在post里面会逐步调用sendMessageDelayed(), sendMessageAtTime(), queue.enqueueMessage()，并且会将msg.callback设成RunConnection对象。</li>
-</ul>
-
-
-<p>之后在Looper中会进入while循环，每次取出一个msg(<em>queue.next()</em>)，然后调用dispatchMessage()，在里面会有下面这段代码：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>if (msg.callback != null) {
-</span><span class='line'>    msg.callback.run();
-</span><span class='line'>}
-</span><span class='line'>else {
-</span><span class='line'>    ...
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<p>也就是说如果是post传进来的RunConnection对象的msg的话将会直接运行它的run函数，否则会直接调用handleMessage()进行处理。</p>
-
-<hr />
-
-<p>android的message机制其实就是一种异步消息处理机制，进程通过Handler的sendMessage或post将msg进行enqueueMessage，然后通过该线程自己的Looper进行消息队列轮询并根据相应的情况进行handle。</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/10/05/android-service-startup/">Android Service Startup</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-10-05T10:25:00+08:00" pubdate data-updated="true">Oct 5<span>th</span>, 2012</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>现在要写一个service，在启动之后开启socket监听，等待用户端发消息给它进行处理。而这个service是不会有Activity的，于是乎就要考虑如何让这个service启动起来。</p>
-
-<h4>System Service Startup</h4>
-
-<p>最早想的是将这个service写成system service，然后通过SystemServer启动，这样是可行的，也蛮方便，具体的做法是这样的：</p>
-
-<p>在framework/base/core/java/android/os/app/目录中写一个NewService类extends Service，之后在SystemServer.java中添加</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">Slog</span><span class="o">.</span><span class="na">i</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;New Service&quot;</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">ServiceManager</span><span class="o">.</span><span class="na">addService</span><span class="o">(</span><span class="s">&quot;newservice&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">NewService</span><span class="o">(</span><span class="n">context</span><span class="o">));</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Throwable</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">Slog</span><span class="o">.</span><span class="na">e</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;Failure starting New Service&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>之后NewService就会开机启动，但是这样有一个问题，就是这个NewService的pid也就是SystemServer的pid，它们是处于同一个进程中的。于是由于种种原因我不希望启动一个系统服务，而是一个application level的service，这样就遇到一个问题：如果是一个单纯的没有activity的service应用，在通过<em>adb install</em>进系统后并不会自动启动，而是需要其它进程通过<em>startService()</em>或者<em>bindService()</em>启动，那么有没有什么其它方法让一个service在每次install之后启动呢？</p>
-
-<h4>App Level Service Startup upon Installe</h4>
-
-<p>这里有两种方案：</p>
-
-<ul>
-<li>1 通过先启动一个Activity，然后<em>startService()</em>启动该service，之后在Activity中将自己finish掉；</li>
-<li>2 在application中注册一个BroadcastReceiver，监听PackageManager的<em>android.intent.action.PACKAGE_ADDED</em>的intent-filter，然后在Receiver的onReceive()里面通过</li>
-</ul>
-
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Intent</span> <span class="n">serviceIntent</span> <span class="o">=</span><span class="k">new</span> <span class="n">Intent</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">NewService</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</span><span class='line'><span class="n">context</span><span class="o">.</span><span class="na">startService</span><span class="o">(</span><span class="n">serviceIntent</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>进行启动。</p>
-
-<p>在我看来第二种方案更符合我的要求，因为这样我就可以不用每次点击一下某个Activity才能启动service，但是这也是我最先否决的方案，因为我在Stack Overflow里面看到好多个讨论这个问题的帖子，其中有一个回复是这么说的：</p>
-
-<blockquote><p>all applications, upon installation, are placed in a &#8220;stopped&#8221; state. This is the same state that the application winds up in after the user force-stops the app from the Settings application. While in this &#8220;stopped&#8221; state, the application will not run for any reason, except by a manual launch of an activity. Notably, noBroadcastReceviers will be invoked, regardless of the event for which they have registered, until the user runs the app manually.</p></blockquote>
-
-
-<p>也就是说任何app level的应用都不可能在没有得到用户同意的情况下自动启动（特别是在android3.1之后，它们在安装后被置于了“stopped”的状态，只有当用户点击了某个Activity的图标才能启动起来，service也只有通过某个启动的Activity或Service通过startService()或bindService()才能启动起来。</p>
-
-<p>所以第二个方案不可行，下面我们来看第一个方案：</p>
-
-<p>在第一个方案里面，当Activity通过startService()启动service之后，就通过finish()将自己退出。这个时候按照android的specification，通过startService()启动的service是不会退出的（通过bindService()启动的service会随着activity的退出而退出），为了确定这一点，可以通过Settings->Apps->Running Service来查看。</p>
-
-<h5>startForeground()</h5>
-
-<p>另外，为了防止你在background运行的service在low memory的时候被系统强制退出，可以通过startForeground()将该service定义在foreground中，而这个所谓的foreground就是我们平时看到的位于android上方的消息栏，里面可以设置该service需要显示的信息，以及时间间隔&#8230;具体可以参见<a href="http://ytliu.github.com" title="Service API">Service API</a>，这里有一个简单的示例：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Notification</span> <span class="n">note</span><span class="o">=</span><span class="k">new</span> <span class="n">Notification</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">stat_notify_chat</span><span class="o">,</span>
-</span><span class='line'>  <span class="s">&quot;Can you hear the music?&quot;</span><span class="o">,</span>
-</span><span class='line'>  <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">());</span>
-</span><span class='line'><span class="n">Intent</span> <span class="n">i</span><span class="o">=</span><span class="k">new</span> <span class="n">Intent</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">FakePlayer</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</span><span class='line'><span class="n">i</span><span class="o">.</span><span class="na">setFlags</span><span class="o">(</span><span class="n">Intent</span><span class="o">.</span><span class="na">FLAG_ACTIVITY_CLEAR_TOP</span><span class="o">|</span>
-</span><span class='line'>  <span class="n">Intent</span><span class="o">.</span><span class="na">FLAG_ACTIVITY_SINGLE_TOP</span><span class="o">);</span>
-</span><span class='line'><span class="n">PendingIntent</span> <span class="n">pi</span><span class="o">=</span><span class="n">PendingIntent</span><span class="o">.</span><span class="na">getActivity</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">i</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
-</span><span class='line'><span class="n">note</span><span class="o">.</span><span class="na">setLatestEventInfo</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="s">&quot;Fake Player&quot;</span><span class="o">,</span>
-</span><span class='line'>  <span class="s">&quot;Now Playing: \&quot;Ummmm, Nothing\&quot;&quot;</span><span class="o">,</span>
-</span><span class='line'>  <span class="n">pi</span><span class="o">);</span>
-</span><span class='line'><span class="n">note</span><span class="o">.</span><span class="na">flags</span><span class="o">|=</span><span class="n">Notification</span><span class="o">.</span><span class="na">FLAG_NO_CLEAR</span><span class="o">;</span>
-</span><span class='line'><span class="n">startForeground</span><span class="o">(</span><span class="mi">1337</span><span class="o">,</span> <span class="n">note</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>App Level Service Startup when Bootup</h4>
-
-<p>这是一种理论中的方法，因为我也没尝试过，具体方法参见<a href="http://" title="service startup when bootup">this article</a>，大概的意思是在application的Android.manifest文件中添加一个user-permission和一个receiver的intent-filter：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;application</span> <span class="err">...</span><span class="nt">&gt;</span>
-</span><span class='line'>    ......
-</span><span class='line'>    <span class="nt">&lt;receiver</span> <span class="na">android:name=</span><span class="s">&quot;.MyReceiver &quot;</span><span class="na">android:enabled=</span><span class="s">&quot;true&quot;</span> <span class="na">android:exported=</span><span class="s">&quot;false&quot;</span><span class="err">]]</span><span class="nt">&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;intent-filter&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;action</span> <span class="na">android:name=</span><span class="s">&quot;android.intent.action.BOOT_COMPLETED&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;/intent-filter&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/receiver&gt;</span>
-</span><span class='line'><span class="nt">&lt;/application&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;uses-permission</span> <span class="na">android:name=</span><span class="s">&quot;android.permission.RECEIVE_BOOT_COMPLETED&quot;</span><span class="nt">/&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>然后在MyReceiver类里面的onReceive()函数中开启相应的service：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">MyReceiver</span> <span class="kd">extends</span> <span class="n">BroadcastReceiver</span> <span class="o">{</span>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onReceive</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">,</span><span class="n">Intent</span> <span class="n">intent</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">Intent</span> <span class="n">serviceIntent</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Intent</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">NewService</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">context</span><span class="o">.</span><span class="na">startService</span><span class="o">(</span><span class="n">serviceIntent</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>这种方法看上去应该是可行的，但是问题是用户每次装你的应用都要让系统重启一遍，那还有谁会那么好心情去安装你的应用啊？</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/09/28/opennebula-setup-note/">Opennebula Setup Note</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-09-28T14:30:00+08:00" pubdate data-updated="true">Sep 28<span>th</span>, 2012</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>这几天搞opennebula这个项目，一个很大的感受就是对于environement setup一定要有详细的笔记，不然过了一段时间就什么也想不起来了，遇到和以前一样的问题也不懂该如何解决。实在浪费时间，于是就把它记下来。</p>
-
-<h2>基本命令</h2>
-
-<p>首先是opennebula里面的一些基本命令，这里以kvm为例：</p>
-
-<h3>Cloud Infrastructure Setup</h3>
-
-<p>On Cluster:</p>
-
-<pre><code>$ onecluster create cluster01
-</code></pre>
-
-<p>On Host (kvm):</p>
-
-<pre><code>$ onehost create host01 --im im_kvm --vm vmm_kvm --net dummy 
-$ onecluster addhost cluster01 host01
-</code></pre>
-
-<p>System Datastore (for running VM, not needed in front end):</p>
-
-<pre><code>mount a NFS directory to /var/lib/one/datastores/0 for each host, if you would like to perform live migration.
-</code></pre>
-
-<p>Filesystem Datastore (for regular storage), sample config file: &#8216;ds.conf&#8217;</p>
-
-<pre><code>$ onedatastore create ds.conf 
-$ onecluster adddatastore cluster01 ds01 
-$ onedatastore update 100
-</code></pre>
-
-<p>add SAFE_DIRS=&#8221;/var/lib/one/datastores/&#8221;, mount actual datastore to /var/lib/one/datastores/<datastore_id></p>
-
-<h3>Set up Virtual Resource</h3>
-
-<p>Virtual Machine Image</p>
-
-<pre><code>$ oneimage create img_debian.conf --datastore ds01
-</code></pre>
-
-<p>Virtual Network</p>
-
-<pre><code>$ onevnet create net_lease.conf
-</code></pre>
-
-<p>Virtual Machine Template</p>
-
-<pre><code>$ onetemplate create vm_debian.conf 
-$ onetemplate instantiate vm_debian --name debian1
-</code></pre>
-
-<p>Virtual Machine</p>
-
-<pre><code>$ onevm deploy debian1 brick4 
-$ onevm suspend debian1 
-$ onevm resume debian1 
-$ onevm resubmit debian1 
-$ onevm stop debian1 
-$ onevm delete debian1
-</code></pre>
-
-<h3>qemu/kvm</h3>
-
-<p>create image:</p>
-
-<pre><code>$ /usr/local/kvm/bin/qemu-img create -f qcow2 &amp;lt;img_name&amp;gt; 10G
-</code></pre>
-
-<p>create image from base:</p>
-
-<pre><code>$ /usr/local/kvm/bin/qemu-img create -f qcow2 -b &amp;lt;base_img_name&amp;gt; &amp;lt;img_name&amp;gt;
-</code></pre>
-
-<p>install os:</p>
-
-<pre><code>$ sudo /usr/local/kvm/bin/qemu-system-x86_64 -k en-us -hda vdisk.img -cdrom /path/to/boot-media.iso 
-</code></pre>
-
-<p>run image:</p>
-
-<pre><code>$ /usr/local/kvm/bin/qemu-system-x86_64 -k en-us -hda vdisk.img -m 512
-</code></pre>
-
-<h2>权限问题</h2>
-
-<h3>ssh 权限</h3>
-
-<p>需要把front的oneadmin用户的.ssh/id_rsa.pub拷贝到host的oneadmin用户的.ssh/authorized_keys里面</p>
-
-<p>需要把host的oneadmin用户的.ssh/id_rsa.pub拷贝到front的oneadmin用户的.ssh/authorized_keys里面（optional）</p>
-
-<h3>账户设置</h3>
-
-<p>两边oneadmin账户的uid，gid一定要相同！</p>
-
-<p>On front:</p>
-
-<pre><code>$ id oneadmin
-uid=1002(oneadmin) gid=1002(oneadmin) groups=1002(oneadmin)
-</code></pre>
-
-<p>On host:</p>
-
-<pre><code>$ addgroup --gid 1002 oneadmin
-$ useradd --uid 1002 -g oneadmin -d /var/lib/one oneadmin
-</code></pre>
-
-<p>另外在host端的oneadmin还需要有/var/lib/one目录下所有东西的所有权，同时，oneadmin还需要加入<strong>group kvm</strong>（否则无法启动kvm）</p>
-
-<pre><code>$ usermod -a -G kvm oneadmin
-</code></pre>
-
-<p>另外，由于/usr/bin/kvm的权限是root:root，所以这个也可能引发错误，或者将其权限改为oneadmin，或者为oneadmin添加一个root用户组:</p>
-
-<pre><code>$ usermod -a -G root oneadmin
-</code></pre>
-
-<h3>libvirt</h3>
-
-<p>！！！！搞了我好久，一直莫名其妙地出一个错误：</p>
-
-<pre><code>internal error process exited while connecting to monitor: kvm: -drive file=/var/lib/one//datastores/0,if=none,id=drive-ide0-0-0,format=raw: 
-could not open disk image /var/lib/one//datastores/0: Permission denied
-</code></pre>
-
-<p>我直接用kvm打开那个镜像都没问题，然后看到一个帖子http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=673427，再加上http://opennebula.org/documentation:archives:rel3.4:kvmg看到这样一句：</p>
-
-<pre><code>Qemu should be configured to not change file ownership. Modify /etc/libvirt/qemu.conf to include dynamic_ownership = 0. To be able 
-to use the images copied by OpenNebula, change also the user and group under which the libvirtd is run to “oneadmin”.
-</code></pre>
-
-<p>然后去<strong>/etc/libvirt/qemu.conf</strong>把user改成oneadmin,group改成cloud（顺便说下oneadmin也加了一个cloud的group),瞬间就起起来了！</p>
-
-<p>然后，我把oneimage换了一下，把</p>
-
-<pre><code>NAME          = "debian_new"
-PATH          = /var/lib/one/datastores/ubuntu.11-10.x86-64.20111013.qcow2
-加了三行：
-TYPE          = OS
-PERSISTENT    = YES
-DRIVER        = qcow2
-</code></pre>
-
-<p>然后就起来了。。。其实我也不知道为什么，可能.qcow2结尾的镜像就是要qcow2的driver才能起起来吧</p>
-
-<hr />
-
-<p>之后配host2的时候还会碰到一个问题就是/var/run/libvirt/libvirt-sock和/var/tmp/one目录下的permission denied，对于前者，给oneadmin再加一个libvirtd的group，对于后者，把/var/tmp/one chown一下就好了</p>
-
-<h2>NFS</h2>
-
-<h3>On front</h3>
-
-<pre><code>$ vi /etc/hosts
-203.95.3.3 host1
-203.95.3.4 host2
-
-$ vi /etc/exports
-/var/lib/one/datastores/0       host1(rw,no_root_squash)   #0是system datastore的编号，是opennebula自带的
-/var/lib/one/datastores/104     host1(rw,no_root_squash)   #104是file system datastore的编号，由onedatastore自动创建的
-</code></pre>
-
-<h3>On host</h3>
-
-<pre><code>$ cd
-$ mkdir datasdores
-$ mkdir datastores/0
-$ mkdir datastores/104
-$ sudo mount 203.95.3.5:/var/lib/one/datastores/104 /var/lib/one/datastores/104
-$ sudo mount 203.95.3.5:/var/lib/one/datastores/0 /var/lib/one/datastores/0
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -2124,23 +1961,23 @@ $ sudo mount 203.95.3.5:/var/lib/one/datastores/0 /var/lib/one/datastores/0
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2012/12/15/dynamic-linker/">Dynamic Linker</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/12/09/aslr-in-android/">ASLR in android</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/12/08/get-root-in-my-android/">get root in my android</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2012/12/01/connect-smartphone-to-android-emulator/">connect smartphone to android emulator</a>
       </li>
     
       <li class="post">
         <a href="/blog/2012/11/25/isfjian-wen-yu-shou-huo/">ISF见闻与收获</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/11/12/android-partition-explaination/">Android Partition Explaination</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/11/11/getsystemservice-in-android/">getSystemService() in android</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/11/03/parcel-object-in-android/">Parcel object in android</a>
       </li>
     
   </ul>
