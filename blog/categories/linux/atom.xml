@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Linux | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/linux/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2012-12-09T13:39:43+08:00</updated>
+  <updated>2012-12-17T13:27:32+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -24,11 +24,137 @@
 
 <p><img src="http://ytliu.github.com/images/2012-12-09-1.png" title="elf section" alt="elf section" /></p>
 
-<p>很有参考价值。</p>
+<p>很有参考价值。其中将会涉及到的sections有<em>.got</em>, <em>.plt</em>, <em>.interp</em>。</p>
 
-<p>另外在<a href="http://www.bottomupcs.com/" title="computer science from bottom up">Computer Science from the Bottom Up</a>中有一章对dynamic linker进行了详细的说明。以下的内容基本上来自于该文档中。</p>
+<p>另外在<a href="http://www.bottomupcs.com/" title="computer science from bottom up">Computer Science from the Bottom Up</a>中有一章对dynamic linker进行了详细的说明。以下的内容很多来自于该文档中。</p>
 
-<p>问题的产生是这样子的：当我们使用一段shared library的时候，它并没有指定说一定要把相应的代码放在那个内存地址，而是由dynamic linker根据当前内存情况选择一段最合适的内存区域用于放置相应的code和data。那么dynamic linker是怎么做的呢？我觉得还是把这个问题放在一篇单独的文章里面说吧</p>
+<p>还有一个资料来源是俞甲子的《程序员的自我修养》一书第七章。</p>
+
+<p>问题的产生是这样子的：当我们使用一段shared library的时候，它并没有指定说一定要把相应的代码放在哪个内存地址，而是由dynamic linker根据当前内存情况选择一段最合适的内存区域用于放置相应的code和data。那么dynamic linker是怎么做的呢？我们举一个很简单的例子来说明；</p>
+
+<p>首先，我们编写并编译一段动态链接库lib.c, lib.h：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">include</span> <span class="s">&quot;lib.h&quot;</span><span class="p">;</span><span class="o">&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="kt">void</span> <span class="n">test</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="p">)</span> <span class="p">{</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;in dynamic lib, i is %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">Char</span> <span class="o">*</span><span class="n">dylib</span> <span class="o">=</span> <span class="s">&quot;Test Dynamic Linker String&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="kt">void</span> <span class="n">test</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>然后将其编译为动态连接库libtest.so</p>
+
+<pre><code>$ gcc -fPIC -shared -o libtest.so lib.c
+</code></pre>
+
+<p>这里 "-shared"表示产生共享对象，"-fPIC"表示地址无关代码，这在后面会说。</p>
+
+<p>然后我们编写一段程序dytest.c来利用libtest.so:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">include</span> <span class="s">&quot;lib.h&quot;</span><span class="p">;</span><span class="o">&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="k">extern</span> <span class="kt">char</span> <span class="o">*</span><span class="n">dylib</span><span class="p">;</span>
+</span><span class='line'><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Hello, %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">dylib</span><span class="p">);</span>
+</span><span class='line'><span class="n">test</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>
+</span><span class='line'><span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>然后对其进行编译：</p>
+
+<pre><code>$ gcc -o dytest dytest.c ./libtest.so
+$ ./dytest
+Hello, Test Dynamic Linker String
+in dynamic lib, i is 5
+</code></pre>
+
+<p>就这么一段简单的测试代码中，动态链接是怎么完成的呢？它和静态链接有什么不同呢？</p>
+
+<p>在静态链接中，整个程序只有一个可执行文件，在这个可执行文件中，所有变量和函数的地址都已经固定好了（这是由linker在链接时从静态链接的文件中读出来并进行地址重定位），而在动态链接中，这些地址并不会进行地址重定位。那么，链接器怎么知道一个地址是静态符号还是动态符号呢？其实在我们编译dytest的时候也将libtest.so加进去进行编译了，而在libtest.so中保存了完整的符号信息，从而linker可以知道该符号是一个动态符号。</p>
+
+<p>既然动态链接库主要用于共享，那么有一个问题：共享对象在编译时不应该假设自己在进程虚拟地址空间中的位置。一种解决的方法是采用“装载时重定位”，但是这样有一个缺点，因为它要在程序装载时对指令部分进行修改，所以就无法使得指令部分在多个进程中共享，这样就失去了共享库的优势，另一种就是地址无关代码，它的基本想法就是把指令中那些需要修改的部分分离出来，和数据放在一起。</p>
+
+<p>我们把地址引用分为4个部分</p>
+
+<ul>
+<li>模块内部函数调用</li>
+<li>模块内部数据访问</li>
+<li>模块外部数据访问</li>
+<li>模块外部函数调用</li>
+</ul>
+
+
+<p>第一种情况应该是最简单的，因为在模块内部函数与调用者的位置是相对的，可以采取相对地址调用。</p>
+
+<p>第二种情况同样采用相对地址的访问，这里有一个trick，就是如何得到数据地址和当前地址的相对值，俞子甲的书中介绍了一种方法(7.3节)。另外，在处理共享库的全局变量的时候，编译器都把它当作定义在其它模块的全局变量，相当于后面讲的类型三，使用GOT表。</p>
+
+<p>第三种情况就复杂一点了，因为它要等到装载时才能决定。这里就要用到GOT（Global Offset Table）表了，ELF在数据段中建立一个指向相关地址的指针数组。对于数据变量a，在GOT表中有一个4bytes的地址项与之对应，在程序装载时，链接器会找到这个变量的地址，并将该项进行修改。</p>
+
+<p>第四种情况和第三种类似，只是地址为函数地址。</p>
+
+<p>这里还要注意一点的是，在产生地址无关代码的时候参数-fpic和-fPIC的区别，-fpic产生的代码相对较小，而且较快，但是对于一些硬件平台有一些限制。另外，它也可以被用在可执行代码上，这时，就被称为PIE（using -fPIE or -fpie）。</p>
+
+<p>这里需要澄清的一点是，对于一个共享库lib.so来说，它在不同的进程中都有自己独立的副本，而在同个进程不同线程中则是共享的。而对于多进程共享全局变量使用的是“共享数据段”，而多线程访问不同全局变量则被称为“线程私有存储”。</p>
+
+<p>还有，对于数据段的绝对地址引用，可以用到装载时重定位的方法来解决，即对于共享对象来说，如果数据段中有绝对地址引用，如<em>static int </em>p = &amp;a*，编译器和链接器会产生一个重定位表，当动态链接器装载共享对象时若发现有重定位入口，则对其进行重定位。</p>
+
+<h4>延迟绑定（PLT）</h4>
+
+<p>在动态链接的程序开始运行的时候都会通过动态链接器寻找并装载共享对象，但是有些函数其实可能并不会被调用。为了增加性能，会采用一种被称为PLT（Procedure Linkage Table）的方式，它的基本思想就是当函数第一次被用到时才进行绑定。它采用了一些很精巧的指令来完成:</p>
+
+<p>每个外部函数都有一个在PLT对应的项（bar@plt)</p>
+
+<pre><code>bar@plt:
+jmp *(bar@GOT)
+push n
+push moduleID
+jmp _dl_runtime_resolve
+</code></pre>
+
+<p>在这里第一条指令跳转到bar在GOT中的项，该项中的初始地址即为这里第二条指令（push n）的地址，相当于没有效果，然后将bar的信息和其所在模块的信息压入栈，最后调用_dl_runtim_resolve将bar真正对的地址填入到bar@GOT中，当下次真正调用bar的时候就会跳转到真正的函数地址，并返回到调用者，而不会回到<em>push n</em>的地址了。</p>
+
+<p>感觉后面的部分好复杂，自己表达不清楚...还是好好先看书吧...</p>
 ]]></content>
   </entry>
   
