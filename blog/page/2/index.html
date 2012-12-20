@@ -9,7 +9,7 @@
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="这两天做remote binder遇到一个bug，具体是什么就不细说了，总之是和android的message机制相关，在Handler.java里面通过mQueue.enqueueMessage()成功后却没有办法从Looper.java里面的mQueue.next()中读出该条message。 &hellip;">
+  <meta name="description" content="这两天在做opennebula项目的时候遇到一个问题，我忘记掉之前那几个虚拟机的用户密码了！试了好多可能的密码都不对，只能想办法把密码改掉了。 虚拟机的好处在于我可以把它直接mount到物理主机上对其进行操作，不过镜像文件不是一个普通的设备块，不能通过一般的方法mount，只能用不一般的方法了： &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,192 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/10/20/regain-my-vms-account/">Regain My VM&#8217;s Account</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-10-20T13:53:00+08:00" pubdate data-updated="true">Oct 20<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>这两天在做opennebula项目的时候遇到一个问题，我忘记掉之前那几个虚拟机的用户密码了！试了好多可能的密码都不对，只能想办法把密码改掉了。</p>
+
+<p>虚拟机的好处在于我可以把它直接mount到物理主机上对其进行操作，不过镜像文件不是一个普通的设备块，不能通过一般的方法mount，只能用不一般的方法了：</p>
+
+<p>首先我有两种镜像，一个是普通的qemu镜像，以.img结尾的文件，一种是KVM的qcow2文件。</p>
+
+<h5>.img镜像</h5>
+
+<p>对于第一种，飞机教了我一个办法：</p>
+
+<pre><code>$ fdisk -l vm.img
+Disk datastores/vm.img: 8589 MB, 8589934592 bytes
+255 heads, 63 sectors/track, 1044 cylinders, total 16777216 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0x0004bacc
+Device Boot      Start         End      Blocks   Id  System
+datastores/vm3.img1   *        2048    15958015     7977984   83  Linux
+datastores/vm3.img2        15960062    16775167      407553    5  Extended
+datastores/vm3.img5        15960064    16775167      407552   82  Linux swap / Solaris
+</code></pre>
+
+<p>注意里面的一个数2048，然后执行下面一条指令：</p>
+
+<pre><code>$ mount -o offset=$((2048*512)),loop vm.img /mnt
+</code></pre>
+
+<p>然后就mount到/mnt上去了。</p>
+
+<h5>.qcow2镜像</h5>
+
+<p>第二种镜像得用另外一个方法，这个是从<a href="http://blog.loftninjas.org/2008/10/27/mounting-kvm-qcow2-qemu-disk-images/">这里</a>看到的：</p>
+
+<p>首先要先aptitude install 一个nbd-client，通过</p>
+
+<pre><code>$ sudo modprobe nbd max_part=8
+$ sudo qemu-nbd --connect=/dev/nbd0 vm.qcow2
+$ sudo fdisk /dev/nbd0
+$ sudo mount /dev/nbd0p1 /mnt
+</code></pre>
+
+<p>即完成了mount，当然我对其中的原理也不太了解就是了。</p>
+
+<h5>chroot</h5>
+
+<p>最后是如何改密码，我是痛过chroot来做的，这里想简单介绍下这个命令：</p>
+
+<p>刚开始我直接运行：</p>
+
+<pre><code>$ sudo chroot .
+</code></pre>
+
+<p>然后报了一个这个错误：</p>
+
+<pre><code>chroot: failed to run command `/bin/zsh': No such file or directory`
+</code></pre>
+
+<p>之后了解了chroot的<a href="http://www.ibm.com/developerworks/cn/linux/l-cn-chroot/">工作流程</a>才知道这是怎么回事：</p>
+
+<p>一个相对完整的chroot流程是这样的：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;unistd.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="n">argc</span><span class="o">&lt;</span><span class="mi">2</span><span class="p">){</span>
+</span><span class='line'>  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Usage: chroot NEWROOT [COMMAND...] </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;newroot = %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="n">chroot</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">perror</span><span class="p">(</span><span class="s">&quot;chroot&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="n">chdir</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">perror</span><span class="p">(</span><span class="s">&quot;chdir&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">getenv</span><span class="p">(</span><span class="s">&quot;SHELL&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span><span class='line'>      <span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="s">&quot;/bin/sh&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="s">&quot;-i&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">argv</span> <span class="o">+=</span> <span class="mi">2</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">execvp</span> <span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">argv</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;chroot: cannot run command `%s`</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">argv</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>在chdir之后会先看看用户有没有指定特定的shell，如果没有则根据环境变量中的SHELL来指定相同的shell，否则会使用用户指定的shell运行（argv += 2)。由于我原来用户的shell是<em>/bin/zsh</em>, 且我没有指定特定的shell，所以在chroot之后就默认使用<em>/bin/zsh</em>，但是在这个镜像的文件系统中并没有<em>/bin/zsh</em>，所以就会报错。</p>
+
+<p>所以我只需要（1）将环境变量中的shell设成<em>/bin/bash</em>或者（2）指定一个shell（$ sudo chroot . /bin/bash）就可以了</p>
+
+<p>之后就可以通过运行</p>
+
+<pre><code>$ passwd root
+</code></pre>
+
+<p>来改变root的密码了。</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1648,152 +1834,6 @@ gem install mime
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/03/17/exploitation-learning-outset/">Metasploit Learning Outset</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-03-17T15:35:00+08:00" pubdate data-updated="true">Mar 17<span>th</span>, 2012</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>这周开始看和学《Metasploit》，真是一个神器啊！原来这种工具还有一种比较学术的、很有正义感的名字叫&#8221;Peneration Test Tool&#8221;啊，不过也确实很有道理就是了，毕竟攻击与防范真是因人而异，其实我觉得如果要实现一个相对安全的系统就先拿所有这些所谓的Penetration tools测试一遍，虽然说从来就是先有矛再有盾，但毕竟如果能对抗所有已有的矛，那这个盾也足够强大了，至于那些新发明的矛，可以通过一些特征标识检测机制来减少，如果想彻底防范所有的攻击那是不可能的！当然啦，要通过现有的所有Penetration Tests困难还是挺大的，而且并不是所有人都有这么高的安全意识，这也就造成现在攻击泛滥、隐私无处藏身的危险境地。做安全的人必需地先懂得攻击，这是我自己理解的，懂得攻击的方式很多，可以从最底层开始，比较理论而深入地去学习每一种攻击的原理，也可以从一些现有的工具下手，来分析它们的漏洞查找手法和所找到的系统漏洞的特点，在我看来，太过于强调前者不是那么地贴近实际，而太过于依赖后者最多也就只能算是个名不见经传的小黑客，所以，我希望能联系两者，即能通过一些paper来比较深入地理解大部分攻击的原理和概念，又能熟练掌握一些或是开源或是收费的工具，更现实而直观地探测它们的可行性。经过了一段时间的survey，我发现了很多超级强大的工具，从各种角度来进行各种攻击，比如进行网络抓包的Wireshark，强调于局域网中间人攻击的Ettercap，简单而又强大的nmap，牛逼的密码破解和ARP攻击的windows下面的Cain，还有寻找漏洞的NeXpose和Nessus&#8230;最后我打算从Metasploit这个&#8221;神器&#8221;入手进行扩展，一个是因为这是一个开源而且被广泛应用的Framework，功能确实无比强大，整合了很多的module和plugin，而且《Metasploit》这本文档也写得很不错，不仅仅是介绍攻击方法，而且框架很清晰，从攻击的流程来进行说明，很有往下看下去的欲望。</p>
-
-<p>在Metasploit这个Framework里面内置了很多plugin，比如前面提到的nmap，NeXpose，Nessus等等，而且它还提供了特别多information gathering和vulnerability scanning的模块你可以直接使用，并用<em>show options</em>来直观地查看它们的用法，当发现了某个漏洞，还可以用它内置的数不尽的payload进行exploit，更重要的是在exploit成功之后还有一个amazing的meterpreter来处理post-exploit的事物，全面控制target。当然啦，到目前为止我只看到这里，后面还有许多方面的介绍，实在是值得一读。而且，它还提供了一个ubuntu系统和一个window XP系统让你进行实验，毕竟攻击真实环境中的机器是不合法的。</p>
-
-<p>这里记录了一些简单的笔记，基本上都能从书中找到，认真学习它肯定能有收获，这个工具的使用是我这个月的计划之一。不懂一个月能不能了解个大概:-)</p>
-
-<pre><code>Terminology:
-Exploit
-    An exploit is the means by which an attacker take advantage of a flaw within a system, an application or a service.
-    Common exploits include buffer overflows, web application vulnerabilities(such as SQL injection) and configuration errors
-Payload
-    A payload is code that we want the system to execute and that is to be selected and delivered by the framework.
-Shellcode
-    Shellcode is a set of instructions used as a payload when exploitation occurs, after which in most cases, a command 
-    shell or a meterpreter shell will be provided.
-Module
-    A module in the context of this book is a piece of software that can be used by the Metasploit Framework.
-Listener
-    A listener is a component within Metasploit that waits for an incoming connection of some sort.
-</code></pre>
-
-<p>还有一些指令和module：</p>
-
-<pre><code>Basic Scan
-msf &gt; db_connect postgres:psw@127.0.0.1/msfdb
-msf &gt; db_import file.xml
-TCP Idle Scan: auxiliary/scanner/ip/ipidseq
-Port scan: search portscan
-SMB Scan: scanner/smb/smb_version
-MS SQL Server Scan: scanner/mssql/mssql_ping
-FTP Scan: scanner/ftp/ftp_version, auxiliary/scanner/ftp/anonymous
-NeXpose
-msf &gt; db_connect postgres:pwd@127.0.0.1/msfdb
-msf &gt; load nexpose
-msf &gt; nexpose_connect username:password@ip:3780 ok
-msf &gt; nexpose_scan target_ip
-msf &gt; hosts -c address
-msf &gt; vulns
-Nessus
-msf &gt; db_connect postgres:pwd@127.0.0.1/msfdb
-msf &gt; load nessus
-msf &gt; nessus_connect username:password@ip:8834 ok
-msf &gt; nessus_policy_list
-msf &gt; nessus_scan new &lt;policy id&gt; &lt;scan name&gt; target_ip
-msf &gt; nessus_scan_status
-msf &gt; nessus_report_list
-msf &gt; nessus_report_get &lt;ID&gt;
-msf &gt; hosts -c address,svcs,vulns
-Validating SMB Logins
-msf &gt; use auxiliary/scanner/smb/smb_login
-msf &gt; set RHOSTS/SMBUser/SMBPass
-msf &gt; exploit
-VNC Authentication
-msf &gt; use auxiliary/scanner/vnc/vnc_none_auth
-Open X11 Server
-msf &gt; use auxiliary/scanner/x11/open_x11
-#key-stroke logging using Back|Track's xspy tool:
-cd /pentest/sniffers/xspy/
-./xspy -display ip:port -delay 100
-</code></pre>
-
-<p>云云尔尔&#8230;</p>
-
-<hr />
-
-<p>另外，这周还看了一个关于彩虹表的介绍，确实是牛逼啊！很想下个120G的彩虹表下来，这里用wiki上的例子简单介绍下这个彩虹表吧，具体的参看<a href="http://en.wikipedia.org/wiki/Rainbow_table" title="wiki">wiki</a>, 之所以会出现彩虹表这个东西，主要是由time cost和space cost的trade-off引入的。简单来说背景是这样的（采用<a href="http://www.ha97.com/4009.html" title="rainbow table">这里</a>的例子）：大家知道如果要破解一个经过hash加密（比如md5）的密码，有两种最直观的方法：</p>
-
-<pre><code>1. 枚举所有你可能想得到的明文，用md5算一遍，如果结果等于该密码则成功，这要消耗大量的计算资源和时间
-2. 列一张包含所有明文映射成密文的表，通过表查找密文，这要占据大量的存储空间
-</code></pre>
-
-<p>举个例子，对于14位的大小写加数字（不包括特殊字符），组成的密码集合为（26x2+10）的14次方即12亿亿亿，如果每纳秒可以计算一个，需要4亿年时间，如果hash结果为128bit即16字节，存hash就需要10的26次方字节空间，如果1GB硬盘算五毛，需要5亿亿人民币！况且查那么大的表也需要时间，这个谁能受得了？如果再加上特殊字符就更不可想象了。</p>
-
-<p>而rainbow table就是平衡了这两种资源，采用了一种叫Hash chain的技术:</p>
-
-<p>假设我们知道这个加密的Hash function H，以及一个有限的密码集合P，在初始化阶段，我们定义另外一个hash function R，从P中随即选取一组密码，对每一个进行如下计算：</p>
-
-<pre><code>aaaaaa --H-&gt; 281DAF40 --R-&gt; sgfnyd --H-&gt; 920ECF10 --R-&gt; kiebgt
-</code></pre>
-
-<p>进行k次，k的大小决定了chain的长度（k越大，最后计算的时间可能更多，单占用的存储空间可能更小，这取决于你的decision），我们仅仅存储第一个（aaaaaa，称为starting point）和最后一个（kiebgt，称为end point），之后当我们需要破解一个密码h（比如920ECF10）时，我们从h开始计算chain，从应用R开始：</p>
-
-<pre><code>910ECF10 --R-&gt; kiebgt
-</code></pre>
-
-<p>当遇到一个值等于所记录的所有end point中的其中一个则从相应的start point开始重新计算一遍它的chain：</p>
-
-<pre><code>aaaaaa --H-&gt; 281DAF40 --R-&gt; sgfnyd --H-&gt; 920ECF10
-</code></pre>
-
-<p>所以得到密码为sgfnyd。当然还有另外一种情况如下：</p>
-
-<pre><code>FB107E70 --R-&gt; bvtdll --H-&gt; oEE80890 --R-&gt; kiebgt
-</code></pre>
-
-<p>虽然它的end point为kiebgt，但是910ECF10并不在这条chain中，这种情况称为false alarm，当遇到这种情况我们就忽略这个match，从kiebgt开始继续计算chain，当计算的次数超过k，则表示在我们的存储中没有相应的密码h，则从P中重新选取另外的集合计算chains。</p>
-
-<p>这是rainbow table最基本的原理，当然它没有这么简单，还有许多需要考虑的问题，比如R如何选择，k要取多少……具体的细节请参考rainbow table wiki。</p>
-
-<hr />
-
-<p>这周还把电脑换成64位了，现在的本本已经有8g的内存啦！！！用起来好爽啊！硬盘也整理出来更多的空间，等暑假买了mac就可以有两台本本给我好好折腾了，想想都happy啊~不过装机的代价就是这周又没干什么正事，明天想好好看篇paper，这周选的是：</p>
-
-<pre><code>Vanish: Increasing Data Privacy with Self-Destructing Data
-</code></pre>
-
-<p>主要是因为现在有一个关于attack-aware system的不成熟的idea，不过想想觉得可能比较不现实，总之先简单survey下吧。想idea真是一个苦差事啊，未来的5年怎么办啊！！！</p>
-
-<hr />
-
-<p>考研的国家线就快要出来啦！小呆一定要进复试然后被录取啊！现在突然感觉好寂寞啊，每天都不想出去就待在实验室，以后的生活一定不会是这样的单调，有点期待去交大的生活了，毕竟是去一个新的环境，认识新的人，开始新的生活。但是现在人生突然没有了激情啊。。。连打球都没了激情，小呆快点过来啊！木头现在好寂寞啊。。。</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/3/">&larr; Older</a>
@@ -1811,6 +1851,10 @@ cd /pentest/sniffers/xspy/
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2012/12/20/ru-guo-ming-tian-shi-shi-jie-mo-ri/">如果明天是世界末日</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2012/12/15/dynamic-linker/">Dynamic Linker</a>
       </li>
     
@@ -1824,10 +1868,6 @@ cd /pentest/sniffers/xspy/
     
       <li class="post">
         <a href="/blog/2012/12/01/connect-smartphone-to-android-emulator/">connect smartphone to android emulator</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/11/25/isfjian-wen-yu-shou-huo/">ISF见闻与收获</a>
       </li>
     
   </ul>

@@ -9,7 +9,7 @@
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="我看北爱 这两周花了晚上睡前的时间加上几次地铁上的时间把传说中的《北京爱情故事》看完了，蛮有感触的。没想到看到最后几集的时候竟然躺在床上任由眼泪从脸颊流下咽入口内，就像很多人所说的，这真的是一部展现无比残酷现实的爱情故事片，尽管我对其中很多思想做法不置可否，觉得或许很多太绝对， &hellip;">
+  <meta name="description" content="这周开始看和学《Metasploit》，真是一个神器啊！原来这种工具还有一种比较学术的、很有正义感的名字叫&#8221;Peneration Test Tool&#8221;啊，不过也确实很有道理就是了，毕竟攻击与防范真是因人而异， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,152 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/03/17/exploitation-learning-outset/">Metasploit Learning Outset</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-17T15:35:00+08:00" pubdate data-updated="true">Mar 17<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>这周开始看和学《Metasploit》，真是一个神器啊！原来这种工具还有一种比较学术的、很有正义感的名字叫&#8221;Peneration Test Tool&#8221;啊，不过也确实很有道理就是了，毕竟攻击与防范真是因人而异，其实我觉得如果要实现一个相对安全的系统就先拿所有这些所谓的Penetration tools测试一遍，虽然说从来就是先有矛再有盾，但毕竟如果能对抗所有已有的矛，那这个盾也足够强大了，至于那些新发明的矛，可以通过一些特征标识检测机制来减少，如果想彻底防范所有的攻击那是不可能的！当然啦，要通过现有的所有Penetration Tests困难还是挺大的，而且并不是所有人都有这么高的安全意识，这也就造成现在攻击泛滥、隐私无处藏身的危险境地。做安全的人必需地先懂得攻击，这是我自己理解的，懂得攻击的方式很多，可以从最底层开始，比较理论而深入地去学习每一种攻击的原理，也可以从一些现有的工具下手，来分析它们的漏洞查找手法和所找到的系统漏洞的特点，在我看来，太过于强调前者不是那么地贴近实际，而太过于依赖后者最多也就只能算是个名不见经传的小黑客，所以，我希望能联系两者，即能通过一些paper来比较深入地理解大部分攻击的原理和概念，又能熟练掌握一些或是开源或是收费的工具，更现实而直观地探测它们的可行性。经过了一段时间的survey，我发现了很多超级强大的工具，从各种角度来进行各种攻击，比如进行网络抓包的Wireshark，强调于局域网中间人攻击的Ettercap，简单而又强大的nmap，牛逼的密码破解和ARP攻击的windows下面的Cain，还有寻找漏洞的NeXpose和Nessus&#8230;最后我打算从Metasploit这个&#8221;神器&#8221;入手进行扩展，一个是因为这是一个开源而且被广泛应用的Framework，功能确实无比强大，整合了很多的module和plugin，而且《Metasploit》这本文档也写得很不错，不仅仅是介绍攻击方法，而且框架很清晰，从攻击的流程来进行说明，很有往下看下去的欲望。</p>
+
+<p>在Metasploit这个Framework里面内置了很多plugin，比如前面提到的nmap，NeXpose，Nessus等等，而且它还提供了特别多information gathering和vulnerability scanning的模块你可以直接使用，并用<em>show options</em>来直观地查看它们的用法，当发现了某个漏洞，还可以用它内置的数不尽的payload进行exploit，更重要的是在exploit成功之后还有一个amazing的meterpreter来处理post-exploit的事物，全面控制target。当然啦，到目前为止我只看到这里，后面还有许多方面的介绍，实在是值得一读。而且，它还提供了一个ubuntu系统和一个window XP系统让你进行实验，毕竟攻击真实环境中的机器是不合法的。</p>
+
+<p>这里记录了一些简单的笔记，基本上都能从书中找到，认真学习它肯定能有收获，这个工具的使用是我这个月的计划之一。不懂一个月能不能了解个大概:-)</p>
+
+<pre><code>Terminology:
+Exploit
+    An exploit is the means by which an attacker take advantage of a flaw within a system, an application or a service.
+    Common exploits include buffer overflows, web application vulnerabilities(such as SQL injection) and configuration errors
+Payload
+    A payload is code that we want the system to execute and that is to be selected and delivered by the framework.
+Shellcode
+    Shellcode is a set of instructions used as a payload when exploitation occurs, after which in most cases, a command 
+    shell or a meterpreter shell will be provided.
+Module
+    A module in the context of this book is a piece of software that can be used by the Metasploit Framework.
+Listener
+    A listener is a component within Metasploit that waits for an incoming connection of some sort.
+</code></pre>
+
+<p>还有一些指令和module：</p>
+
+<pre><code>Basic Scan
+msf &gt; db_connect postgres:psw@127.0.0.1/msfdb
+msf &gt; db_import file.xml
+TCP Idle Scan: auxiliary/scanner/ip/ipidseq
+Port scan: search portscan
+SMB Scan: scanner/smb/smb_version
+MS SQL Server Scan: scanner/mssql/mssql_ping
+FTP Scan: scanner/ftp/ftp_version, auxiliary/scanner/ftp/anonymous
+NeXpose
+msf &gt; db_connect postgres:pwd@127.0.0.1/msfdb
+msf &gt; load nexpose
+msf &gt; nexpose_connect username:password@ip:3780 ok
+msf &gt; nexpose_scan target_ip
+msf &gt; hosts -c address
+msf &gt; vulns
+Nessus
+msf &gt; db_connect postgres:pwd@127.0.0.1/msfdb
+msf &gt; load nessus
+msf &gt; nessus_connect username:password@ip:8834 ok
+msf &gt; nessus_policy_list
+msf &gt; nessus_scan new &lt;policy id&gt; &lt;scan name&gt; target_ip
+msf &gt; nessus_scan_status
+msf &gt; nessus_report_list
+msf &gt; nessus_report_get &lt;ID&gt;
+msf &gt; hosts -c address,svcs,vulns
+Validating SMB Logins
+msf &gt; use auxiliary/scanner/smb/smb_login
+msf &gt; set RHOSTS/SMBUser/SMBPass
+msf &gt; exploit
+VNC Authentication
+msf &gt; use auxiliary/scanner/vnc/vnc_none_auth
+Open X11 Server
+msf &gt; use auxiliary/scanner/x11/open_x11
+#key-stroke logging using Back|Track's xspy tool:
+cd /pentest/sniffers/xspy/
+./xspy -display ip:port -delay 100
+</code></pre>
+
+<p>云云尔尔&#8230;</p>
+
+<hr />
+
+<p>另外，这周还看了一个关于彩虹表的介绍，确实是牛逼啊！很想下个120G的彩虹表下来，这里用wiki上的例子简单介绍下这个彩虹表吧，具体的参看<a href="http://en.wikipedia.org/wiki/Rainbow_table" title="wiki">wiki</a>, 之所以会出现彩虹表这个东西，主要是由time cost和space cost的trade-off引入的。简单来说背景是这样的（采用<a href="http://www.ha97.com/4009.html" title="rainbow table">这里</a>的例子）：大家知道如果要破解一个经过hash加密（比如md5）的密码，有两种最直观的方法：</p>
+
+<pre><code>1. 枚举所有你可能想得到的明文，用md5算一遍，如果结果等于该密码则成功，这要消耗大量的计算资源和时间
+2. 列一张包含所有明文映射成密文的表，通过表查找密文，这要占据大量的存储空间
+</code></pre>
+
+<p>举个例子，对于14位的大小写加数字（不包括特殊字符），组成的密码集合为（26x2+10）的14次方即12亿亿亿，如果每纳秒可以计算一个，需要4亿年时间，如果hash结果为128bit即16字节，存hash就需要10的26次方字节空间，如果1GB硬盘算五毛，需要5亿亿人民币！况且查那么大的表也需要时间，这个谁能受得了？如果再加上特殊字符就更不可想象了。</p>
+
+<p>而rainbow table就是平衡了这两种资源，采用了一种叫Hash chain的技术:</p>
+
+<p>假设我们知道这个加密的Hash function H，以及一个有限的密码集合P，在初始化阶段，我们定义另外一个hash function R，从P中随即选取一组密码，对每一个进行如下计算：</p>
+
+<pre><code>aaaaaa --H-&gt; 281DAF40 --R-&gt; sgfnyd --H-&gt; 920ECF10 --R-&gt; kiebgt
+</code></pre>
+
+<p>进行k次，k的大小决定了chain的长度（k越大，最后计算的时间可能更多，单占用的存储空间可能更小，这取决于你的decision），我们仅仅存储第一个（aaaaaa，称为starting point）和最后一个（kiebgt，称为end point），之后当我们需要破解一个密码h（比如920ECF10）时，我们从h开始计算chain，从应用R开始：</p>
+
+<pre><code>910ECF10 --R-&gt; kiebgt
+</code></pre>
+
+<p>当遇到一个值等于所记录的所有end point中的其中一个则从相应的start point开始重新计算一遍它的chain：</p>
+
+<pre><code>aaaaaa --H-&gt; 281DAF40 --R-&gt; sgfnyd --H-&gt; 920ECF10
+</code></pre>
+
+<p>所以得到密码为sgfnyd。当然还有另外一种情况如下：</p>
+
+<pre><code>FB107E70 --R-&gt; bvtdll --H-&gt; oEE80890 --R-&gt; kiebgt
+</code></pre>
+
+<p>虽然它的end point为kiebgt，但是910ECF10并不在这条chain中，这种情况称为false alarm，当遇到这种情况我们就忽略这个match，从kiebgt开始继续计算chain，当计算的次数超过k，则表示在我们的存储中没有相应的密码h，则从P中重新选取另外的集合计算chains。</p>
+
+<p>这是rainbow table最基本的原理，当然它没有这么简单，还有许多需要考虑的问题，比如R如何选择，k要取多少……具体的细节请参考rainbow table wiki。</p>
+
+<hr />
+
+<p>这周还把电脑换成64位了，现在的本本已经有8g的内存啦！！！用起来好爽啊！硬盘也整理出来更多的空间，等暑假买了mac就可以有两台本本给我好好折腾了，想想都happy啊~不过装机的代价就是这周又没干什么正事，明天想好好看篇paper，这周选的是：</p>
+
+<pre><code>Vanish: Increasing Data Privacy with Self-Destructing Data
+</code></pre>
+
+<p>主要是因为现在有一个关于attack-aware system的不成熟的idea，不过想想觉得可能比较不现实，总之先简单survey下吧。想idea真是一个苦差事啊，未来的5年怎么办啊！！！</p>
+
+<hr />
+
+<p>考研的国家线就快要出来啦！小呆一定要进复试然后被录取啊！现在突然感觉好寂寞啊，每天都不想出去就待在实验室，以后的生活一定不会是这样的单调，有点期待去交大的生活了，毕竟是去一个新的环境，认识新的人，开始新的生活。但是现在人生突然没有了激情啊。。。连打球都没了激情，小呆快点过来啊！木头现在好寂寞啊。。。</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -869,154 +1015,9 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2011/12/21/markdownyu-fa-ce-shi/">Markdown语法测试</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-12-21T15:17:00+08:00" pubdate data-updated="true">Dec 21<span>st</span>, 2011</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://ytliu.github.com">http://ytliu.github.com</a></p>
-
-<p>[mctrain](http://ytliu.github.com &#8220;mctrain&#8217;s blog&#8221;)  <br/>
-<a href="http://ytliu.github.com" title="mctrain's blog">mctrain</a>  <br/>
-<a href="http://ytliu.github.com" title="mctrain's blog">mctrain-2</a></p>
-
-<pre><code>    ![pic](http://ytliu.github.com/images/search.png "pic")
-</code></pre>
-
-<p><img src="http://ytliu.github.com/images/search.png" title="pic" alt="pic" /></p>
-
-<pre><code>    #title1
-</code></pre>
-
-<h1>title1</h1>
-
-<pre><code>    ##title2
-</code></pre>
-
-<h2>title2</h2>
-
-<pre><code>    ###title3
-</code></pre>
-
-<h3>title3</h3>
-
-<pre><code>    ####title4
-</code></pre>
-
-<h4>title4</h4>
-
-<pre><code>    #####title5
-</code></pre>
-
-<h5>title5</h5>
-
-<pre><code>    ######title6
-</code></pre>
-
-<h6>title6</h6>
-
-<pre><code>    *italic*
-</code></pre>
-
-<p><em>italic</em></p>
-
-<pre><code>    **bold**
-</code></pre>
-
-<p><strong>bold</strong></p>
-
-<pre><code>    ***italic&amp;bold***
-</code></pre>
-
-<p><strong><em>italic&amp;bold</em></strong></p>
-
-<pre><code>    &gt;highlight
-</code></pre>
-
-<blockquote><p>highlight</p></blockquote>
-
-<pre><code>    &lt;html&gt; *a* &lt;/html&gt;
-</code></pre>
-
-<p><html> <em>a</em> </html></p>
-
-<ul>
-<li>1</li>
-<li>2</li>
-<li><p>3</p></li>
-<li><p>first</p></li>
-<li>second</li>
-<li>third</li>
-<li>fourth</li>
-</ul>
-
-
-<p>hr-high</p>
-
-<hr />
-
-<p>hr-below</p>
-
-<blockquote><p>highlight</p>
-
-<blockquote><p>highlight again</p></blockquote></blockquote>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Awesome code snippet</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="p">[</span><span class="n">rectangle</span> <span class="nl">setX:</span> <span class="mi">10</span> <span class="nl">y:</span> <span class="mi">10</span> <span class="nl">width:</span> <span class="mi">20</span> <span class="nl">height:</span> <span class="mi">20</span><span class="p">];</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span>Javascript Array Syntax </span><a href='http://j.mp/pPUUmW'>MDN Documentation </a></figcaption> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">var</span> <span class="nx">arr1</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">arrayLength</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">arr2</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">element0</span><span class="p">,</span> <span class="nx">element1</span><span class="p">,</span> <span class="p">...,</span> <span class="nx">elementN</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>中文测试
-这个测试中有很多很多很多字符</p>
-
-<blockquote><p>&#8220;C&#8221;是系统默认的locale，&#8221;POSIX&#8221;是&#8221;C&#8221;的别名。所以当我们新安装完一个系统时，默认的locale就是C或POSIX。</p><p>在Debian中安装locales的方法如下：</p><p>· 通过apt-get install locales命令安装locales包<br/>· 安装完成locales包后，系统会自动进行locale配置，你只要选择所需的locale，可以多选。最后指定一个系统默认的locale。这样系统就会帮你自动生成相应的locale和配置好系统的locale。</p><p>· 增加新的locale也很简单，用dpkg-reconfigure locales重新配置locale即可。</p><p>· 我们也可手动增加locale，只要把新的locale增加到/etc/locale.gen文件中，再运行locale-gen命令即可生成新的locale。再通过设置上面介绍的LC_*变量就可设置系统的locale了。下是一个locale.gen文件的样例。</p></blockquote>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
+    
+      <a class="prev" href="/blog/page/4/">&larr; Older</a>
     
     <a href="/blog/archives">Blog Archives</a>
     
@@ -1029,6 +1030,10 @@
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/12/20/ru-guo-ming-tian-shi-shi-jie-mo-ri/">如果明天是世界末日</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2012/12/15/dynamic-linker/">Dynamic Linker</a>
@@ -1044,10 +1049,6 @@
     
       <li class="post">
         <a href="/blog/2012/12/01/connect-smartphone-to-android-emulator/">connect smartphone to android emulator</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/11/25/isfjian-wen-yu-shou-huo/">ISF见闻与收获</a>
       </li>
     
   </ul>
