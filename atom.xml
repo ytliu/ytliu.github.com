@@ -4,7 +4,7 @@
   <title><![CDATA[Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2012-12-20T22:36:18+08:00</updated>
+  <updated>2012-12-22T21:50:50+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -51,9 +51,9 @@
 
 <p>很有参考价值。其中将会涉及到的sections有<em>.got</em>, <em>.plt</em>, <em>.interp</em>。</p>
 
-<p>另外在<a href="http://www.bottomupcs.com/" title="computer science from bottom up">Computer Science from the Bottom Up</a>中有一章对dynamic linker进行了详细的说明。以下的内容很多来自于该文档中。</p>
+<p>另外在<a href="http://www.bottomupcs.com/" title="computer science from bottom up">Computer Science from the Bottom Up</a>中有一章对dynamic linker进行了详细的说明。</p>
 
-<p>还有一个资料来源是俞甲子的《程序员的自我修养》一书第七章。</p>
+<p>以下的内容很多来自于该文档和俞甲子的《程序员的自我修养》一书第七章。</p>
 
 <p>问题的产生是这样子的：当我们使用一段shared library的时候，它并没有指定说一定要把相应的代码放在哪个内存地址，而是由dynamic linker根据当前内存情况选择一段最合适的内存区域用于放置相应的code和data。那么dynamic linker是怎么做的呢？我们举一个很简单的例子来说明；</p>
 
@@ -76,7 +76,7 @@
 
 <figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">Char</span> <span class="err">\</span><span class="o">*</span><span class="n">dylib</span> <span class="o">=</span> <span class="s">&quot;Test Dynamic Linker String&quot;</span><span class="p">;</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">Char</span> <span class="o">*</span><span class="n">dylib</span> <span class="o">=</span> <span class="s">&quot;Test Dynamic Linker String&quot;</span><span class="p">;</span>
 </span><span class='line'><span class="kt">void</span> <span class="n">test</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -101,7 +101,7 @@
 <span class='line-number'>9</span>
 </pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &quot;lib.h&quot;;</span>
 </span><span class='line'>
-</span><span class='line'><span class="k">extern</span> <span class="kt">char</span> <span class="err">\</span><span class="o">*</span><span class="n">dylib</span><span class="p">;</span>
+</span><span class='line'><span class="k">extern</span> <span class="kt">char</span> <span class="o">*</span><span class="n">dylib</span><span class="p">;</span>
 </span><span class='line'><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
 </span><span class='line'><span class="p">{</span>
 </span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Hello, %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">dylib</span><span class="p">);</span>
@@ -143,11 +143,28 @@ in dynamic lib, i is 5
 
 <p>第四种情况和第三种类似，只是地址为函数地址。</p>
 
+<p>其实还有第五中情况，就是模块间的全局变量，比如下面这个例子：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">extern</span> <span class="kt">int</span> <span class="n">global</span><span class="p">;</span>
+</span><span class='line'><span class="kt">int</span> <span class="nf">foo</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">global</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如果一个定义在共享模块内部的全局变量，编译器并不知道它是否会被其它模块使用，所以当前编译器在遇到这种全局变量的时候都会把其当做定义在其它模块中的全局变量，即上面的第三种情况，使用GOT表进行访问。</p>
+
 <p>这里还要注意一点的是，在产生地址无关代码的时候参数-fpic和-fPIC的区别，-fpic产生的代码相对较小，而且较快，但是对于一些硬件平台有一些限制。另外，它也可以被用在可执行代码上，这时，就被称为PIE（using -fPIE or -fpie）。</p>
 
 <p>这里需要澄清的一点是，对于一个共享库lib.so来说，它在不同的进程中都有自己独立的副本，而在同个进程不同线程中则是共享的。而对于多进程共享全局变量使用的是“共享数据段”，而多线程访问不同全局变量则被称为“线程私有存储”。</p>
 
-<p>还有，对于数据段的绝对地址引用，可以用到装载时重定位的方法来解决，即对于共享对象来说，如果数据段中有绝对地址引用，如<em>static int </em>p = &amp;a*，编译器和链接器会产生一个重定位表，当动态链接器装载共享对象时若发现有重定位入口，则对其进行重定位。</p>
+<p>还有，对于数据段的绝对地址引用，可以用到装载时重定位的方法来解决，即对于共享对象来说，如果数据段中有绝对地址引用，如static int *p = &amp;a，编译器和链接器会产生一个重定位表，当动态链接器装载共享对象时若发现有重定位入口，则对其进行重定位。</p>
 
 <h4>延迟绑定（PLT）</h4>
 
@@ -164,7 +181,56 @@ jmp _dl_runtime_resolve
 
 <p>在这里第一条指令跳转到bar在GOT中的项，该项中的初始地址即为这里第二条指令（push n）的地址，相当于没有效果，然后将bar的信息和其所在模块的信息压入栈，最后调用_dl_runtim_resolve将bar真正对的地址填入到bar@GOT中，当下次真正调用bar的时候就会跳转到真正的函数地址，并返回到调用者，而不会回到<em>push n</em>的地址了。</p>
 
-<p>感觉后面的部分好复杂，自己表达不清楚&#8230;还是好好先看书吧&#8230;</p>
+<p>ELF将GOT分成了两个表“.got&#8221;和&#8221;.got.plt&#8221;, &#8220;.got&#8221;用来保存全局变量引用地址，&#8221;.got.plt&#8221;用来保存函数引用的地址，在&#8221;.got.plt&#8221;中前三项是有特殊意义的：</p>
+
+<ul>
+<li>第一项保存&#8221;.dynamic&#8221;段的地址，这个段描述了本模块动态链接相关的信息；</li>
+<li>第二项保存的是本模块的ID；</li>
+<li>第三项保存的是_dl_runtime_resolve()的地址。</li>
+</ul>
+
+
+<p>而&#8221;.got.plt&#8221;的其余项分别对应每个外部函数的引用。</p>
+
+<h4>动态链接相关结构</h4>
+
+<p>在动态链接的情况下，在装载完可执行文件之后，操作系统会将控制权转交给动态链接器，动态链接器的路径在&#8221;.interp&#8221;下指定。</p>
+
+<p>和动态链接相关的段比如说：</p>
+
+<h5>.dynamic</h5>
+
+<p>动态链接器中最重要的结构就是&#8221;.dynamic&#8221;段，它就像动态链接下ELF文件的”文件头“。</p>
+
+<h5>.dynsym</h5>
+
+<p>&#8220;.dynsym&#8221;段是为了表示模块间动态链接相关符号的导入导出关系的，当然，和&#8221;.symtab&#8221;段类似，它也需要一些辅助的表，如&#8221;.dynstr&#8221;动态符号字符串表，&#8221;.hash&#8221;符号哈希表。</p>
+
+<h5>动态链接重定位表</h5>
+
+<p>&#8220;rel.dyn&#8221;和&#8221;rel.plt&#8221;相当于静态链接中的&#8221;rel.data&#8221;和&#8221;rel.text&#8221;。&#8221;rel.dyn&#8221;是对数据引用的修正，它所修正的位置即&#8221;.got&#8221;以及数据段，而&#8221;.rel.plt&#8221;则是对函数引用的修正，即&#8221;.got.plt&#8221;段。</p>
+
+<h4>动态链接的步骤和实现</h4>
+
+<p>主要分为三步：</p>
+
+<h5>动态链接器自举</h5>
+
+<p>这里有两个条件：</p>
+
+<ul>
+<li>本身不可以依赖于其它任何共享对象</li>
+<li>本身所需要的全局和静态变量的重定位工作由其本身完成——即“自举”</li>
+</ul>
+
+
+<h5>装载共享变量</h5>
+
+<p>从全局符号表中开始寻找其所依赖的共享变量，即&#8221;.dynamic&#8221;段中一个DT_NEEDED类型，将里面提到的所有共享对象的名字放入一个装载集合中，然后从集合中一个个读取共享变量名字，找到相对应的文件，读取里面的ELF文件头和&#8221;.dynamic&#8221;段，然后将相应的代码段和数据段映射到其地址空间中，并递归地做这件事。所以当所有共享变量都被装载进来后，全局符号表里面将包含所有动态链接所需要的符号。</p>
+
+<h4>重定向和初始化</h4>
+
+<p>装载完成后，链接器开始重新遍历可执行文件和每个共享对象的重定向表，将其GOT/PLT中需要重定向的进行修正，然后就将控制权转交给程序的入口了。由此，动态链接也就完成了。</p>
 ]]></content>
   </entry>
   
