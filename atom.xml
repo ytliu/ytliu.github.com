@@ -4,7 +4,7 @@
   <title><![CDATA[Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-01-06T13:26:01+08:00</updated>
+  <updated>2013-01-06T13:33:56+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -34,7 +34,7 @@
 
 <p>该表记录了0-63（即000000-111111)对应的ASCII字符。</p>
 
-<p>然后我们有一段需要翻译的字符串，一段从<a href="http://en.wikipedia.org/wiki/Thomas_Hobbes" title="Thomas Hobbes">Thomas Hobbes</a> <a href="http://en.wikipedia.org/wiki/Leviathan_(book">Leviathan</a> &#8220;Leviathan&#8221;)的引用：</p>
+<p>然后我们有一段需要翻译的字符串，一段从<a href="http://en.wikipedia.org/wiki/Thomas_Hobbes" title="Thomas Hobbes">Thomas Hobbes</a> <a href="http://en.wikipedia.org/wiki/Leviathan_book" title="Leviathan">Leviathan</a>的引用：</p>
 
 <blockquote><p>Man is distinguished, not only by his reason, but by this singular passion from other animals, which is a lust of the mind, that by a perseverance of delight in the continued and indefatigable generation of knowledge, exceeds the short vehemence of any carnal pleasure.</p></blockquote>
 
@@ -42,9 +42,17 @@
 
 <p><img src="http://ytliu.github.com/images/2013-01-06-2.png" title="Base64 example" alt="Base64 example" /></p>
 
-<p>当然这张<em>Base64 index table</em>可以不用按照这种顺序，可以采用任意的字母数字顺序，只要解码的时候用同一张index table就可以了。</p>
+<p>当然这张<em>Base64 index table</em>可以采用任意的字母数字顺序，而不用按照这种顺序，只要解码的时候用同一张index table就可以了。</p>
 
-<p>还有一点要注意的是如果字符的数目不是3的倍数该怎么办？也就是说最后一个block也有可能是1个字符或者2个字符。这个时候就需要在后面再加0来进行补齐了，然后再用Base64的规则进行转换，在编码后的base64文本后加上一个或两个&#8217;=&#8217;号，代表补足的字节数。也就是说，当最后剩余1个字符时，最后一个6位的base64字节块有四位是0值，最后附加上两个等号；如果最后剩余2个字符时，最后一个6位的base64字节块有两位是0值，最后附加一个等号。</p>
+<p>还有一点要注意的是如果字符的数目不是3的倍数该怎么办？也就是说最后一个block也有可能是1个字符或者2个字符。这个时候就需要在后面再加0来进行补齐了，然后再用Base64的规则进行转换，在编码后的base64文本后加上一个或两个<code>=</code>号，代表补足的字节数。也就是说，当最后剩余1个字符时，最后一个6位的base64字节块有四位是0值，最后附加上两个等号；如果最后剩余2个字符时，最后一个6位的base64字节块有两位是0值，最后附加一个等号。</p>
+
+<p>最后转换出来的Base64码就是这样的：</p>
+
+<blockquote><p>TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieSB0aGlz
+IHNpbmd1bGFyIHBhc3Npb24gZnJvbSBvdGhlciBhbmltYWxzLCB3aGljaCBpcyBhIGx1c3Qgb2Yg
+dGhlIG1pbmQsIHRoYXQgYnkgYSBwZXJzZXZlcmFuY2Ugb2YgZGVsaWdodCBpbiB0aGUgY29udGlu
+dWVkIGFuZCBpbmRlZmF0aWdhYmxlIGdlbmVyYXRpb24gb2Yga25vd2xlZGdlLCBleGNlZWRzIHRo
+ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4=</p></blockquote>
 
 <h4>Base64 decode by Ruby</h4>
 
@@ -137,7 +145,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>其中<code>s.tr(my_base64chars, std_base64chars)</code>是将自定义的<em>index table</em>和标准<em>index table</em>进行下转换，将字符串中的字符变成标准<em>index table</em>中对应的字符，然后再通过<code>Base64.decode64(s)</code>进行解码。</p>
+<p>其中<code>s.tr(my_base64chars, std_base64chars)</code>是将自定义的<em>index table</em>和标准<em>index table</em>进行下转换，将字符串中的字符用标准<em>index table</em>中对应的字符进行替换，然后再通过<code>Base64.decode64(s)</code>进行解码。</p>
 
 <p>整个过程还是很简单的。</p>
 ]]></content>
