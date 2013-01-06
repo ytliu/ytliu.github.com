@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Qemu | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/qemu/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-01-06T12:30:03+08:00</updated>
+  <updated>2013-01-06T12:35:46+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -50,8 +50,8 @@ $ emulator-arm @4.2
 <li><code>vl.c/vl-android.c</code>: 这个是整个qemu的入口函数，主要是初始化qemu环境，然后进入<code>main_loop</code>；</li>
 <li><code>target-xyz/translate.c</code>: 将guest code翻译成TCG ops；</li>
 <li><code>tcg/*/tcg-target.c</code>: 将TCG ops翻译成host code；</li>
-<li><code>tcg/tcg.c</code>: TCG的主函数，调用上面两个代码中的函数；</li>
-<li><code>cpu-exec.c</code>: 寻找下一个TB（如果没找到则调用tcg.c生成TB，然后执行。</li>
+<li><code>tcg/tcg.c</code>: TCG的主函数；</li>
+<li><code>cpu-exec.c</code>: 寻找下一个TB（如果没找到则调用tcg.c生成TB），然后执行。</li>
 </ul>
 
 
@@ -75,8 +75,7 @@ $ emulator-arm @4.2
 
 <p>代码运行就是通过<code>tcg_qem_tb_exec()</code>来实现的，可以看到，其实这是一个宏，定义在<code>tcg/tcg.h</code>里面：</p>
 
-<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>c </span></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -84,14 +83,15 @@ $ emulator-arm @4.2
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;/p>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
 </span><span class='line'>
-</span><span class='line'>&lt;h1>define tcg_qemu_tb_exec(tb_ptr) \&lt;/h1>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">define</span> <span class="n">tcg_qemu_tb_exec</span><span class="p">(</span><span class="n">tb_ptr</span><span class="p">)</span> <span class="err">\</span><span class="o">&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
 </span><span class='line'>
-</span><span class='line'>&lt;pre>&lt;code>((long REGPARM __attribute__ ((longcall)) (*)(void *))code_gen_prologue)(tb_ptr)
-</span><span class='line'>&lt;/code>&lt;/pre>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="p">((</span><span class="kt">long</span> <span class="n">REGPARM</span> <span class="n">__attribute__</span> <span class="p">((</span><span class="n">longcall</span><span class="p">))</span> <span class="p">(</span><span class="o">*</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="p">))</span><span class="n">code_gen_prologue</span><span class="p">)(</span><span class="n">tb_ptr</span><span class="p">)</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
 </span><span class='line'>
-</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure></notextile></div></p>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
 <p>这是一个感觉非常复杂的调用，我们知道， <code>((long REGPARM (*)(void *))</code> 是一个指向函数的指针，<code>void *</code>是它的参数，返回值为<code>long</code>；而在这里 <code>REGPARAM(*)</code>是一个GCC选项，表示函数是通过寄存器传参而不是通过栈传参的。</p>
 
