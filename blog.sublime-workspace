@@ -1,0 +1,305 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"class",
+				"className"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 47.0,
+		"selected_items":
+		[
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: install",
+				"Package Control: Install Package"
+			],
+			[
+				"instal",
+				"Package Control: Install Package"
+			],
+			[
+				"",
+				":e - Revert"
+			],
+			[
+				":w",
+				":w - Save"
+			],
+			[
+				":q",
+				"Set Syntax: SQL (Rails)"
+			],
+			[
+				"ins",
+				"Preferences: Settings - Default"
+			],
+			[
+				"setsyntax: java",
+				"Set Syntax: Java"
+			]
+		],
+		"width": 449.0
+	},
+	"console":
+	{
+		"height": 125.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/luisleo/blog/octopress/source/_posts/2011-12-21-markdownyu-fa-ce-shi.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-12-30-qemu-study-for-android-emulator.markdown",
+		"/Users/luisleo/Library/Application Support/Sublime Text 2/Packages/Default/Preferences.sublime-settings",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-01-03-paper-reading-x86-interrupt-and-sr-iov-interrupts-avoidance.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2011-12-26-paper-reading-tcp-re-and-incremental-mr.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-02-19-za.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-12-15-dynamic-linker.markdown",
+		"/Users/luisleo/Documents/IPADS/project/remote-binder/paper/todo",
+		"/Users/luisleo/Documents/IPADS/project/remote-binder/paper/abstract.tex",
+		"/Users/luisleo/Programs/android/tool/mercury/src/mercury/server/src/com/mwr/mercury/Common.java",
+		"/Users/luisleo/Programs/android/tool/mercury/src/mercury/server/src/com/mwr/mercury/SessionThread.java",
+		"/Users/luisleo/Programs/android/tool/mercury/src/mercury/server/src/com/mwr/mercury/Server.java",
+		"/Users/luisleo/Programs/android/tool/mercury/src/mercury/server/src/com/mwr/mercury/ServerService.java",
+		"/Users/luisleo/Programs/android/tool/mercury/src/mercury/server/src/com/mwr/mercury/XML.java",
+		"/Users/luisleo/Programs/android/tool/mercury/src/mercury/server/src/com/mwr/mercury/BufferedBracketReader.java",
+		"/Users/luisleo/Programs/android/tool/mercury/src/mercury/server/src/com/mwr/mercury/Session.java",
+		"/Users/luisleo/Programs/android/tool/mercury/src/mercury/server/src/com/mwr/mercury/Shell.java",
+		"/Users/luisleo/Programs/android/tool/mercury/src/mercury/server/src/com/mwr/mercury/Main.java",
+		"/Users/luisleo/Documents/IPADS/project/remote-binder/project/android-frameworks-base/core/java/android/app/Activity.java",
+		"/Users/luisleo/Library/Application Support/Sublime Text 2/Packages/Package Control/Package Control.sublime-settings",
+		"/Users/luisleo/Documents/IPADS/project/remote-binder/project/RemoteProxyService/src/com/proxy/RemoteProxyService.java",
+		"/Users/luisleo/Documents/IPADS/project/remote-binder/project/RemoteProxyService/project.properties",
+		"/Users/luisleo/Documents/IPADS/project/remote-binder/project/RemoteProxyService.sublime-project",
+		"/Users/luisleo/Documents/IPADS/project/remote-binder/project/RemoteProxyService/tags",
+		"/Users/luisleo/Documents/IPADS/project/remote-binder/project/RemoteProxyService/src/com/proxy/LocalProxyService.java",
+		"/Users/luisleo/Library/Application Support/Sublime Text 2/Packages/CTags/Default.sublime-keymap",
+		"/Users/luisleo/Documents/IPADS/project/remote-binder/project/RemoteProxyService/src/com/server/IRemoteProxyService.java",
+		"/Users/luisleo/Library/Application Support/Sublime Text 2/Packages/Default/Default (OSX).sublime-keymap",
+		"/Users/luisleo/Library/Application Support/Sublime Text 2/Packages/User/Preferences.sublime-settings",
+		"/Users/luisleo/Library/Application Support/Sublime Text 2/Packages/User/Default (OSX).sublime-keymap"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"vintage",
+			"such",
+			"skipWs",
+			"SessionThread",
+			"init",
+			"ctrl+v",
+			"selection",
+			"column",
+			"ignored_pack",
+			"page",
+			"next_",
+			"ctrl+f",
+			"super+t",
+			"new_",
+			"vi"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 34.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.clang":
+	{
+		"height": 100.0
+	},
+	"replace":
+	{
+		"height": 0.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+			[
+				"markdown",
+				"source/_posts/2011-12-21-markdownyu-fa-ce-shi.markdown"
+			],
+			[
+				"qem",
+				"source/_posts/2012-12-30-qemu-study-for-android-emulator.markdown"
+			],
+			[
+				"qemu",
+				"source/_posts/2012-12-30-qemu-study-for-android-emulator.markdown"
+			],
+			[
+				"2012-12",
+				"source/_posts/2012-12-15-dynamic-linker.markdown"
+			],
+			[
+				"12-15",
+				"source/_posts/2012-12-15-dynamic-linker.markdown"
+			],
+			[
+				"common",
+				"server/src/com/mwr/mercury/Common.java"
+			],
+			[
+				"acti",
+				"server/src/com/mwr/mercury/commands/Activity.java"
+			],
+			[
+				"serverser",
+				"server/src/com/mwr/mercury/ServerService.java"
+			],
+			[
+				"server",
+				"server/src/com/mwr/mercury/Server.java"
+			],
+			[
+				"session",
+				"server/src/com/mwr/mercury/Session.java"
+			],
+			[
+				"pack",
+				"server/src/com/mwr/mercury/commands/Packages.java"
+			],
+			[
+				"xml",
+				"server/src/com/mwr/mercury/XML.java"
+			],
+			[
+				"buffer",
+				"server/src/com/mwr/mercury/BufferedBracketReader.java"
+			],
+			[
+				"shell",
+				"server/src/com/mwr/mercury/Shell.java"
+			],
+			[
+				"servers",
+				"server/src/com/mwr/mercury/ServerService.java"
+			],
+			[
+				"main",
+				"server/src/com/mwr/mercury/Main.java"
+			],
+			[
+				"sessiont",
+				"server/src/com/mwr/mercury/SessionThread.java"
+			],
+			[
+				"sessionthre",
+				"mercury/server/src/com/mwr/mercury/SessionThread.java"
+			],
+			[
+				"",
+				"project.properties"
+			],
+			[
+				"remoteproxyservice.ja",
+				"src/com/proxy/RemoteProxyService.java"
+			],
+			[
+				"local",
+				"src/com/proxy/LocalProxyService.java"
+			],
+			[
+				"remote",
+				"src/com/server/IRemoteProxyService.java"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 150.0,
+	"status_bar_visible": true
+}
