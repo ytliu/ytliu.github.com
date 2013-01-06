@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Qemu | Mctrain's Blog]]></title>
+  <link href="http://ytliu.github.com/blog/categories/qemu/atom.xml" rel="self"/>
+  <link href="http://ytliu.github.com/"/>
+  <updated>2013-01-06T10:12:06+08:00</updated>
+  <id>http://ytliu.github.com/</id>
+  <author>
+    <name><![CDATA[Liu Yutao]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Qemu study for Android emulator]]></title>
+    <link href="http://ytliu.github.com/blog/2012/12/30/qemu-study-for-android-emulator/"/>
+    <updated>2012-12-30T19:10:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2012/12/30/qemu-study-for-android-emulator</id>
+    <content type="html"><![CDATA[<p>这两天看了下android emulator的源代码，位置在<code>/path/to/android-src/external/qemu</code>里面，</p>
+
+<p>编译和启动的方式很简单；</p>
+
+<pre><code>$ ./android-configure.sh
+$ make
+$ export ANDROID_SDK_ROOT=/path/to/androdi-sdk
+$ emulator-arm @4.2
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

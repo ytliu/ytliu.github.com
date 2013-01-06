@@ -4,7 +4,7 @@
   <title><![CDATA[Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2012-12-22T21:50:50+08:00</updated>
+  <updated>2013-01-06T10:12:06+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -12,6 +12,23 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Qemu study for Android emulator]]></title>
+    <link href="http://ytliu.github.com/blog/2012/12/30/qemu-study-for-android-emulator/"/>
+    <updated>2012-12-30T19:10:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2012/12/30/qemu-study-for-android-emulator</id>
+    <content type="html"><![CDATA[<p>这两天看了下android emulator的源代码，位置在<code>/path/to/android-src/external/qemu</code>里面，</p>
+
+<p>编译和启动的方式很简单；</p>
+
+<pre><code>$ ./android-configure.sh
+$ make
+$ export ANDROID_SDK_ROOT=/path/to/androdi-sdk
+$ emulator-arm @4.2
+</code></pre>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[如果明天是世界末日]]></title>
@@ -3149,16 +3166,6 @@ gem install mime
 <p><img src="http://ytliu.github.com/images/2012-04-01-1.png" title="reduce example" alt="example-1" /></p>
 
 <p>希望之后还有什么需要的都可以用ruby来尝试下，然后再慢慢地学习ruby on rails，不会忘记我的梦想滴~</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[我的梦想]]></title>
-    <link href="http://ytliu.github.com/blog/2012/03/26/wo-de-meng-xiang/"/>
-    <updated>2012-03-26T14:15:00+08:00</updated>
-    <id>http://ytliu.github.com/blog/2012/03/26/wo-de-meng-xiang</id>
-    <content type="html"><![CDATA[<blockquote><p>这是这篇博文的MD5和SHA1，它有我最最好的朋友进行见证，我只是希望当20年后回过头来看它的时候我能无怨无悔<br/><blockquote><p>MD5:  e451b95a2e65d728275604ee59d0e431<br/>SHA1: bb44aef1eecd0b1b09b55a16d88eb4b9aa0cc32d</p></blockquote></p></blockquote>
-
 ]]></content>
   </entry>
   

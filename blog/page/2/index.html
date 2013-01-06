@@ -9,7 +9,7 @@
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="这两天在做opennebula项目的时候遇到一个问题，我忘记掉之前那几个虚拟机的用户密码了！试了好多可能的密码都不对，只能想办法把密码改掉了。 虚拟机的好处在于我可以把它直接mount到物理主机上对其进行操作，不过镜像文件不是一个普通的设备块，不能通过一般的方法mount，只能用不一般的方法了： &hellip;">
+  <meta name="description" content="这次去武汉开会的时候听翔哥提到GoAgent很好用，就尝试着去搭了下环境。 原文地址 说实话这个环境搭起来真的很方便，主要分为四步： 申请Google App Engine的请用，这个就不细说了，具体参看原文，唯一一个要注意的是在里面有一个Storage Schema的选项要选择High &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,84 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/10/27/goagent-setup-note/">GoAgent Setup Note</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-10-27T12:21:00+08:00" pubdate data-updated="true">Oct 27<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>这次去武汉开会的时候听翔哥提到GoAgent很好用，就尝试着去搭了下环境。</p>
+
+<p><a href="http://irising.me/2012/02/13376/%20GoAgent">原文地址</a></p>
+
+<p>说实话这个环境搭起来真的很方便，主要分为四步：</p>
+
+<ul>
+<li><p>申请Google App Engine的请用，这个就不细说了，具体参看原文，唯一一个要注意的是在里面有一个Storage Schema的选项要选择High Replication (我之前注册的应用没有这一项，要转变成这个还挺麻烦的)。</p></li>
+<li><p>安装GoAgent的客户端：代码的地址在<a href="http://code.google.com/p/goagent/">这里</a>，然后要修改local目录下的proxy.ini文件，之后要安装一个证书（不过据说不安装也行）。最后上传到GAE上：</p>
+
+<p>  $ cd goagent/server</p>
+
+<p>  $ python uploader.zip update ./</p></li>
+</ul>
+
+
+<p>会在后面提示输入appid和GAE账户信息。</p>
+
+<ul>
+<li><p>设置代理：新建一个网络位置，例如：命名为代理，并将Web代理、安全Web代理两项勾选上，代理服务器地址均为，127.0.0.1,端口为8087。</p></li>
+<li><p>GoAgent使用：首先先在终端运行如下命令：</p>
+
+<p>  $ cd goagent/local</p>
+
+<p>  $ python proxy.python</p></li>
+</ul>
+
+
+<p>然后再在苹果菜单下切换location成代理。</p>
+
+<p>这样就可以通过GoAgent上网了。</p>
+
+<h4>GoAgentX</h4>
+
+<p>由于这个需要每次都在终端下输入命令，切换网络位置，最关键的是如果换了一个代理服务器的地址的话还要手动更新，所以在P哥的推荐下我选择了使用GoAgentX，这个是GoAgent的图形界面版，而且可以自动更新，十分方便。</p>
+
+<h6>安装</h6>
+
+<p>下载地址在<a href="https://github.com/downloads/ohdarling/GoAgentX/GoAgentX-v1.3.6.dmg%20GoAgentX">这里</a>，直接点击安装就可以了。然后会在桌面上方的任务栏里有个戴帽子的小人图像出现，点击显示主窗口，在服务配置里面修改端口和appid，在代理配置里面勾选“不修改系统代理配置”，之后启动，并修改网络位置就可以了。</p>
+
+<hr />
+
+<p>我感觉苹果电脑配置这些东西都非常的方便，而且程序运行的也很稳定，相当赞啊~</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1797,43 +1875,6 @@ gem install mime
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/03/26/wo-de-meng-xiang/">我的梦想</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-03-26T14:15:00+08:00" pubdate data-updated="true">Mar 26<span>th</span>, 2012</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><blockquote><p>这是这篇博文的MD5和SHA1，它有我最最好的朋友进行见证，我只是希望当20年后回过头来看它的时候我能无怨无悔<br/><blockquote><p>MD5:  e451b95a2e65d728275604ee59d0e431<br/>SHA1: bb44aef1eecd0b1b09b55a16d88eb4b9aa0cc32d</p></blockquote></p></blockquote>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/3/">&larr; Older</a>
@@ -1851,6 +1892,10 @@ gem install mime
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2012/12/30/qemu-study-for-android-emulator/">Qemu study for Android emulator</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2012/12/20/ru-guo-ming-tian-shi-shi-jie-mo-ri/">如果明天是世界末日</a>
       </li>
     
@@ -1864,10 +1909,6 @@ gem install mime
     
       <li class="post">
         <a href="/blog/2012/12/08/get-root-in-my-android/">get root in my android</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/12/01/connect-smartphone-to-android-emulator/">connect smartphone to android emulator</a>
       </li>
     
   </ul>
@@ -1909,7 +1950,7 @@ gem install mime
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2012 - Liu Yutao -
+  Copyright &copy; 2013 - Liu Yutao -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 
