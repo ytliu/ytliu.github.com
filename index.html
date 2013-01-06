@@ -123,10 +123,6 @@
 
 <p>还有一点要注意的是如果字符的数目不是3的倍数该怎么办？也就是说最后一个block也有可能是1个字符或者2个字符。这个时候就需要在后面再加0来进行补齐了，然后再用Base64的规则进行转换，在编码后的base64文本后加上一个或两个<code>=</code>号，代表补足的字节数。也就是说，当最后剩余1个字符时，最后一个6位的base64字节块有四位是0值，最后附加上两个等号；如果最后剩余2个字符时，最后一个6位的base64字节块有两位是0值，最后附加一个等号。</p>
 
-<p>最后转换出来的Base64码就是这样的：</p>
-
-<blockquote><p>TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieSB0aGlzIHNpbmd1bGFyIHBhc3Npb24gZnJvbSBvdGhlciBhbmltYWxzLCB3aGljaCBpcyBhIGx1c3Qgb2YgdGhlIG1pbmQsIHRoYXQgYnkgYSBwZXJzZXZlcmFuY2Ugb2YgZGVsaWdodCBpbiB0aGUgY29udGludWVkIGFuZCBpbmRlZmF0aWdhYmxlIGdlbmVyYXRpb24gb2Yga25vd2xlZGdlLCBleGNlZWRzIHRoZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4=</p></blockquote>
-
 <h4>Base64 decode by Ruby</h4>
 
 <p>在ruby中可以通过<code>requite 'base64'</code>来很方便地对Base64字符串进行解码，比如在AnserverBot中，采用了<code>STvJjktoVFZ9f0PGlicqy3xK7zH8ruXdn5WwDRIeb1UmEgOhYs2NpLC4QBa6AM+/_</code>的<em>index table</em>进行编码，于是ruby程序如下所示：</p>
