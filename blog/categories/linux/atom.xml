@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Linux | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/linux/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-02-17T15:19:24+08:00</updated>
+  <updated>2013-02-17T15:21:22+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -262,7 +262,7 @@
 </span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
-<p>针对ext2fs有如上的函数名称，每个函数将具体在<code>stage2/fsys_ext2fs</code>.c<code>文件中被定义，这里面没有包含任何的写的过程，对于bootloader而言仅仅读就可以完成任务了，没必要对其系统进行写操作。其中</code>ext2fs_mount函数用于检查文件系统类型，并将superblock读入到内存中；ext2fs_read函数和ext2fs_dir函数用于对文件系统具体的操作。在<code>stage2/fsys_ext2fs.c</code>文件中除了需要对这三个函数的定义之外，还需要文件系统的属性的数据结构（superblock、inode和group结构，这些结构最初被定义在<code>include/linux/ext2_fs.h</code>文件中），通过这些数据结构描述一个文件系统。</p>
+<p>针对ext2fs有如上的函数名称，每个函数将具体在<code>stage2/fsys_ext2fs.c</code>文件中被定义，这里面没有包含任何的写的过程，对于bootloader而言仅仅读就可以完成任务了，没必要对其系统进行写操作。其中ext2fs_mount函数用于检查文件系统类型，并将superblock读入到内存中；ext2fs_read函数和ext2fs_dir函数用于对文件系统具体的操作。在<code>stage2/fsys_ext2fs.c</code>文件中除了需要对这三个函数的定义之外，还需要文件系统的属性的数据结构（superblock、inode和group结构，这些结构最初被定义在<code>include/linux/ext2_fs.h</code>文件中），通过这些数据结构描述一个文件系统。</p>
 
 <p>如果读者有兴趣可以试着创建新的文件系统的支持，可以参照目前存在的一些文件系统的模板（实例）编写。</p>
 
