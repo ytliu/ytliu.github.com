@@ -508,111 +508,27 @@
 
 <blockquote><p>highlight again</p></blockquote></blockquote>
 
-<p>{% codeblock %}
-Awesome code snippet
-{% endcodeblock %}</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Awesome code snippet</span></code></pre></td></tr></table></div></figure>
 
-<p>{% codeblock tang:objc %}
-[rectangle setX: 10 y: 10 width: 20 height: 20];
-{% endcodeblock %}</p>
 
-<p>{% codeblock Javascript Array Syntax lang:js http://j.mp/pPUUmW MDN Documentation %}
-var arr1 = new Array(arrayLength);
-var arr2 = new Array(element0, element1, &#8230;, elementN);
-{% endcodeblock %}</p>
 
-<p>中文测试
-这个测试中有很多很多很多字符
-{% blockquote %}
-&#8220;C&#8221;是系统默认的locale，&#8221;POSIX&#8221;是&#8221;C&#8221;的别名。所以当我们新安装完一个系统时，默认的locale就是C或POSIX。</p>
 
-<p>在Debian中安装locales的方法如下：</p>
+<figure class='code'><figcaption><span>tang:objc </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[rectangle setX: 10 y: 10 width: 20 height: 20];</span></code></pre></td></tr></table></div></figure>
 
-<p>· 通过apt-get install locales命令安装locales包
-· 安装完成locales包后，系统会自动进行locale配置，你只要选择所需的locale，可以多选。最后指定一个系统默认的locale。这样系统就会帮你自动生成相应的locale和配置好系统的locale。</p>
 
-<p>· 增加新的locale也很简单，用dpkg-reconfigure locales重新配置locale即可。</p>
 
-<p>· 我们也可手动增加locale，只要把新的locale增加到/etc/locale.gen文件中，再运行locale-gen命令即可生成新的locale。再通过设置上面介绍的LC_*变量就可设置系统的locale了。下是一个locale.gen文件的样例。</p>
 
-<p>UB的核心过程了。该过程之所以区分stage1.5和stage2，主要原因是GRUB和GRUB2的区别。在GRUB2中，将stage1.5过程集成到了stage2的过程中，所以stage1.5过程仅仅是针对GRUB的。下面将会分别介绍两种GRUB版本的两种过程。</p>
+<figure class='code'><figcaption><span>Javascript Array Syntax </span><a href='http://j.mp/pPUUmW'>MDN Documentation </a></figcaption> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">var</span> <span class="nx">arr1</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">arrayLength</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">arr2</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">element0</span><span class="p">,</span> <span class="nx">element1</span><span class="p">,</span> <span class="p">...,</span> <span class="nx">elementN</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>4.1 GRUB中stage1.5过程</p>
 
-<p>Stage1.5过程很无辜，它的作用很单一，但是非常关键。它的主要功用就是构造一个boot分区系统对应的文件系统，这样可以通过文件系统的路径（/boot/grub/）寻找stage2过程需要的core.img，进而加载到内存中开始执行。</p>
 
-<p>Stage1.5存在于0面0道3扇区开始的地方，并一直延续十几k字节的区域，具体的大小与相应的文件系统的大小有关（文中涉及到了0面0道1-3+x扇区，这部分扇区为保留扇区，BIOS不会放置任何数据。正因为如此如果转换到GPT分区形式，系统将不能被正确引导，如上文所示，MBR后面的扇区都被其他内容所占据）。Stage1.5过程被构建成多种不同类型，但是功能类似，下面简单介绍一下基本的stage1.5过程的文件系统。e2fs_stage1_5（针对ext2fs，可引导ext2和ext3文件系统）、fat_stage1_5（针对fat文件系统，可引导fat32和fat16）、ffs_stage1_5、jfs_stage1_5、minix_stage1_5、reiserfs_stage1_5、vstafs_stage1_5和xfs_stage1_5，这些文件被称为stage1.5过程，这些文件每个至少都在11k以上。除此之外还有两个比较特殊的文件，分别为nbgrub和pxegrub，这两个文件主要是在网络引导时使用，只是格式不同而已，他们很类似与stage2，只是需要建立网络来获取配置文件。</p>
-
-<p>由于stage1.5过程中会涉及到多个文件系统对应的文件，因此本文中主要以ext2fs为例进行说明，其他文件系统与此类似，可以同样进行分析理解。</p>
-
-<p>对于ext2fs文件系统，用于生成该文件系统的stage1.5过程文件（e2fs_stage1_5）的代码为stage2/fsys_ext2fs.c文件。</p>
-
-<p>在stage2/filesys.h文件中定义了每个文件系统对外的接口，用于上层调用，作为stage2过程寻找核心代码使用，文件系统一般被定义的接口主要就是三个函数，分别是mount、read和dir函数。对应ext2fs，其定义的函数为：</p>
-
-<h1>ifdef FSYS_EXT2FS</h1>
-
-<h1>define FSYS_EXT2FS_NUM 1</h1>
-
-<p>int ext2fs_mount (void);
-int ext2fs_read (char <em>buf, int len);
-int ext2fs_dir (char </em>dirname);</p>
-
-<h1>else</h1>
-
-<h1>define FSYS_EXT2FS_NUM 0</h1>
-
-<h1>endif</h1>
-
-<p>针对ext2fs有如上的函数名称，每个函数将具体在stage2/fsys_ext2fs.c文件中被定义，这里面没有包含任何的写的过程，对于bootloader而言仅仅读就可以完成任务了，没必要对其系统进行写操作。其中ext2fs_mount函数用于检查文件系统类型，并将superblock读入到内存中；ext2fs_read函数和ext2fs_dir函数用于对文件系统具体的操作。在stage2/fsys_ext2fs.c文件中除了需要对这三个函数的定义之外，还需要文件系统的属性的数据结构（superblock、inode和group结构，这些结构最初被定义在include/linux/ext2_fs.h文件中），通过这些数据结构描述一个文件系统。</p>
-
-<p>如果读者有兴趣可以试着创建新的文件系统的支持，可以参照目前存在的一些文件系统的模板（实例）编写。</p>
-
-<p>4.2 GRUB中stage2过程</p>
-
-<p>GRUB中的核心过程也就是stage2过程了，该过程主要是在文件系统建立以后选择合适的操作系统进行加载并转交控制权，达到最后引导操作系统的目标。由于GRUB属于multi boot loader，因此在引导的时候要进行选择，选择哪种操作系统来运行。在GRUB内部主要包括两种方式，首先是从menu.list中读取显示到屏幕让用户选择，其次是通过grub-shell中定义的命令手动进行启动。本文将在后面介绍这两种方式如何运行，接下来先介绍一下stage2的具体的执行过程。</p>
-
-<p>在上面一节中介绍过，stage1.5过程中将boot分区的文件系统加载了，之后又做了一件事情，就是将控制权转交给stage2，而stage2入口的地方就是stage2/asm.S文件。Stage2/asm.S文件属于汇编代码，主要作用是初始化C语言的运行环境，为下面执行C语言的函数做好准备，在准备好之后，将执行init_bios_info(stage2/common.c)函数。init_bios_info函数的作用是执行一些底层的函数，然后跳转到cmain执行，cmain函数位于stage2/stage2.c文件中。cmain函数内部进行一个死循环，在循环内部首先加载配置文件，显示给用户，在这同时循环一个内层循环，在内层循环中，获取配置文件中的命令，并解析执行。过程中如果没有可用的配置文件，那么进入命令行模式（enter_cmdline函数），如果找到可用的menu，那么开始执行menu的对应的内容（run_menu函数）。</p>
-
-<p>对于enter_cmdline（stage2/stage2.c）函数，将调用find_command（stage2/cmdline.c），进而执行相应命令的函数。</p>
-
-<p>对于run_menu（stage2/stage2.c）函数，将调用stage2/cmdline.c文件中的run_script函数，进而调用find_command，执行相应命令的函数。</p>
-
-<p>这两种方式虽然经过了不同的过程，对用户输入的行为进行分析和处理，最终调用的函数为find_command，在该函数中顺序循环比较“输入”的命令是否与系统内部定义的相同，如果相同转到执行该函数。在这个比较的过程中包含了一个全局的数据结构为struct builtin（stage2/shared.h），由该数据结构组成了一个table类型（stage2/builtins.c），将命令与相对应的builtin结构对应一起并进行串联。下面描述一下builtin结构的定义：</p>
-
-<p>struct builtin</p>
-
-<p>{</p>
-
-<p>/<em> 命令名称，重要，是搜索命令时的依据</em>/</p>
-
-<pre><code>char *name;
-
-/* 命令函数，重要，是搜索匹配后调用的函数*/
-
-int (*func) (char *, int);
-
-/* 功能标示，一般未用到. */
-
-int flags;
-
-/* 简短帮助信息*/
-
-char *short_doc;
-
-/* 完整帮助信息*/
-
-char *long_doc;
-</code></pre>
-
-<p>};</p>
-
-<p>struct builtin *builtin_table[]；</p>
-
-<p>有兴趣的读者可以对上面的内容进行扩展，形成自己的命令，主要在stage2/builtins.c文件中按照预定的格式更新，并添加到builtin_table中即可。</p>
-
-<p>在上面打开配置文件的过程中，主要是通过一些文件操作函数（被定义在stage2/disk_io.c中）完成。这些文件操作函数主要包括：grub_open、grub_read、grub_seek和grub_close等，这些函数属于grub对外的上层接口，具体的函数内部将调用前文中提到的boot分区对应的文件系统的相应的函数完成，这个过程主要是通过回调函数来完成。该过程整体思路类似于面向对象过程，通过对象操作具体的函数。关于用C语言实现面向对象的编程思路，可以参考一本书——《Object-oriented Programming with ANSI-C》。</p>
-
-<p>4.3))}))))</p>
 </div>
   
   

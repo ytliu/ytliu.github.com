@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Linux | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/linux/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-02-17T15:11:55+08:00</updated>
+  <updated>2013-02-17T15:19:24+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -208,7 +208,7 @@
 
 <p>stage1部分占用了446字节，其代码文件是源码目录下stage1/stage1.S文件，汇编后生成一个512字节的boot.img，被写在硬盘的0面0道1扇区中，作为硬盘的MBR。stage1的工作很简单，就是加载0面0道2扇区上的512字节到0×8000，然后跳转到0×8000执行。</p>
 
-<p>在0面0道2扇区上的512字节内容为stage1/start.S文件汇编后生成。该扇区上的内容的作用是加载stage1.5或是stage2过程，并将控制权转交。</p>
+<p>在0面0道2扇区上的512字节内容为<code>stage1/start.S</code>文件汇编后生成。该扇区上的内容的作用是加载stage1.5或是stage2过程，并将控制权转交。</p>
 
 <h4>Grub引导</h4>
 
@@ -222,25 +222,47 @@
 
 <p>由于stage1.5过程中会涉及到多个文件系统对应的文件，因此本文中主要以ext2fs为例进行说明，其他文件系统与此类似，可以同样进行分析理解。</p>
 
-<p>对于ext2fs文件系统，用于生成该文件系统的stage1.5过程文件（e2fs_stage1_5）的代码为stage2/fsys_ext2fs.c文件。</p>
+<p>对于ext2fs文件系统，用于生成该文件系统的stage1.5过程文件（e2fs_stage1_5）的代码为<code>stage2/fsys_ext2fs.c</code>文件。</p>
 
-<p>在stage2/filesys.h文件中定义了每个文件系统对外的接口，用于上层调用，作为stage2过程寻找核心代码使用，文件系统一般被定义的接口主要就是三个函数，分别是mount、read和dir函数。对应ext2fs，其定义的函数为：</p>
+<p>在<code>stage2/filesys.h</code>文件中定义了每个文件系统对外的接口，用于上层调用，作为stage2过程寻找核心代码使用，文件系统一般被定义的接口主要就是三个函数，分别是mount、read和dir函数。对应ext2fs，其定义的函数为：</p>
 
-<h1>ifdef FSYS_EXT2FS</h1>
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">ifdef</span> <span class="n">FSYS_EXT2FS</span><span class="o">&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">define</span> <span class="n">FSYS_EXT2FS_NUM</span> <span class="mi">1</span><span class="o">&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="kt">int</span> <span class="n">ext2fs_mount</span> <span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">ext2fs_read</span> <span class="p">(</span><span class="kt">char</span> <span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="n">buf</span><span class="p">,</span> <span class="kt">int</span> <span class="n">len</span><span class="p">);</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">ext2fs_dir</span> <span class="p">(</span><span class="kt">char</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span><span class="n">dirname</span><span class="p">);</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="k">else</span><span class="o">&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">define</span> <span class="n">FSYS_EXT2FS_NUM</span> <span class="mi">0</span><span class="o">&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">endif</span><span class="o">&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
-<h1>define FSYS_EXT2FS_NUM 1</h1>
-
-<p>int ext2fs_mount (void);
-int ext2fs_read (char <em>buf, int len);
-int ext2fs_dir (char </em>dirname);</p>
-
-<h1>else</h1>
-
-<h1>define FSYS_EXT2FS_NUM 0</h1>
-
-<h1>endif</h1>
-
-<p>针对ext2fs有如上的函数名称，每个函数将具体在stage2/fsys_ext2fs.c文件中被定义，这里面没有包含任何的写的过程，对于bootloader而言仅仅读就可以完成任务了，没必要对其系统进行写操作。其中ext2fs_mount函数用于检查文件系统类型，并将superblock读入到内存中；ext2fs_read函数和ext2fs_dir函数用于对文件系统具体的操作。在stage2/fsys_ext2fs.c文件中除了需要对这三个函数的定义之外，还需要文件系统的属性的数据结构（superblock、inode和group结构，这些结构最初被定义在include/linux/ext2_fs.h文件中），通过这些数据结构描述一个文件系统。</p>
+<p>针对ext2fs有如上的函数名称，每个函数将具体在<code>stage2/fsys_ext2fs</code>.c<code>文件中被定义，这里面没有包含任何的写的过程，对于bootloader而言仅仅读就可以完成任务了，没必要对其系统进行写操作。其中</code>ext2fs_mount函数用于检查文件系统类型，并将superblock读入到内存中；ext2fs_read函数和ext2fs_dir函数用于对文件系统具体的操作。在<code>stage2/fsys_ext2fs.c</code>文件中除了需要对这三个函数的定义之外，还需要文件系统的属性的数据结构（superblock、inode和group结构，这些结构最初被定义在<code>include/linux/ext2_fs.h</code>文件中），通过这些数据结构描述一个文件系统。</p>
 
 <p>如果读者有兴趣可以试着创建新的文件系统的支持，可以参照目前存在的一些文件系统的模板（实例）编写。</p>
 
@@ -248,13 +270,13 @@ int ext2fs_dir (char </em>dirname);</p>
 
 <p>GRUB中的核心过程也就是stage2过程了，该过程主要是在文件系统建立以后选择合适的操作系统进行加载并转交控制权，达到最后引导操作系统的目标。由于GRUB属于multi boot loader，因此在引导的时候要进行选择，选择哪种操作系统来运行。在GRUB内部主要包括两种方式，首先是从menu.list中读取显示到屏幕让用户选择，其次是通过grub-shell中定义的命令手动进行启动。本文将在后面介绍这两种方式如何运行，接下来先介绍一下stage2的具体的执行过程。</p>
 
-<p>在上面一节中介绍过，stage1.5过程中将boot分区的文件系统加载了，之后又做了一件事情，就是将控制权转交给stage2，而stage2入口的地方就是stage2/asm.S文件。Stage2/asm.S文件属于汇编代码，主要作用是初始化C语言的运行环境，为下面执行C语言的函数做好准备，在准备好之后，将执行init_bios_info(stage2/common.c)函数。init_bios_info函数的作用是执行一些底层的函数，然后跳转到cmain执行，cmain函数位于stage2/stage2.c文件中。cmain函数内部进行一个死循环，在循环内部首先加载配置文件，显示给用户，在这同时循环一个内层循环，在内层循环中，获取配置文件中的命令，并解析执行。过程中如果没有可用的配置文件，那么进入命令行模式（enter_cmdline函数），如果找到可用的menu，那么开始执行menu的对应的内容（run_menu函数）。</p>
+<p>在上面一节中介绍过，stage1.5过程中将boot分区的文件系统加载了，之后又做了一件事情，就是将控制权转交给stage2，而stage2入口的地方就是<code>stage2/asm.S</code>文件。<code>Stage2/asm.S</code>文件属于汇编代码，主要作用是初始化C语言的运行环境，为下面执行C语言的函数做好准备，在准备好之后，将执行init_bios_info(<code>stage2/common.c</code>)函数。init_bios_info函数的作用是执行一些底层的函数，然后跳转到cmain执行，cmain函数位于<code>stage2/stage2.c</code>文件中。cmain函数内部进行一个死循环，在循环内部首先加载配置文件，显示给用户，在这同时循环一个内层循环，在内层循环中，获取配置文件中的命令，并解析执行。过程中如果没有可用的配置文件，那么进入命令行模式（enter_cmdline函数），如果找到可用的menu，那么开始执行menu的对应的内容（run_menu函数）。</p>
 
-<p>对于enter_cmdline（stage2/stage2.c）函数，将调用find_command（stage2/cmdline.c），进而执行相应命令的函数。</p>
+<p>对于enter_cmdline（<code>stage2/stage2.c</code>）函数，将调用find_command（<code>stage2/cmdline.c</code>），进而执行相应命令的函数。</p>
 
-<p>对于run_menu（stage2/stage2.c）函数，将调用stage2/cmdline.c文件中的run_script函数，进而调用find_command，执行相应命令的函数。</p>
+<p>对于run_menu（<code>stage2/stage2.c</code>）函数，将调用<code>stage2/cmdline.c</code>文件中的run_script函数，进而调用find_command，执行相应命令的函数。</p>
 
-<p>这两种方式虽然经过了不同的过程，对用户输入的行为进行分析和处理，最终调用的函数为find_command，在该函数中顺序循环比较“输入”的命令是否与系统内部定义的相同，如果相同转到执行该函数。在这个比较的过程中包含了一个全局的数据结构为struct builtin（stage2/shared.h），由该数据结构组成了一个table类型（stage2/builtins.c），将命令与相对应的builtin结构对应一起并进行串联。下面描述一下builtin结构的定义：</p>
+<p>这两种方式虽然经过了不同的过程，对用户输入的行为进行分析和处理，最终调用的函数为find_command，在该函数中顺序循环比较“输入”的命令是否与系统内部定义的相同，如果相同转到执行该函数。在这个比较的过程中包含了一个全局的数据结构为struct builtin（<code>stage2/shared.h</code>），由该数据结构组成了一个table类型（<code>stage2/builtins.c</code>），将命令与相对应的builtin结构对应一起并进行串联。下面描述一下builtin结构的定义：</p>
 
 <p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -292,9 +314,9 @@ int ext2fs_dir (char </em>dirname);</p>
 </span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="k">struct</span> <span class="n">builtin</span> <span class="o">*</span><span class="n">builtin_table</span><span class="p">[]</span><span class="err">；</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
-<p>有兴趣的读者可以对上面的内容进行扩展，形成自己的命令，主要在stage2/builtins.c文件中按照预定的格式更新，并添加到builtin_table中即可。</p>
+<p>有兴趣的读者可以对上面的内容进行扩展，形成自己的命令，主要在<code>stage2/builtins.c</code>文件中按照预定的格式更新，并添加到builtin_table中即可。</p>
 
-<p>在上面打开配置文件的过程中，主要是通过一些文件操作函数（被定义在stage2/disk_io.c中）完成。这些文件操作函数主要包括：grub_open、grub_read、grub_seek和grub_close等，这些函数属于grub对外的上层接口，具体的函数内部将调用前文中提到的boot分区对应的文件系统的相应的函数完成，这个过程主要是通过回调函数来完成。该过程整体思路类似于面向对象过程，通过对象操作具体的函数。关于用C语言实现面向对象的编程思路，可以参考一本书——《Object-oriented Programming with ANSI-C》。</p>
+<p>在上面打开配置文件的过程中，主要是通过一些文件操作函数（被定义在<code>stage2/disk_io.c</code>中）完成。这些文件操作函数主要包括：grub_open、grub_read、grub_seek和grub_close等，这些函数属于grub对外的上层接口，具体的函数内部将调用前文中提到的boot分区对应的文件系统的相应的函数完成，这个过程主要是通过回调函数来完成。该过程整体思路类似于面向对象过程，通过对象操作具体的函数。</p>
 ]]></content>
   </entry>
   
