@@ -4,7 +4,7 @@
   <title><![CDATA[Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-03-08T23:00:13+08:00</updated>
+  <updated>2013-03-08T23:13:37+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -20,7 +20,7 @@
     <id>http://ytliu.github.com/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi</id>
     <content type="html"><![CDATA[<p>故事得从几天前利小哥发现的<a href="www.xidashi.com">xidashi</a>说起：</p>
 
-<p><a href="http://ytliu.github.com/images/2013-03-01-1.png" title="xidashi">!xidashi</a></p>
+<p><img src="http://ytliu.github.com/images/2013-03-01-1.png" title="xidashi" alt="xidashi" /></p>
 
 <p>洗大师是一个android的安全应用软件+第三方应用市场，它的功能和特点简单来说就是：</p>
 
@@ -30,7 +30,7 @@
 
 <p>洗大师的流程是这样子的：</p>
 
-<p>上传apk -> 服务器对apk进行”清洗“ -> 返回”清洗“过后的apk并安装 -> 在apk允许过程中进行动态权限控制</p>
+<p>上传apk -> 服务器对apk进行”清洗“ -> 返回”清洗“过后的apk并安装 -> 在apk运行过程中进行动态权限控制</p>
 
 <p>当然还有一种模式就是”直接下载洗大师market提供的应用“。</p>
 
@@ -58,7 +58,9 @@
 
 <p>这篇文章采用了第二种方式，而它的方法其实是很直观的：</p>
 
-<p><a href="http://ytliu.github.com/images/2013-03-01-2.png" title="Dr. Android and Mr. Hide">!androidandhide</a></p>
+<p><img src="http://ytliu.github.com/images/2013-03-01-2.png" title="Mr. Hide" alt="mrhide" /></p>
+
+<p><img src="http://ytliu.github.com/images/2013-03-01-3.png" title="Dr. Android" alt="drandroid" /></p>
 
 <ul>
 <li>首先，将apk中的粗粒度权限换成细粒度权限；</li>
@@ -71,7 +73,7 @@
 
 <hr />
 
-<p>值得一提的是，这篇paper中提到的Dr. Android是一个叫做redexer的开源项目，也就是作者开发的。redexer是一个用ruby和OCaml写的Dalvik Binary Rewriter，效率很高，功能也挺强大的。我在之后的博客中会对其进行一个介绍。</p>
+<p>值得一提的是，这篇paper中提到的Dr. Android是一个叫做<a href="http://www.cs.umd.edu/projects/PL/redexer/about.html">redexer</a>的开源项目，也就是作者开发的。redexer是一个用ruby和OCaml写的Dalvik Binary Rewriter，效率很高，功能也挺强大的。我在之后的博客中会对其进行一个介绍。</p>
 ]]></content>
   </entry>
   
@@ -82,9 +84,9 @@
     <id>http://ytliu.github.com/blog/2013/02/23/traceview-in-android</id>
     <content type="html"><![CDATA[<p>这两天尝试了下用Android自带的<a href="http://developer.android.com/tools/debugging/debugging-tracing.html">Traceview</a>进行profile，感觉蛮有意思的，而且发现它的文档上对数据格式的说明和我实现时候碰到的情况有出入，于是在google code上发了封<a href="https://code.google.com/p/android/issues/detail?id=51286">帖</a>（<a href="https://code.google.com/p/android/issues/detail?id=50930#makechanges">前一封</a>被华丽丽地无视掉了），但是到最后还是不明白到底是什么问题，维护文档的人好不热情啊&#8230;</p>
 
-<p>反正这里还是安照我的实验情况来解释吧:-)</p>
+<p>反正这里还是按照我的实验情况来解释吧:-)</p>
 
-<p>首先得解释下什么是Traceview。简单的说，最简单而且最普遍的Traceview的流程是这样子的：</p>
+<p>首先得解释下什么是Traceview。最简单而且最普遍的Traceview的流程是这样子的：</p>
 
 <ul>
 <li>用户首先要对源代码进行一些instrumentation，如下所示：</li>
@@ -209,7 +211,7 @@
 
 <ul>
 <li>thread ID：就是在key里面的那个thread ID；</li>
-<li>method ID | method action：就是在key里面的那个method ID，method action有四种情况: {0->method entry; 1->method exit; 2->method exited by exception handling};</li>
+<li>method ID | method action：就是在key里面的那个method ID，method action有四种情况: {0->method entry; 1->method exit; 2->method exited by exception handling; 3->reversed};</li>
 <li>time：就是这个action发生的时间，正常情况下时间都是按照升序排序的。</li>
 </ul>
 
@@ -228,7 +230,7 @@
 </span><span class='line'>* u8 time delta since start, in usec</span></code></pre></td></tr></table></div></figure>
 
 
-<p>我的猜想是会不会和产生trace文件时机器的配置有关，我的系统是Debian 6.0，x86_64，不过维护文档的人似乎没有回答我，不过根据后面一个回答，好像确实在新的版本中就是14个bytes。</p>
+<p>我的猜想是和产生trace文件时机器的配置有关，我的系统是Debian 6.0，x86_64，维护文档的人似乎没有回答我，不过根据后面一个回答，好像确实在新的版本中就是14个bytes。</p>
 
 <p>Anyway，不管怎么样，这个trace文件是可以提供非常多动态信息的，但是需要对源代码进行修改，并且可能会产生比较大的运行时overhead（自己猜的，没有验证）。不过按照文档上的说法还有一种方式是采用<a href="http://developer.android.com/tools/debugging/ddms.html">DDMS</a>，不过我也没有尝试过，就不在这里阐述了。</p>
 
@@ -398,7 +400,9 @@
 <span class='line-number'>160</span>
 <span class='line-number'>161</span>
 <span class='line-number'>162</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># turn the traceview data into a png pic, showing methods call relationship</span>
+<span class='line-number'>163</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># dmtracedump.rb</span>
+</span><span class='line'><span class="c1"># turn the traceview data into a png pic, showing methods call relationship</span>
 </span><span class='line'>
 </span><span class='line'><span class="c1">################################################################################</span>
 </span><span class='line'><span class="c1">########################  Global Variable  #####################################</span>
@@ -563,7 +567,10 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
+<p>用法：</p>
 
+<pre><code>$ ruby dmtracedump.rb calc.trace
+</code></pre>
 ]]></content>
   </entry>
   

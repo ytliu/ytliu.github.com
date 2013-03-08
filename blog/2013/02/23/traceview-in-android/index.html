@@ -94,9 +94,9 @@
 
 <div class="entry-content"><p>这两天尝试了下用Android自带的<a href="http://developer.android.com/tools/debugging/debugging-tracing.html">Traceview</a>进行profile，感觉蛮有意思的，而且发现它的文档上对数据格式的说明和我实现时候碰到的情况有出入，于是在google code上发了封<a href="https://code.google.com/p/android/issues/detail?id=51286">帖</a>（<a href="https://code.google.com/p/android/issues/detail?id=50930#makechanges">前一封</a>被华丽丽地无视掉了），但是到最后还是不明白到底是什么问题，维护文档的人好不热情啊&#8230;</p>
 
-<p>反正这里还是安照我的实验情况来解释吧:-)</p>
+<p>反正这里还是按照我的实验情况来解释吧:-)</p>
 
-<p>首先得解释下什么是Traceview。简单的说，最简单而且最普遍的Traceview的流程是这样子的：</p>
+<p>首先得解释下什么是Traceview。最简单而且最普遍的Traceview的流程是这样子的：</p>
 
 <ul>
 <li>用户首先要对源代码进行一些instrumentation，如下所示：</li>
@@ -221,7 +221,7 @@
 
 <ul>
 <li>thread ID：就是在key里面的那个thread ID；</li>
-<li>method ID | method action：就是在key里面的那个method ID，method action有四种情况: {0->method entry; 1->method exit; 2->method exited by exception handling};</li>
+<li>method ID | method action：就是在key里面的那个method ID，method action有四种情况: {0->method entry; 1->method exit; 2->method exited by exception handling; 3->reversed};</li>
 <li>time：就是这个action发生的时间，正常情况下时间都是按照升序排序的。</li>
 </ul>
 
@@ -240,7 +240,7 @@
 </span><span class='line'>* u8 time delta since start, in usec</span></code></pre></td></tr></table></div></figure>
 
 
-<p>我的猜想是会不会和产生trace文件时机器的配置有关，我的系统是Debian 6.0，x86_64，不过维护文档的人似乎没有回答我，不过根据后面一个回答，好像确实在新的版本中就是14个bytes。</p>
+<p>我的猜想是和产生trace文件时机器的配置有关，我的系统是Debian 6.0，x86_64，维护文档的人似乎没有回答我，不过根据后面一个回答，好像确实在新的版本中就是14个bytes。</p>
 
 <p>Anyway，不管怎么样，这个trace文件是可以提供非常多动态信息的，但是需要对源代码进行修改，并且可能会产生比较大的运行时overhead（自己猜的，没有验证）。不过按照文档上的说法还有一种方式是采用<a href="http://developer.android.com/tools/debugging/ddms.html">DDMS</a>，不过我也没有尝试过，就不在这里阐述了。</p>
 
@@ -410,7 +410,9 @@
 <span class='line-number'>160</span>
 <span class='line-number'>161</span>
 <span class='line-number'>162</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># turn the traceview data into a png pic, showing methods call relationship</span>
+<span class='line-number'>163</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># dmtracedump.rb</span>
+</span><span class='line'><span class="c1"># turn the traceview data into a png pic, showing methods call relationship</span>
 </span><span class='line'>
 </span><span class='line'><span class="c1">################################################################################</span>
 </span><span class='line'><span class="c1">########################  Global Variable  #####################################</span>
@@ -575,7 +577,10 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
+<p>用法：</p>
 
+<pre><code>$ ruby dmtracedump.rb calc.trace
+</code></pre>
 </div>
 
 
