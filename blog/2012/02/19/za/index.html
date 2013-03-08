@@ -165,7 +165,7 @@
     cannot protect from memory errors in subobjects such as structure fields
 </code></pre>
 
-<p>我还有几点不是很确定算不算，第一个，在它的实现中slot-size为16bytes，也就是说所有memory allocator出来的内存大小都要大于16bytes（否则会有两个objects指在同一个slot里面），那么对于比如integer指针，岂不是很浪费？padding过多会造成大量的内存浪费，当然按照作者的说法这个可以做一个权衡，但是如何权衡或许用户并不是很清楚。第二，对于non-instrumented的第三方library的checking，按照作者的说法将默认size设为2<sup>31，我不懂这样做会不会有很大的副作用，另外，只能在修改过的应用程序中检查memory</sup> bounds violation，对于library中的指针运算依然没办法，而library的code我想应该比用户自己的application多出很多吧，也不见得vulnerability会少啊。</p>
+<p>我还有几点不是很确定算不算，第一个，在它的实现中slot-size为16bytes，也就是说所有memory allocator出来的内存大小都要大于16bytes（否则会有两个objects指在同一个slot里面），那么对于比如integer指针，岂不是很浪费？padding过多会造成大量的内存浪费，当然按照作者的说法这个可以做一个权衡，但是如何权衡或许用户并不是很清楚。第二，对于non-instrumented的第三方library的checking，按照作者的说法将默认size设为<code>2^31</code>，我不懂这样做会不会有很大的副作用，另外，只能在修改过的应用程序中检查memory bounds violation，对于library中的指针运算依然没办法，而library的code我想应该比用户自己的application多出很多吧，也不见得vulnerability会少啊。</p>
 
 <p>另外在MIT 6.858的lecture-2里面也是讲相关知识的，这里想补充一些&#8221;How to prevent buffer overflows&#8221;</p>
 
@@ -243,6 +243,14 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/">Dr. Android and Mr. Hide - xidashi引发的故事</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/02/23/traceview-in-android/">Traceview in Android</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/02/17/%5B%28zhuan-%29%5D-ji-suan-ji-de-qi-dong/">【转】计算机的启动</a>
       </li>
     
@@ -252,14 +260,6 @@
     
       <li class="post">
         <a href="/blog/2013/01/06/base64bian-ma/">Base64编码</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/12/30/qemu-study-for-android-emulator/">Qemu study for Android emulator</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/12/20/ru-guo-ming-tian-shi-shi-jie-mo-ri/">如果明天是世界末日</a>
       </li>
     
   </ul>

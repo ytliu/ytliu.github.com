@@ -4,7 +4,7 @@
   <title><![CDATA[Category: 周计划 | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/周计划/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-02-17T15:21:22+08:00</updated>
+  <updated>2013-03-08T23:00:13+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -91,7 +91,7 @@
     cannot protect from memory errors in subobjects such as structure fields
 </code></pre>
 
-<p>我还有几点不是很确定算不算，第一个，在它的实现中slot-size为16bytes，也就是说所有memory allocator出来的内存大小都要大于16bytes（否则会有两个objects指在同一个slot里面），那么对于比如integer指针，岂不是很浪费？padding过多会造成大量的内存浪费，当然按照作者的说法这个可以做一个权衡，但是如何权衡或许用户并不是很清楚。第二，对于non-instrumented的第三方library的checking，按照作者的说法将默认size设为2<sup>31，我不懂这样做会不会有很大的副作用，另外，只能在修改过的应用程序中检查memory</sup> bounds violation，对于library中的指针运算依然没办法，而library的code我想应该比用户自己的application多出很多吧，也不见得vulnerability会少啊。</p>
+<p>我还有几点不是很确定算不算，第一个，在它的实现中slot-size为16bytes，也就是说所有memory allocator出来的内存大小都要大于16bytes（否则会有两个objects指在同一个slot里面），那么对于比如integer指针，岂不是很浪费？padding过多会造成大量的内存浪费，当然按照作者的说法这个可以做一个权衡，但是如何权衡或许用户并不是很清楚。第二，对于non-instrumented的第三方library的checking，按照作者的说法将默认size设为<code>2^31</code>，我不懂这样做会不会有很大的副作用，另外，只能在修改过的应用程序中检查memory bounds violation，对于library中的指针运算依然没办法，而library的code我想应该比用户自己的application多出很多吧，也不见得vulnerability会少啊。</p>
 
 <p>另外在MIT 6.858的lecture-2里面也是讲相关知识的，这里想补充一些"How to prevent buffer overflows"</p>
 
