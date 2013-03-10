@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Android | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/android/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-03-10T21:43:53+08:00</updated>
+  <updated>2013-03-10T21:48:21+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -12,6 +12,35 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Redexer and Ocaml]]></title>
+    <link href="http://ytliu.github.com/blog/2013/03/10/redexer-and-ocaml-and-functional-language/"/>
+    <updated>2013-03-10T09:53:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2013/03/10/redexer-and-ocaml-and-functional-language</id>
+    <content type="html"><![CDATA[<p>在<a href="http://ytliu.github.com/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/">上一篇博客</a>是一个用ruby和OCaml写的Dalvik binary rewriter，它提供了unparse, htmlunparse, id, combine, info, classes, api, opstat, cg, cfg, dom, pdom, dump_method等功能，还可以自己扩展相应的功能，具体的可以参看它的<a href="https://github.com/plum-umd/redexer">github主页</a>。</p>
+
+<p>redexer主要原理就是将<code>.dex</code>文件按照<a href="http://source.android.com/tech/dalvik/dex-format.html">Dalvik Executable Format</a>映射到内存中的数据结构，然后根据这些数据结果进行分析，可以达到比较高的性能。</p>
+
+<p>这里主要想要说说<a href="http://en.wikipedia.org/wiki/OCaml">OCaml</a>这个语言。</p>
+
+<p>OCaml的全称是Object Caml，是一个有OO扩展的函数式语言（Functional Language），看了看它的语法，和我们程序语言理论里面的那个simPL非常的像，也和当时学FP的时候讲的Haskell很像。</p>
+
+<p>查了查functional language和imperative language有什么不同，在wiki上似乎有一个最大的区别在于：</p>
+
+<pre><code>It emphasizes the application of functions, in contrast to the imperative programming style, 
+which emphasizes changes in state. The most significant differences stem from the fact that 
+functional programming avoids side effects, which are used in imperative programming to implement 
+state and I/O. 
+</code></pre>
+
+<p>然后在<a href="http://stackoverflow.com/questions/2078978/functional-programming-vs-object-oriented-programming">stack overflow</a>里面有一个蛮经典的回答”When do you choose functional programming over object oriented ?“</p>
+
+<p><img src="http://ytliu.github.com/images/2013-03-10-1.png" title="answer" alt="stackoverflowans" /></p>
+
+<p>另外，在OCaml里面有很多FP的特性，比如 static type system, type inference, parametric polymorphism, tail recursion, pattern matching, first class lexical closures, functors (parametric modules), exception handling, and incremental generational automatic garbage collection等等，这些会在之后对OCaml的学习中慢慢弄清楚来吧~</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Redexer and Ocaml]]></title>
@@ -817,181 +846,6 @@ $ emulator-arm @4.2
 <p>另外，一个函数可以通过<code>(*pointer_to_func)(args)</code>被调用，所以<code>((long REGPARM (*)(void *))code_gen_prologue)(tc_ptr)</code>进行了一次函数调用，似乎在这里少了一个<code>*</code>号，不过其实只要测试下可以发现 <code>(*pointer_to_func)(args)</code>和<code>(pointer_to_func)(args)</code>是一样的。</p>
 
 <p>所以上面<code>tcg_qemu_tb_exec(tb_ptr)</code>翻译的宏可以表示为一个数组<code>code_gen_prologue</code>被cast成一个函数指针，参数为<code>tc_ptr</code>，返回值为<code>long</code>（指向下一个TB），并且被调用。其实，被<code>code_gen_prologue</code>指向的函数就是<code>Function Prologue</code>，将控制流转到<code>tc_ptr</code>指向的host code开头部分。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[ASLR in android]]></title>
-    <link href="http://ytliu.github.com/blog/2012/12/09/aslr-in-android/"/>
-    <updated>2012-12-09T11:07:00+08:00</updated>
-    <id>http://ytliu.github.com/blog/2012/12/09/aslr-in-android</id>
-    <content type="html"><![CDATA[<p>这两篇看了两篇文章分析<a href="https://blog.duosecurity.com/2012/02/a-look-at-aslr-in-android-ice-cream-sandwich-4-0/" title="asli in 4.0">aslr in androi4.0</a>和<a href="https://blog.duosecurity.com/2012/07/exploit-mitigations-in-android-jelly-bean-4-1/" title="aslr in 4.1">android 4.1</a>，觉得蛮有趣的，这里简单介绍下。</p>
-
-<h3>ASLR with Liux Kernel</h3>
-
-<p>首先介绍下linux中的ASLR，ASLR可以对任意内存进行随机化：</p>
-
-<ul>
-<li>stack：The userspace stack mapping set up by the kernel during exec(2) should be sufficiently randomized. Stack randomization is performed by the randomize_stack_top() function.</li>
-<li>Heap：The heap location returned by the brk(2) system call when a program is first exec’ed should be randomized. Heap randomization is performed by the arch_randomize_brk() function.</li>
-<li>Libs and mmap：After NX was introduced, static library mapping led to the popularity of ret-to-libc and more generic ret-to-lib attacks. The location of libraries and other mmap’ed regions should be randomized.</li>
-<li>Exec：Even if you’re randomized the mapping of all the shared libaries that an executable uses, you still need to randomize the location of the executable itself when it is mapped into the address space. Otherwise, the executable mapping can be used as a source for ROP gadgets.</li>
-<li>Linker：On most Linux systems, the ld.so dynamic linker provided by glibc can self-relocate itself, so its mapping is randomized. However, as we’ll see, this isn’t the case for all linkers.</li>
-<li>VDSO(Virtual Dynamically-linked Shared Object)：an executable mapping of a virtual shared library provided by the kernel for syscall transitions. However, most Android devices run on the ARM architecture, which doesn’t use a VDSO.</li>
-</ul>
-
-
-<h3>ASLR in Android 2.x</h3>
-
-<p>在Android 2.x开始，唯一对ASLR支持的是stack（这可以通过多次查看/proc/pid/maps来发现），其通过load_elf_binary()函数调用randomize_stack_top()来实现：</p>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">ifndef</span> <span class="n">STACK_RND_MASK</span><span class="o">&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">define</span> <span class="n">STACK_RND_MASK</span> <span class="p">(</span><span class="mh">0x7ff</span> <span class="o">&gt;&gt;</span> <span class="p">(</span><span class="n">PAGE_SHIFT</span> <span class="o">-</span> <span class="mi">12</span><span class="p">))</span> <span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="mi">8</span><span class="n">MB</span> <span class="n">of</span> <span class="n">VA</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">endif</span><span class="o">&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="k">static</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">randomize_stack_top</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_top</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">random_variable</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'><span class="k">if</span> <span class="p">((</span><span class="n">current</span><span class="o">-&amp;</span><span class="n">gt</span><span class="p">;</span><span class="n">flags</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span> <span class="n">PF_RANDOMIZE</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span>
-</span><span class='line'>            <span class="o">!</span><span class="p">(</span><span class="n">current</span><span class="o">-&amp;</span><span class="n">gt</span><span class="p">;</span><span class="n">personality</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span> <span class="n">ADDR_NO_RANDOMIZE</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>        <span class="n">random_variable</span> <span class="o">=</span> <span class="n">get_random_int</span><span class="p">()</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span> <span class="n">STACK_RND_MASK</span><span class="p">;</span>
-</span><span class='line'>        <span class="n">random_variable</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="o">=</span> <span class="n">PAGE_SHIFT</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">ifdef</span> <span class="n">CONFIG_STACK_GROWSUP</span><span class="o">&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span>    <span class="k">return</span> <span class="n">PAGE_ALIGN</span><span class="p">(</span><span class="n">stack</span><span class="err">\</span><span class="n">_top</span><span class="p">)</span> <span class="o">+</span> <span class="n">random_variable</span><span class="p">;</span>
-</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="k">else</span><span class="o">&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span>    <span class="k">return</span> <span class="n">PAGE_ALIGN</span><span class="p">(</span><span class="n">stack</span><span class="err">\</span><span class="n">_top</span><span class="p">)</span> <span class="o">-</span> <span class="n">random_variable</span><span class="p">;</span>
-</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">endif</span><span class="o">&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<h3>ASLR in Android 4.0</h3>
-
-<p>而在4.0，即其所谓的支持ASLR的版本上，其实ASLR也仅仅增加了对libc等一些shared libraries进行了随机化，而对于heap, executable和linker还是static的。</p>
-
-<p>对于heap的随机化来说，可以通过</p>
-
-<pre><code>echo 2 &gt; /proc/sys/kernel/randomize_va_space
-</code></pre>
-
-<p>来开启。</p>
-
-<p>而对于executable的随机化，由于大部分的binary没有加GCC的-pie -fPIE选项，所以编译出来的是EXEC，而不是DYN这种shared object file，因此不是PIE（Position Independent Executable），所以没有办法随机化；</p>
-
-<p>同样的linker也没有做到ASLR。</p>
-
-<h3>ASLR in Android 4.1</h3>
-
-<p>终于，在4.1 Jelly Bean中，Android终于支持了所有内存的ASLR。在第二个对4.1ASLR介绍中，作者列出了从Android 1.5开始用到的安全加强机制：</p>
-
-<h5>Android 1.5+</h5>
-
-<ul>
-<li>ProPolice to prevent stack buffer overruns (-fstack-protector)</li>
-<li>safe_iop to reduce integer overflows</li>
-<li>Extensions to OpenBSD dlmalloc to prevent double free() vulnerabilities and to prevent chunk consolidation attacks. Chunk consolidation attacks are a common way to exploit heap corruption.</li>
-<li>OpenBSD calloc to prevent integer overflows during memory allocation</li>
-</ul>
-
-
-<h5>Android 2.3+</h5>
-
-<ul>
-<li>Format string vulnerability protections (-Wformat-security -Werror=format-security)</li>
-<li>Hardware-based No eXecute (NX) to prevent code execution on the stack and heap</li>
-<li>Linux mmap_min_addr to mitigate null pointer dereference privilege escalation (further enhanced in Android 4.1)</li>
-</ul>
-
-
-<h5>Android 4.0+</h5>
-
-<ul>
-<li>Address Space Layout Randomization (ASLR) to randomize key locations in memory</li>
-</ul>
-
-
-<h5>Android 4.1+</h5>
-
-<ul>
-<li>PIE (Position Independent Executable) support</li>
-<li>Read-only relocations / immediate binding (-Wl,-z,relro -Wl,-z,now)</li>
-<li>dmesg_restrict enabled (avoid leaking kernel addresses)</li>
-<li>kptr_restrict enabled (avoid leaking kernel addresses)</li>
-</ul>
-
-
-<p>在Android 4.1中，基本上所有binary都被编译和连接成了PIE模式（可以通过readelf查看其Type）。所以，相比于4.0，4.1对Heap，executable和linker都提供了ASLR的支持。</p>
-
-<p>另外，4.1还增加了几个小的安全加强机制：</p>
-
-<ul>
-<li>大部分系统binary都添加了RELRO和BIND_NOW的编译flag，起作用主要是将GOT表设置成只读，防止之前出现过的<a href="http://jon.oberheide.org/files/bsides11-dontrootrobots.pdf" title="don't root robot">Gingerbreak</a>攻击。</li>
-<li>另外，对dmesg_restrict / kptr_restrict的sysctl的利用，有效防止了一些低权限的用户从dmesg/klogctl中读取一些敏感信息，或者读取一些kernel内存中的敏感数据（比如很多/proc下的接口）。</li>
-</ul>
-
-
-<h3>What's next</h3>
-
-<p>之后作者还提到一些还需要继续努力的事：</p>
-
-<ul>
-<li>ASLR的弱点 - 32-bit，容易破解</li>
-<li>一些安全的libc调用，比如FORTIFY_SOURCE</li>
-<li>PaX Hardening，虽然很多不适合手机，但是也可以cherry pick一些啦</li>
-<li>MAC/RBAC，其实这个现在也已经有了，比如SEAndroid...</li>
-<li>Mandatory Code Signing，向IPhone学习吧</li>
-</ul>
-
-
-<p>另外，作者还提到一个Zygote的问题，为了性能问题，现在Android上所有的进程都是Zygote fork出来的，也就是说很多的地址空间在fork出来后是固定不变的，这样也就出现了一种可能性：a malicious app on a victim’s device leaks address mappings from its own process off to an attacker to assist in exploiting another process (eg. the browser) that might have higher privilege or valuable data.</p>
-
-<p>当然，作者认为这种场景可能性比较小，所以还不算一个大问题。</p>
 ]]></content>
   </entry>
   
