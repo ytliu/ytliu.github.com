@@ -110,29 +110,7 @@ state and I/O.
 
 <p>然后在<a href="http://stackoverflow.com/questions/2078978/functional-programming-vs-object-oriented-programming">stack overflow</a>里面有一个蛮经典的回答”When do you choose functional programming over object oriented ?“</p>
 
-<pre><code>When you anticipate a different kind of software evolution:
-
-Object-oriented languages are good when you have a fixed set of operations on things, and as your code evolves, 
-you primarily add new things. This can be accomplished by adding new classes which implement existing methods, 
-and the existing classes are left alone.
-
-Functional languages are good when you have a fixed set of things, and as your code evolves, you primarily add 
-new operations on existing things. This can be accomplished by adding new functions which compute with existing 
-data types, and the existing functions are left alone.
-
-When evolution goes the wrong way, you have problems:
-
-Adding a new operation to an object-oriented program may require editing many class definitions to add a new method.
-
-Adding a new kind of thing to a functional program may require editing many function definitions to add a new case.
-
-What are the typical problem definitions where functional programming is a better choice?
-
-Functional languages excel at manipulating symbolic data in tree form. A favorite example is compilers, 
-where source and intermediate languages change seldom (mostly the same things), but compiler writers are 
-always adding new translations and code improvements or optimizations (new operations on things). 
-Compilation and translation more generally are "killer apps" for functional languages.
-</code></pre>
+<p><img src="http://ytliu.github.com/images/2013-03-10-1.png" title="answer" alt="stackoverflowans" /></p>
 
 <p>另外，在OCaml里面有很多FP的特性，比如 static type system, type inference, parametric polymorphism, tail recursion, pattern matching, first class lexical closures, functors (parametric modules), exception handling, and incremental generational automatic garbage collection等等，这些会在之后对OCaml的学习中慢慢弄清楚来吧~</p>
 </div>
@@ -185,8 +163,6 @@ Compilation and translation more generally are "killer apps" for functional lang
         <a class="basic-alignment left" href="/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/" title="Previous Post: Dr. Android and Mr. Hide - xidashi引发的故事">&laquo; Dr. Android and Mr. Hide - xidashi引发的故事</a>
       
       
-        <a class="basic-alignment right" href="/blog/2013/03/10/redexer-and-ocaml-and-functional-language/" title="Next Post: Redexer and Ocaml">Redexer and Ocaml &raquo;</a>
-      
     </p>
   </footer>
 </article>
@@ -198,10 +174,6 @@ Compilation and translation more generally are "killer apps" for functional lang
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
-    
-      <li class="post">
-        <a href="/blog/2013/03/10/redexer-and-ocaml-and-functional-language/">Redexer and Ocaml</a>
-      </li>
     
       <li class="post">
         <a href="/blog/2013/03/10/redexer-and-ocaml/">Redexer and Ocaml</a>
@@ -217,6 +189,10 @@ Compilation and translation more generally are "killer apps" for functional lang
     
       <li class="post">
         <a href="/blog/2013/02/17/%5B%28zhuan-%29%5D-ji-suan-ji-de-qi-dong/">【转】计算机的启动</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/01/12/qiao-bang-zhu-chuan-you-gan/">乔帮主传有感</a>
       </li>
     
   </ul>
