@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>如果明天是世界末日 - Mctrain's Blog</title>
+  <title>Redexer and Ocaml - Mctrain's Blog</title>
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="那我觉得今天过的好没意义啊。 早晨起床，刷牙，洗脸，拉尿，换衣服，滑轮滑去买了两个肉包，到实验室喝了杯蜂蜜水，写了两行related work，被叫去开组会，突然华为的人进来又听海波和他们讨论了一个上午，中午吃了碗和方便面长的一样但是比方便面难吃还要17块钱的“辛拉面”， &hellip;">
+  <meta name="description" content="在上一篇博客是一个用ruby和OCaml写的Dalvik binary rewriter，它提供了unparse, htmlunparse, id, combine, info, classes, api, opstat, cg, cfg, dom, pdom, dump_method等功能， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://ytliu.github.com/blog/2012/12/20/ru-guo-ming-tian-shi-shi-jie-mo-ri/">
+  <link rel="canonical" href="http://ytliu.github.com/blog/2013/03/10/redexer-and-ocaml/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -69,7 +69,7 @@
   
   <header>
     
-      <h1 class="entry-title">如果明天是世界末日</h1>
+      <h1 class="entry-title">Redexer and Ocaml</h1>
     
     
       <p class="meta">
@@ -85,30 +85,56 @@
   
 
 
-<time datetime="2012-12-20T21:44:00+08:00" pubdate data-updated="true">Dec 20<span>th</span>, 2012</time>
+<time datetime="2013-03-10T09:53:00+08:00" pubdate data-updated="true">Mar 10<span>th</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>那我觉得今天过的好没意义啊。</p>
+<div class="entry-content"><p>在<a href="http://ytliu.github.com/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/">上一篇博客</a>是一个用ruby和OCaml写的Dalvik binary rewriter，它提供了unparse, htmlunparse, id, combine, info, classes, api, opstat, cg, cfg, dom, pdom, dump_method等功能，还可以自己扩展相应的功能，具体的可以参看它的<a href="https://github.com/plum-umd/redexer">github主页</a>。</p>
 
-<p>早晨起床，刷牙，洗脸，拉尿，换衣服，滑轮滑去买了两个肉包，到实验室喝了杯蜂蜜水，写了两行related work，被叫去开组会，突然华为的人进来又听海波和他们讨论了一个上午，中午吃了碗和方便面长的一样但是比方便面难吃还要17块钱的“辛拉面”，回到实验室抄了两个小时的政治课笔记，莫名其妙地又待了一个小时写了几行related work，唯一还算比较有意义的就是晚上和实验室去吃了世界末日前最后一餐，回来被小呆众闺蜜调戏了一番，然后和“追梦的贱人们”聊了会儿天&#8230;然后等下又要冒着雨会寝室，洗脸洗脚，刷牙睡觉&#8230;</p>
+<p>redexer主要原理就是将<code>.dex</code>文件按照<a href="http://source.android.com/tech/dalvik/dex-format.html">Dalvik Executable Format</a>映射到内存中的数据结构，然后根据这些数据结果进行分析，可以达到比较高的性能。</p>
 
-<p>如果明天真的是世界末日的话，那这个就算我的遗嘱了吧&#8230;</p>
+<p>这里主要想要说说<a href="http://en.wikipedia.org/wiki/OCaml">OCaml</a>这个语言。</p>
 
-<p>算了，虽然懒，但是还是再加几句吧：</p>
+<p>OCaml的全称是Object Caml，是一个有OO扩展的函数式语言（Functional Language），看了看它的语法，和我们程序语言理论里面的那个simPL非常的像，也和当时学FP的时候讲的Haskell很像。</p>
 
-<blockquote><p>很高兴认识你们（你们懂的），如果还有下辈子（我还是比较相信投胎一说的），我还是希望在另外一个星球遇到你们，然后和你们一起傻一起疯，一起度过最二逼的青春岁月。<br/>然后，我还要在初中遇到小呆，经过一段暧昧的光年，传递那么几封可以用来回忆当年青涩傻逼岁月的信，然后再来上那个霸气的短信“刘宇涛先生，要不我们不谈了，直接结婚吧”，再然后，度过一段充满思念的异地恋，最终在一起，每周都能见个面，开启个“相亲相爱”模式，或者偶尔听你哭一哭，安静地看着你流泪，然后来个强有力的男人的拥抱&#8230;<br/>至于读书嘛~就不读那么认真啦，多享受享受生活，把自己想做的事不管有钱没钱有时间没时间都一股脑儿挤出时间来做掉，省的又来个世界末日啥的。<br/>世界太危险，读博要谨慎啊&#8230;</p></blockquote>
+<p>查了查functional language和imperative language有什么不同，在wiki上似乎有一个最大的区别在于：</p>
 
+<pre><code>It emphasizes the application of functions, in contrast to the imperative programming style, 
+which emphasizes changes in state. The most significant differences stem from the fact that 
+functional programming avoids side effects, which are used in imperative programming to implement 
+state and I/O. 
+</code></pre>
 
-<p>好了，就这些吧，让暴风雨来的更猛烈些，把这一切都冲毁吧，包括我以上那些无聊的YY&#8230;</p>
+<p>然后在<a href="http://stackoverflow.com/questions/2078978/functional-programming-vs-object-oriented-programming">stack overflow</a>里面有一个蛮经典的回答”When do you choose functional programming over object oriented ?“</p>
 
-<p>还是回去早点洗洗睡了吧》》》</p>
+<pre><code>When you anticipate a different kind of software evolution:
 
-<blockquote><p>就算世界没了，那又关我鸟事呢啦啦啦》》》</p></blockquote>
+Object-oriented languages are good when you have a fixed set of operations on things, and as your code evolves, 
+you primarily add new things. This can be accomplished by adding new classes which implement existing methods, 
+and the existing classes are left alone.
 
+Functional languages are good when you have a fixed set of things, and as your code evolves, you primarily add 
+new operations on existing things. This can be accomplished by adding new functions which compute with existing 
+data types, and the existing functions are left alone.
+
+When evolution goes the wrong way, you have problems:
+
+Adding a new operation to an object-oriented program may require editing many class definitions to add a new method.
+
+Adding a new kind of thing to a functional program may require editing many function definitions to add a new case.
+
+What are the typical problem definitions where functional programming is a better choice?
+
+Functional languages excel at manipulating symbolic data in tree form. A favorite example is compilers, 
+where source and intermediate languages change seldom (mostly the same things), but compiler writers are 
+always adding new translations and code improvements or optimizations (new operations on things). 
+Compilation and translation more generally are "killer apps" for functional languages.
+</code></pre>
+
+<p>另外，在OCaml里面有很多FP的特性，比如 static type system, type inference, parametric polymorphism, tail recursion, pattern matching, first class lexical closures, functors (parametric modules), exception handling, and incremental generational automatic garbage collection等等，这些会在之后对OCaml的学习中慢慢弄清楚来吧~</p>
 </div>
 
 
@@ -131,12 +157,12 @@
   
 
 
-<time datetime="2012-12-20T21:44:00+08:00" pubdate data-updated="true">Dec 20<span>th</span>, 2012</time>
+<time datetime="2013-03-10T09:53:00+08:00" pubdate data-updated="true">Mar 10<span>th</span>, 2013</time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/生活/'>生活</a>
+    <a class='category' href='/blog/categories/android/'>Android</a>, <a class='category' href='/blog/categories/ocaml/'>OCaml</a>
   
 </span>
 
@@ -145,7 +171,7 @@
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ytliu.github.com/blog/2012/12/20/ru-guo-ming-tian-shi-shi-jie-mo-ri/" data-via="microtrain016" data-counturl="http://ytliu.github.com/blog/2012/12/20/ru-guo-ming-tian-shi-shi-jie-mo-ri/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ytliu.github.com/blog/2013/03/10/redexer-and-ocaml/" data-via="microtrain016" data-counturl="http://ytliu.github.com/blog/2013/03/10/redexer-and-ocaml/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -156,10 +182,8 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2012/12/15/dynamic-linker/" title="Previous Post: Dynamic Linker">&laquo; Dynamic Linker</a>
+        <a class="basic-alignment left" href="/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/" title="Previous Post: Dr. Android and Mr. Hide - xidashi引发的故事">&laquo; Dr. Android and Mr. Hide - xidashi引发的故事</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2012/12/30/qemu-study-for-android-emulator/" title="Next Post: Qemu study for Android emulator">Qemu study for Android emulator &raquo;</a>
       
     </p>
   </footer>

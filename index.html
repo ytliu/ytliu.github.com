@@ -9,7 +9,7 @@
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="故事得从几天前利小哥发现的xidashi说起： 洗大师是一个android的安全应用软件+第三方应用市场，它的功能和特点简单来说就是： highlight 在不root的情况下，允许用户对已安装的应用程序实行权限的细粒度动态控制 这里的细粒度动态控制是指用户可以随时允许或禁止该应用程序某一个权限， &hellip;">
+  <meta name="description" content="在上一篇博客是一个用ruby和OCaml写的Dalvik binary rewriter，它提供了unparse, htmlunparse, id, combine, info, classes, api, opstat, cg, cfg, dom, pdom, dump_method等功能， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -72,6 +72,84 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2013/03/10/redexer-and-ocaml/">Redexer and Ocaml</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-03-10T09:53:00+08:00" pubdate data-updated="true">Mar 10<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>在<a href="http://ytliu.github.com/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/">上一篇博客</a>是一个用ruby和OCaml写的Dalvik binary rewriter，它提供了unparse, htmlunparse, id, combine, info, classes, api, opstat, cg, cfg, dom, pdom, dump_method等功能，还可以自己扩展相应的功能，具体的可以参看它的<a href="https://github.com/plum-umd/redexer">github主页</a>。</p>
+
+<p>redexer主要原理就是将<code>.dex</code>文件按照<a href="http://source.android.com/tech/dalvik/dex-format.html">Dalvik Executable Format</a>映射到内存中的数据结构，然后根据这些数据结果进行分析，可以达到比较高的性能。</p>
+
+<p>这里主要想要说说<a href="http://en.wikipedia.org/wiki/OCaml">OCaml</a>这个语言。</p>
+
+<p>OCaml的全称是Object Caml，是一个有OO扩展的函数式语言（Functional Language），看了看它的语法，和我们程序语言理论里面的那个simPL非常的像，也和当时学FP的时候讲的Haskell很像。</p>
+
+<p>查了查functional language和imperative language有什么不同，在wiki上似乎有一个最大的区别在于：</p>
+
+<pre><code>It emphasizes the application of functions, in contrast to the imperative programming style, 
+which emphasizes changes in state. The most significant differences stem from the fact that 
+functional programming avoids side effects, which are used in imperative programming to implement 
+state and I/O. 
+</code></pre>
+
+<p>然后在<a href="http://stackoverflow.com/questions/2078978/functional-programming-vs-object-oriented-programming">stack overflow</a>里面有一个蛮经典的回答”When do you choose functional programming over object oriented ?“</p>
+
+<pre><code>When you anticipate a different kind of software evolution:
+
+Object-oriented languages are good when you have a fixed set of operations on things, and as your code evolves, 
+you primarily add new things. This can be accomplished by adding new classes which implement existing methods, 
+and the existing classes are left alone.
+
+Functional languages are good when you have a fixed set of things, and as your code evolves, you primarily add 
+new operations on existing things. This can be accomplished by adding new functions which compute with existing 
+data types, and the existing functions are left alone.
+
+When evolution goes the wrong way, you have problems:
+
+Adding a new operation to an object-oriented program may require editing many class definitions to add a new method.
+
+Adding a new kind of thing to a functional program may require editing many function definitions to add a new case.
+
+What are the typical problem definitions where functional programming is a better choice?
+
+Functional languages excel at manipulating symbolic data in tree form. A favorite example is compilers, 
+where source and intermediate languages change seldom (mostly the same things), but compiler writers are 
+always adding new translations and code improvements or optimizations (new operations on things). 
+Compilation and translation more generally are "killer apps" for functional languages.
+</code></pre>
+
+<p>另外，在OCaml里面有很多FP的特性，比如 static type system, type inference, parametric polymorphism, tail recursion, pattern matching, first class lexical closures, functors (parametric modules), exception handling, and incremental generational automatic garbage collection等等，这些会在之后对OCaml的学习中慢慢弄清楚来吧~</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/">Dr. Android and Mr. Hide - Xidashi引发的故事</a></h1>
     
     
@@ -101,7 +179,7 @@
 
 <p>洗大师是一个android的安全应用软件+第三方应用市场，它的功能和特点简单来说就是：</p>
 
-<blockquote><p>highlight 在不root的情况下，允许用户对已安装的应用程序实行权限的细粒度动态控制</p></blockquote>
+<blockquote><p>在不root的情况下，允许用户对已安装的应用程序实行权限的细粒度动态控制</p></blockquote>
 
 <p>这里的细粒度动态控制是指用户可以随时允许或禁止该应用程序某一个权限，并对利用该权限调用API的行为进行log。</p>
 
@@ -1769,76 +1847,6 @@ jmp _dl_runtime_resolve
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/12/08/get-root-in-my-android/">Get Root in My Android</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-12-08T16:28:00+08:00" pubdate data-updated="true">Dec 8<span>th</span>, 2012</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>首先申明，这其实并不是一篇android root教程，因为我并没有用什么exploit的方法，也没有用CWM等这些第三方ROM，而是该了ASOP，然后把它刷到机子上，然后对其进行所谓的root，装了一个dSploit和busybox。</p>
-
-<p>具体的做法是这样的：</p>
-
-<ul>
-<li>更新到ASOP的最新版 - 4.2.4</li>
-<li>lunch full-maguro, make</li>
-<li>fastboot to smartphone</li>
-<li>把手机连到电脑上，通过adb shell上去，进入su模式</li>
-<li>通过<a href="http://www.cypherpunk.at/2011/10/08/manual-rooting-android-on-linux-2/" title="manual rooting">这里</a>的方法进行root</li>
-</ul>
-
-
-<p>即：</p>
-
-<ul>
-<li>mount -o remount,rw /dev/block/&#8230;/system /system</li>
-<li>mv path/to/modified/su /system/xbin/su</li>
-<li>mount -o remount,ro /dev/block/&#8230;/system /system</li>
-</ul>
-
-
-<p>但是发现失败了，我怀疑是su这个文件不兼容，于是，我想了一个更贱的方法：</p>
-
-<ul>
-<li>把ASOP代码中的/system/extras/su/su.c该掉，把检查的部分全部去掉</li>
-<li>然后刷机</li>
-</ul>
-
-
-<p>这样就直接root了！不过这只能用于我的测试机啦，正常的手机千万不敢那么做，太危险了！</p>
-
-<hr />
-
-<p>另外，我用了两款软件，<a href="https://github.com/evilsocket/dsploit" title="dsploit">dSploit</a>和<a href="github.com/mwrlabs/mercury" title="mercury">Mercury</a>，而且都有源码，准备之后两周研究下，学习下android编程和如何进行penetration</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -1854,6 +1862,10 @@ jmp _dl_runtime_resolve
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/03/10/redexer-and-ocaml/">Redexer and Ocaml</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/">Dr. Android and Mr. Hide - xidashi引发的故事</a>
       </li>
     
@@ -1867,10 +1879,6 @@ jmp _dl_runtime_resolve
     
       <li class="post">
         <a href="/blog/2013/01/12/qiao-bang-zhu-chuan-you-gan/">乔帮主传有感</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/01/06/base64bian-ma/">Base64编码</a>
       </li>
     
   </ul>
