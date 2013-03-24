@@ -9,7 +9,7 @@
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="在上一篇博客是一个用ruby和OCaml写的Dalvik binary rewriter，它提供了unparse, htmlunparse, id, combine, info, classes, api, opstat, cg, cfg, dom, pdom, dump_method等功能， &hellip;">
+  <meta name="description" content="由于项目的需要，这周写了一个ruby project——apk-static-xref。 虽然现在Android静态分析的项目很多，但是我都没有找到一个看上去很简单的功能：给定一个component，找出它所有调用到的函数，然后画出call graph。 现在的大部分call &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,157 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/03/24/cross-reference-graph-of-android-component/">Cross Reference Graph of Android Component</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-03-24T13:35:00+08:00" pubdate data-updated="true">Mar 24<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>由于项目的需要，这周写了一个ruby project——<a href="https://github.com/ytliu/apk-static-xref">apk-static-xref</a>。</p>
+
+<p>虽然现在Android静态分析的项目很多，但是我都没有找到一个看上去很简单的功能：给定一个component，找出它所有调用到的函数，然后画出call graph。</p>
+
+<p>现在的大部分call graph都只能限制在一个class文件里，这里所说的cross reference graph (XRG)就是指函数调用是跨class文件的，需要cross reference直到调用的是Android本身的API或者Java API。</p>
+
+<p>这其实是一个很简单的功能，但我不知道为什么一直找不到工具可以满足我的需求，直到找到了spark的一个<a href="http://appsrv.cse.cuhk.edu.hk/~mzheng/DroidTrace.pdf">slide</a>，里面提到一个cross reference graph。其实就是一个对smali文件的DFS算法。</p>
+
+<p>于是我把<a href="">smali-cfg</a>和<a href="">redexer</a>结合了一下，写了这个ruby project，具体做法就是：</p>
+
+<ul>
+<li><p>用apktool unpack apk：</p>
+
+<p>  $ java -jar apktool.jar -d source.apk target.dir</p></li>
+<li><p>用nokogiri parse AndroidManefest.xml 找出所有的service和activity：</p>
+
+<p>  Nokogiri::XML(f)</p></li>
+<li><p>用DFS遍历所有的smali文件，得出整个call graph的结点和边：</p></li>
+</ul>
+
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">run_assign</span><span class="p">(</span><span class="n">apk</span><span class="p">,</span> <span class="n">cls</span><span class="p">,</span> <span class="n">mtd</span><span class="p">,</span> <span class="n">pty</span><span class="p">,</span> <span class="n">flag</span><span class="p">,</span> <span class="n">ori_cls</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">match</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="nb">caller</span> <span class="o">=</span> <span class="kp">nil</span>
+</span><span class='line'>  <span class="n">callee</span> <span class="o">=</span> <span class="kp">nil</span>
+</span><span class='line'>  <span class="n">vclass</span> <span class="o">=</span> <span class="kp">nil</span>
+</span><span class='line'>  <span class="n">filename</span> <span class="o">=</span> <span class="n">apk</span><span class="o">.</span><span class="n">smali</span> <span class="o">+</span> <span class="n">cls</span> <span class="o">+</span> <span class="s2">&quot;.smali&quot;</span>
+</span><span class='line'>  <span class="k">if</span> <span class="no">File</span><span class="o">.</span><span class="n">file?</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">fh</span> <span class="o">=</span> <span class="no">File</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="k">return</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="n">lines</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">readlines</span>
+</span><span class='line'>  <span class="n">lines</span><span class="o">.</span><span class="n">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">line</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="n">-</span><span class="mi">1</span><span class="o">]</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">start_with?</span><span class="p">(</span><span class="s2">&quot;.class&quot;</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">vclass</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">[-</span><span class="mi">1</span><span class="o">][</span><span class="mi">1</span><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="n">-</span><span class="mi">1</span><span class="o">]</span>
+</span><span class='line'>    <span class="k">elsif</span> <span class="n">line</span><span class="o">.</span><span class="n">start_with?</span><span class="p">(</span><span class="s2">&quot;.method&quot;</span><span class="p">)</span>
+</span><span class='line'>      <span class="nb">caller</span> <span class="o">=</span> <span class="no">Invoker</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">vclass</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="nb">caller</span><span class="o">.</span><span class="n">mtd</span><span class="o">.</span><span class="n">eql?</span><span class="p">(</span><span class="n">mtd</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">caller</span><span class="o">.</span><span class="n">pty</span><span class="o">.</span><span class="n">eql?</span><span class="p">(</span><span class="n">pty</span><span class="p">))</span>
+</span><span class='line'>        <span class="n">match</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">elsif</span> <span class="n">line</span><span class="o">.</span><span class="n">start_with?</span><span class="p">(</span><span class="s2">&quot;.end method&quot;</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">match</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="k">elsif</span> <span class="n">line</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="s2">&quot;invoke-&quot;</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">callee</span> <span class="o">=</span> <span class="no">Invoked</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">match</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">flag</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">if</span> <span class="vg">$caller_methods</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">callee</span><span class="o">.</span><span class="n">str</span><span class="p">)</span>
+</span><span class='line'>          <span class="k">if</span> <span class="o">!</span><span class="vg">$caller_methods</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="nb">caller</span><span class="o">.</span><span class="n">str</span><span class="p">)</span>
+</span><span class='line'>            <span class="n">addNodes</span><span class="p">(</span><span class="nb">caller</span><span class="o">.</span><span class="n">str</span><span class="p">,</span> <span class="n">callee</span><span class="o">.</span><span class="n">str</span><span class="p">)</span> <span class="k">if</span> <span class="vg">$graph_need</span>
+</span><span class='line'>          <span class="k">end</span>
+</span><span class='line'>        <span class="k">else</span>
+</span><span class='line'>          <span class="n">addNodes</span><span class="p">(</span><span class="nb">caller</span><span class="o">.</span><span class="n">str</span><span class="p">,</span> <span class="n">callee</span><span class="o">.</span><span class="n">str</span><span class="p">)</span> <span class="k">if</span> <span class="vg">$graph_need</span>
+</span><span class='line'>          <span class="vg">$caller_methods</span> <span class="o">&lt;&lt;</span> <span class="nb">caller</span><span class="o">.</span><span class="n">str</span>
+</span><span class='line'>          <span class="n">run_assign</span><span class="p">(</span><span class="n">apk</span><span class="p">,</span> <span class="n">callee</span><span class="o">.</span><span class="n">cls</span><span class="p">,</span> <span class="n">callee</span><span class="o">.</span><span class="n">mtd</span><span class="p">,</span> <span class="n">callee</span><span class="o">.</span><span class="n">pty</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ori_cls</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><p>用ruby-graphviz画出call graph</p>
+
+<p>  $graph.output(:png => &#8220;#{to}.png&#8221;)</p></li>
+</ul>
+
+
+<p>其实整个过程非常的简单，不过可能自己代码写得比较烂，会不太好理解。另外，现在是先用apktool把apk翻译成smali之后再对smali进行操作，效率可能会比较慢，接下来准备把实现改成直接对dex文件进行分析，打算基于Android自带的dexdump或者开源的baksmali，顺便把dex的格式搞得更加清楚一点。</p>
+
+<hr />
+
+<p>由于下周一门课的原因，这周又把OSDI 2012的<a href="http://research.microsoft.com/pubs/173922/appinsight.pdf">AppInsight</a>的论文仔细看了一遍，觉得确实是做得很好很有用的一个系统。我希望自己能把它实现在Android上。其实整个原理也不是非常的难，我想最难的部分在于Windows本来就有一个Detour可以直接利用来做instrumentation和interception，非常的方便，但是Java本身好像没有一个相当的库，需要自己实现一遍。</p>
+
+<p>不知道这个计划需要多久才能完成，我可能要先找个和Detour功能类似的库改一改，希望这个作为自己第一个比较正式的开源项目不会中途破产吧。</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1652,179 +1803,6 @@ jmp _dl_runtime_resolve
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/12/09/aslr-in-android/">ASLR in Android</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-12-09T11:07:00+08:00" pubdate data-updated="true">Dec 9<span>th</span>, 2012</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>这两篇看了两篇文章分析<a href="https://blog.duosecurity.com/2012/02/a-look-at-aslr-in-android-ice-cream-sandwich-4-0/" title="asli in 4.0">aslr in androi4.0</a>和<a href="https://blog.duosecurity.com/2012/07/exploit-mitigations-in-android-jelly-bean-4-1/" title="aslr in 4.1">android 4.1</a>，觉得蛮有趣的，这里简单介绍下。</p>
-
-<h3>ASLR with Liux Kernel</h3>
-
-<p>首先介绍下linux中的ASLR，ASLR可以对任意内存进行随机化：</p>
-
-<ul>
-<li>stack：The userspace stack mapping set up by the kernel during exec(2) should be sufficiently randomized. Stack randomization is performed by the randomize_stack_top() function.</li>
-<li>Heap：The heap location returned by the brk(2) system call when a program is first exec’ed should be randomized. Heap randomization is performed by the arch_randomize_brk() function.</li>
-<li>Libs and mmap：After NX was introduced, static library mapping led to the popularity of ret-to-libc and more generic ret-to-lib attacks. The location of libraries and other mmap’ed regions should be randomized.</li>
-<li>Exec：Even if you’re randomized the mapping of all the shared libaries that an executable uses, you still need to randomize the location of the executable itself when it is mapped into the address space. Otherwise, the executable mapping can be used as a source for ROP gadgets.</li>
-<li>Linker：On most Linux systems, the ld.so dynamic linker provided by glibc can self-relocate itself, so its mapping is randomized. However, as we’ll see, this isn’t the case for all linkers.</li>
-<li>VDSO(Virtual Dynamically-linked Shared Object)：an executable mapping of a virtual shared library provided by the kernel for syscall transitions. However, most Android devices run on the ARM architecture, which doesn’t use a VDSO.</li>
-</ul>
-
-
-<h3>ASLR in Android 2.x</h3>
-
-<p>在Android 2.x开始，唯一对ASLR支持的是stack（这可以通过多次查看/proc/pid/maps来发现），其通过load_elf_binary()函数调用randomize_stack_top()来实现：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#ifndef STACK\_RND\_MASK</span>
-</span><span class='line'><span class="cp">#define STACK\_RND\_MASK (0x7ff &gt;&gt; (PAGE\_SHIFT - 12)) </span><span class="cm">/* 8MB of VA */</span><span class="cp"></span>
-</span><span class='line'><span class="cp">#endif</span>
-</span><span class='line'><span class="k">static</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">randomize</span><span class="err">\</span><span class="n">_stack</span><span class="err">\</span><span class="n">_top</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack</span><span class="err">\</span><span class="n">_top</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">random_variable</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">((</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">PF_RANDOMIZE</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
-</span><span class='line'>              <span class="o">!</span><span class="p">(</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">personality</span> <span class="o">&amp;</span> <span class="n">ADDR_NO_RANDOMIZE</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>            <span class="n">random_variable</span> <span class="o">=</span> <span class="n">get_random_int</span><span class="p">()</span> <span class="o">&amp;</span> <span class="n">STACK_RND_MASK</span><span class="p">;</span>
-</span><span class='line'>            <span class="n">random_variable</span> <span class="o">&lt;&lt;=</span> <span class="n">PAGE_SHIFT</span><span class="p">;</span>
-</span><span class='line'>          <span class="p">}</span>
-</span><span class='line'><span class="cp">#ifdef CONFIG\_STACK\_GROWSUP</span>
-</span><span class='line'>        <span class="k">return</span> <span class="n">PAGE_ALIGN</span><span class="p">(</span><span class="n">stack</span><span class="err">\</span><span class="n">_top</span><span class="p">)</span> <span class="o">+</span> <span class="n">random_variable</span><span class="p">;</span>
-</span><span class='line'><span class="cp">#else</span>
-</span><span class='line'>      <span class="k">return</span> <span class="n">PAGE_ALIGN</span><span class="p">(</span><span class="n">stack</span><span class="err">\</span><span class="n">_top</span><span class="p">)</span> <span class="o">-</span> <span class="n">random_variable</span><span class="p">;</span>
-</span><span class='line'><span class="cp">#endif</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>ASLR in Android 4.0</h3>
-
-<p>而在4.0，即其所谓的支持ASLR的版本上，其实ASLR也仅仅增加了对libc等一些shared libraries进行了随机化，而对于heap, executable和linker还是static的。</p>
-
-<p>对于heap的随机化来说，可以通过</p>
-
-<pre><code>echo 2 &gt; /proc/sys/kernel/randomize_va_space
-</code></pre>
-
-<p>来开启。</p>
-
-<p>而对于executable的随机化，由于大部分的binary没有加GCC的-pie -fPIE选项，所以编译出来的是EXEC，而不是DYN这种shared object file，因此不是PIE（Position Independent Executable），所以没有办法随机化；</p>
-
-<p>同样的linker也没有做到ASLR。</p>
-
-<h3>ASLR in Android 4.1</h3>
-
-<p>终于，在4.1 Jelly Bean中，Android终于支持了所有内存的ASLR。在第二个对4.1ASLR介绍中，作者列出了从Android 1.5开始用到的安全加强机制：</p>
-
-<h5>Android 1.5+</h5>
-
-<ul>
-<li>ProPolice to prevent stack buffer overruns (-fstack-protector)</li>
-<li>safe_iop to reduce integer overflows</li>
-<li>Extensions to OpenBSD dlmalloc to prevent double free() vulnerabilities and to prevent chunk consolidation attacks. Chunk consolidation attacks are a common way to exploit heap corruption.</li>
-<li>OpenBSD calloc to prevent integer overflows during memory allocation</li>
-</ul>
-
-
-<h5>Android 2.3+</h5>
-
-<ul>
-<li>Format string vulnerability protections (-Wformat-security -Werror=format-security)</li>
-<li>Hardware-based No eXecute (NX) to prevent code execution on the stack and heap</li>
-<li>Linux mmap_min_addr to mitigate null pointer dereference privilege escalation (further enhanced in Android 4.1)</li>
-</ul>
-
-
-<h5>Android 4.0+</h5>
-
-<ul>
-<li>Address Space Layout Randomization (ASLR) to randomize key locations in memory</li>
-</ul>
-
-
-<h5>Android 4.1+</h5>
-
-<ul>
-<li>PIE (Position Independent Executable) support</li>
-<li>Read-only relocations / immediate binding (-Wl,-z,relro -Wl,-z,now)</li>
-<li>dmesg_restrict enabled (avoid leaking kernel addresses)</li>
-<li>kptr_restrict enabled (avoid leaking kernel addresses)</li>
-</ul>
-
-
-<p>在Android 4.1中，基本上所有binary都被编译和连接成了PIE模式（可以通过readelf查看其Type）。所以，相比于4.0，4.1对Heap，executable和linker都提供了ASLR的支持。</p>
-
-<p>另外，4.1还增加了几个小的安全加强机制：</p>
-
-<ul>
-<li>大部分系统binary都添加了RELRO和BIND_NOW的编译flag，起作用主要是将GOT表设置成只读，防止之前出现过的<a href="http://jon.oberheide.org/files/bsides11-dontrootrobots.pdf" title="don't root robot">Gingerbreak</a>攻击。</li>
-<li>另外，对dmesg_restrict / kptr_restrict的sysctl的利用，有效防止了一些低权限的用户从dmesg/klogctl中读取一些敏感信息，或者读取一些kernel内存中的敏感数据（比如很多/proc下的接口）。</li>
-</ul>
-
-
-<h3>What&#8217;s next</h3>
-
-<p>之后作者还提到一些还需要继续努力的事：</p>
-
-<ul>
-<li>ASLR的弱点 - 32-bit，容易破解</li>
-<li>一些安全的libc调用，比如FORTIFY_SOURCE</li>
-<li>PaX Hardening，虽然很多不适合手机，但是也可以cherry pick一些啦</li>
-<li>MAC/RBAC，其实这个现在也已经有了，比如SEAndroid&#8230;</li>
-<li>Mandatory Code Signing，向IPhone学习吧</li>
-</ul>
-
-
-<p>另外，作者还提到一个Zygote的问题，为了性能问题，现在Android上所有的进程都是Zygote fork出来的，也就是说很多的地址空间在fork出来后是固定不变的，这样也就出现了一种可能性：a malicious app on a victim’s device leaks address mappings from its own process off to an attacker to assist in exploiting another process (eg. the browser) that might have higher privilege or valuable data.</p>
-
-<p>当然，作者认为这种场景可能性比较小，所以还不算一个大问题。</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -1840,6 +1818,10 @@ jmp _dl_runtime_resolve
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/03/24/cross-reference-graph-of-android-component/">Cross Reference Graph of Android Component</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/03/10/redexer-and-ocaml/">Redexer and Ocaml</a>
       </li>
     
@@ -1853,10 +1835,6 @@ jmp _dl_runtime_resolve
     
       <li class="post">
         <a href="/blog/2013/02/17/%5B%28zhuan-%29%5D-ji-suan-ji-de-qi-dong/">【转】计算机的启动</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/01/12/qiao-bang-zhu-chuan-you-gan/">乔帮主传有感</a>
       </li>
     
   </ul>

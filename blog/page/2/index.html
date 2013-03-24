@@ -9,7 +9,7 @@
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="首先申明，这其实并不是一篇android root教程，因为我并没有用什么exploit的方法，也没有用CWM等这些第三方ROM，而是该了ASOP，然后把它刷到机子上，然后对其进行所谓的root，装了一个dSploit和busybox。 具体的做法是这样的： 更新到ASOP的最新版 - 4.2.4 &hellip;">
+  <meta name="description" content="这两篇看了两篇文章分析aslr in androi4.0和android 4.1，觉得蛮有趣的，这里简单介绍下。 ASLR with Liux Kernel 首先介绍下linux中的ASLR，ASLR可以对任意内存进行随机化： stack：The userspace stack mapping &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,179 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/12/09/aslr-in-android/">ASLR in Android</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-09T11:07:00+08:00" pubdate data-updated="true">Dec 9<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>这两篇看了两篇文章分析<a href="https://blog.duosecurity.com/2012/02/a-look-at-aslr-in-android-ice-cream-sandwich-4-0/" title="asli in 4.0">aslr in androi4.0</a>和<a href="https://blog.duosecurity.com/2012/07/exploit-mitigations-in-android-jelly-bean-4-1/" title="aslr in 4.1">android 4.1</a>，觉得蛮有趣的，这里简单介绍下。</p>
+
+<h3>ASLR with Liux Kernel</h3>
+
+<p>首先介绍下linux中的ASLR，ASLR可以对任意内存进行随机化：</p>
+
+<ul>
+<li>stack：The userspace stack mapping set up by the kernel during exec(2) should be sufficiently randomized. Stack randomization is performed by the randomize_stack_top() function.</li>
+<li>Heap：The heap location returned by the brk(2) system call when a program is first exec’ed should be randomized. Heap randomization is performed by the arch_randomize_brk() function.</li>
+<li>Libs and mmap：After NX was introduced, static library mapping led to the popularity of ret-to-libc and more generic ret-to-lib attacks. The location of libraries and other mmap’ed regions should be randomized.</li>
+<li>Exec：Even if you’re randomized the mapping of all the shared libaries that an executable uses, you still need to randomize the location of the executable itself when it is mapped into the address space. Otherwise, the executable mapping can be used as a source for ROP gadgets.</li>
+<li>Linker：On most Linux systems, the ld.so dynamic linker provided by glibc can self-relocate itself, so its mapping is randomized. However, as we’ll see, this isn’t the case for all linkers.</li>
+<li>VDSO(Virtual Dynamically-linked Shared Object)：an executable mapping of a virtual shared library provided by the kernel for syscall transitions. However, most Android devices run on the ARM architecture, which doesn’t use a VDSO.</li>
+</ul>
+
+
+<h3>ASLR in Android 2.x</h3>
+
+<p>在Android 2.x开始，唯一对ASLR支持的是stack（这可以通过多次查看/proc/pid/maps来发现），其通过load_elf_binary()函数调用randomize_stack_top()来实现：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#ifndef STACK\_RND\_MASK</span>
+</span><span class='line'><span class="cp">#define STACK\_RND\_MASK (0x7ff &gt;&gt; (PAGE\_SHIFT - 12)) </span><span class="cm">/* 8MB of VA */</span><span class="cp"></span>
+</span><span class='line'><span class="cp">#endif</span>
+</span><span class='line'><span class="k">static</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">randomize</span><span class="err">\</span><span class="n">_stack</span><span class="err">\</span><span class="n">_top</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack</span><span class="err">\</span><span class="n">_top</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">random_variable</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">((</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">PF_RANDOMIZE</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
+</span><span class='line'>              <span class="o">!</span><span class="p">(</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">personality</span> <span class="o">&amp;</span> <span class="n">ADDR_NO_RANDOMIZE</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">random_variable</span> <span class="o">=</span> <span class="n">get_random_int</span><span class="p">()</span> <span class="o">&amp;</span> <span class="n">STACK_RND_MASK</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">random_variable</span> <span class="o">&lt;&lt;=</span> <span class="n">PAGE_SHIFT</span><span class="p">;</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'><span class="cp">#ifdef CONFIG\_STACK\_GROWSUP</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">PAGE_ALIGN</span><span class="p">(</span><span class="n">stack</span><span class="err">\</span><span class="n">_top</span><span class="p">)</span> <span class="o">+</span> <span class="n">random_variable</span><span class="p">;</span>
+</span><span class='line'><span class="cp">#else</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">PAGE_ALIGN</span><span class="p">(</span><span class="n">stack</span><span class="err">\</span><span class="n">_top</span><span class="p">)</span> <span class="o">-</span> <span class="n">random_variable</span><span class="p">;</span>
+</span><span class='line'><span class="cp">#endif</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>ASLR in Android 4.0</h3>
+
+<p>而在4.0，即其所谓的支持ASLR的版本上，其实ASLR也仅仅增加了对libc等一些shared libraries进行了随机化，而对于heap, executable和linker还是static的。</p>
+
+<p>对于heap的随机化来说，可以通过</p>
+
+<pre><code>echo 2 &gt; /proc/sys/kernel/randomize_va_space
+</code></pre>
+
+<p>来开启。</p>
+
+<p>而对于executable的随机化，由于大部分的binary没有加GCC的-pie -fPIE选项，所以编译出来的是EXEC，而不是DYN这种shared object file，因此不是PIE（Position Independent Executable），所以没有办法随机化；</p>
+
+<p>同样的linker也没有做到ASLR。</p>
+
+<h3>ASLR in Android 4.1</h3>
+
+<p>终于，在4.1 Jelly Bean中，Android终于支持了所有内存的ASLR。在第二个对4.1ASLR介绍中，作者列出了从Android 1.5开始用到的安全加强机制：</p>
+
+<h5>Android 1.5+</h5>
+
+<ul>
+<li>ProPolice to prevent stack buffer overruns (-fstack-protector)</li>
+<li>safe_iop to reduce integer overflows</li>
+<li>Extensions to OpenBSD dlmalloc to prevent double free() vulnerabilities and to prevent chunk consolidation attacks. Chunk consolidation attacks are a common way to exploit heap corruption.</li>
+<li>OpenBSD calloc to prevent integer overflows during memory allocation</li>
+</ul>
+
+
+<h5>Android 2.3+</h5>
+
+<ul>
+<li>Format string vulnerability protections (-Wformat-security -Werror=format-security)</li>
+<li>Hardware-based No eXecute (NX) to prevent code execution on the stack and heap</li>
+<li>Linux mmap_min_addr to mitigate null pointer dereference privilege escalation (further enhanced in Android 4.1)</li>
+</ul>
+
+
+<h5>Android 4.0+</h5>
+
+<ul>
+<li>Address Space Layout Randomization (ASLR) to randomize key locations in memory</li>
+</ul>
+
+
+<h5>Android 4.1+</h5>
+
+<ul>
+<li>PIE (Position Independent Executable) support</li>
+<li>Read-only relocations / immediate binding (-Wl,-z,relro -Wl,-z,now)</li>
+<li>dmesg_restrict enabled (avoid leaking kernel addresses)</li>
+<li>kptr_restrict enabled (avoid leaking kernel addresses)</li>
+</ul>
+
+
+<p>在Android 4.1中，基本上所有binary都被编译和连接成了PIE模式（可以通过readelf查看其Type）。所以，相比于4.0，4.1对Heap，executable和linker都提供了ASLR的支持。</p>
+
+<p>另外，4.1还增加了几个小的安全加强机制：</p>
+
+<ul>
+<li>大部分系统binary都添加了RELRO和BIND_NOW的编译flag，起作用主要是将GOT表设置成只读，防止之前出现过的<a href="http://jon.oberheide.org/files/bsides11-dontrootrobots.pdf" title="don't root robot">Gingerbreak</a>攻击。</li>
+<li>另外，对dmesg_restrict / kptr_restrict的sysctl的利用，有效防止了一些低权限的用户从dmesg/klogctl中读取一些敏感信息，或者读取一些kernel内存中的敏感数据（比如很多/proc下的接口）。</li>
+</ul>
+
+
+<h3>What&#8217;s next</h3>
+
+<p>之后作者还提到一些还需要继续努力的事：</p>
+
+<ul>
+<li>ASLR的弱点 - 32-bit，容易破解</li>
+<li>一些安全的libc调用，比如FORTIFY_SOURCE</li>
+<li>PaX Hardening，虽然很多不适合手机，但是也可以cherry pick一些啦</li>
+<li>MAC/RBAC，其实这个现在也已经有了，比如SEAndroid&#8230;</li>
+<li>Mandatory Code Signing，向IPhone学习吧</li>
+</ul>
+
+
+<p>另外，作者还提到一个Zygote的问题，为了性能问题，现在Android上所有的进程都是Zygote fork出来的，也就是说很多的地址空间在fork出来后是固定不变的，这样也就出现了一种可能性：a malicious app on a victim’s device leaks address mappings from its own process off to an attacker to assist in exploiting another process (eg. the browser) that might have higher privilege or valuable data.</p>
+
+<p>当然，作者认为这种场景可能性比较小，所以还不算一个大问题。</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1795,184 +1968,6 @@ $ sudo mount /dev/nbd0p1 /mnt
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/10/05/android-service-startup/">Android Service Startup</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-10-05T10:25:00+08:00" pubdate data-updated="true">Oct 5<span>th</span>, 2012</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>现在要写一个service，在启动之后开启socket监听，等待用户端发消息给它进行处理。而这个service是不会有Activity的，于是乎就要考虑如何让这个service启动起来。</p>
-
-<h4>System Service Startup</h4>
-
-<p>最早想的是将这个service写成system service，然后通过SystemServer启动，这样是可行的，也蛮方便，具体的做法是这样的：</p>
-
-<p>在framework/base/core/java/android/os/app/目录中写一个NewService类extends Service，之后在SystemServer.java中添加</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">Slog</span><span class="o">.</span><span class="na">i</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;New Service&quot;</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">ServiceManager</span><span class="o">.</span><span class="na">addService</span><span class="o">(</span><span class="s">&quot;newservice&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">NewService</span><span class="o">(</span><span class="n">context</span><span class="o">));</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Throwable</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">Slog</span><span class="o">.</span><span class="na">e</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;Failure starting New Service&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>之后NewService就会开机启动，但是这样有一个问题，就是这个NewService的pid也就是SystemServer的pid，它们是处于同一个进程中的。于是由于种种原因我不希望启动一个系统服务，而是一个application level的service，这样就遇到一个问题：如果是一个单纯的没有activity的service应用，在通过<em>adb install</em>进系统后并不会自动启动，而是需要其它进程通过<em>startService()</em>或者<em>bindService()</em>启动，那么有没有什么其它方法让一个service在每次install之后启动呢？</p>
-
-<h4>App Level Service Startup upon Installe</h4>
-
-<p>这里有两种方案：</p>
-
-<ul>
-<li>1 通过先启动一个Activity，然后<em>startService()</em>启动该service，之后在Activity中将自己finish掉；</li>
-<li>2 在application中注册一个BroadcastReceiver，监听PackageManager的<em>android.intent.action.PACKAGE_ADDED</em>的intent-filter，然后在Receiver的onReceive()里面通过</li>
-</ul>
-
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Intent</span> <span class="n">serviceIntent</span> <span class="o">=</span><span class="k">new</span> <span class="n">Intent</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">NewService</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</span><span class='line'><span class="n">context</span><span class="o">.</span><span class="na">startService</span><span class="o">(</span><span class="n">serviceIntent</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>进行启动。</p>
-
-<p>在我看来第二种方案更符合我的要求，因为这样我就可以不用每次点击一下某个Activity才能启动service，但是这也是我最先否决的方案，因为我在Stack Overflow里面看到好多个讨论这个问题的帖子，其中有一个回复是这么说的：</p>
-
-<blockquote><p>all applications, upon installation, are placed in a &#8220;stopped&#8221; state. This is the same state that the application winds up in after the user force-stops the app from the Settings application. While in this &#8220;stopped&#8221; state, the application will not run for any reason, except by a manual launch of an activity. Notably, noBroadcastReceviers will be invoked, regardless of the event for which they have registered, until the user runs the app manually.</p></blockquote>
-
-
-<p>也就是说任何app level的应用都不可能在没有得到用户同意的情况下自动启动（特别是在android3.1之后，它们在安装后被置于了“stopped”的状态，只有当用户点击了某个Activity的图标才能启动起来，service也只有通过某个启动的Activity或Service通过startService()或bindService()才能启动起来。</p>
-
-<p>所以第二个方案不可行，下面我们来看第一个方案：</p>
-
-<p>在第一个方案里面，当Activity通过startService()启动service之后，就通过finish()将自己退出。这个时候按照android的specification，通过startService()启动的service是不会退出的（通过bindService()启动的service会随着activity的退出而退出），为了确定这一点，可以通过Settings->Apps->Running Service来查看。</p>
-
-<h5>startForeground()</h5>
-
-<p>另外，为了防止你在background运行的service在low memory的时候被系统强制退出，可以通过startForeground()将该service定义在foreground中，而这个所谓的foreground就是我们平时看到的位于android上方的消息栏，里面可以设置该service需要显示的信息，以及时间间隔&#8230;具体可以参见<a href="http://ytliu.github.com" title="Service API">Service API</a>，这里有一个简单的示例：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Notification</span> <span class="n">note</span><span class="o">=</span><span class="k">new</span> <span class="n">Notification</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">stat_notify_chat</span><span class="o">,</span>
-</span><span class='line'>  <span class="s">&quot;Can you hear the music?&quot;</span><span class="o">,</span>
-</span><span class='line'>  <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">());</span>
-</span><span class='line'><span class="n">Intent</span> <span class="n">i</span><span class="o">=</span><span class="k">new</span> <span class="n">Intent</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">FakePlayer</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</span><span class='line'><span class="n">i</span><span class="o">.</span><span class="na">setFlags</span><span class="o">(</span><span class="n">Intent</span><span class="o">.</span><span class="na">FLAG_ACTIVITY_CLEAR_TOP</span><span class="o">|</span>
-</span><span class='line'>  <span class="n">Intent</span><span class="o">.</span><span class="na">FLAG_ACTIVITY_SINGLE_TOP</span><span class="o">);</span>
-</span><span class='line'><span class="n">PendingIntent</span> <span class="n">pi</span><span class="o">=</span><span class="n">PendingIntent</span><span class="o">.</span><span class="na">getActivity</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">i</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
-</span><span class='line'><span class="n">note</span><span class="o">.</span><span class="na">setLatestEventInfo</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="s">&quot;Fake Player&quot;</span><span class="o">,</span>
-</span><span class='line'>  <span class="s">&quot;Now Playing: \&quot;Ummmm, Nothing\&quot;&quot;</span><span class="o">,</span>
-</span><span class='line'>  <span class="n">pi</span><span class="o">);</span>
-</span><span class='line'><span class="n">note</span><span class="o">.</span><span class="na">flags</span><span class="o">|=</span><span class="n">Notification</span><span class="o">.</span><span class="na">FLAG_NO_CLEAR</span><span class="o">;</span>
-</span><span class='line'><span class="n">startForeground</span><span class="o">(</span><span class="mi">1337</span><span class="o">,</span> <span class="n">note</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>App Level Service Startup when Bootup</h4>
-
-<p>这是一种理论中的方法，因为我也没尝试过，具体方法参见<a href="http://" title="service startup when bootup">this article</a>，大概的意思是在application的Android.manifest文件中添加一个user-permission和一个receiver的intent-filter：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;application</span> <span class="err">...</span><span class="nt">&gt;</span>
-</span><span class='line'>    ......
-</span><span class='line'>    <span class="nt">&lt;receiver</span> <span class="na">android:name=</span><span class="s">&quot;.MyReceiver &quot;</span><span class="na">android:enabled=</span><span class="s">&quot;true&quot;</span> <span class="na">android:exported=</span><span class="s">&quot;false&quot;</span><span class="err">]]</span><span class="nt">&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;intent-filter&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;action</span> <span class="na">android:name=</span><span class="s">&quot;android.intent.action.BOOT_COMPLETED&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;/intent-filter&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/receiver&gt;</span>
-</span><span class='line'><span class="nt">&lt;/application&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;uses-permission</span> <span class="na">android:name=</span><span class="s">&quot;android.permission.RECEIVE_BOOT_COMPLETED&quot;</span><span class="nt">/&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>然后在MyReceiver类里面的onReceive()函数中开启相应的service：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">MyReceiver</span> <span class="kd">extends</span> <span class="n">BroadcastReceiver</span> <span class="o">{</span>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onReceive</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">,</span><span class="n">Intent</span> <span class="n">intent</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">Intent</span> <span class="n">serviceIntent</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Intent</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">NewService</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">context</span><span class="o">.</span><span class="na">startService</span><span class="o">(</span><span class="n">serviceIntent</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>这种方法看上去应该是可行的，但是问题是用户每次装你的应用都要让系统重启一遍，那还有谁会那么好心情去安装你的应用啊？</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/3/">&larr; Older</a>
@@ -1990,6 +1985,10 @@ $ sudo mount /dev/nbd0p1 /mnt
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/03/24/cross-reference-graph-of-android-component/">Cross Reference Graph of Android Component</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/03/10/redexer-and-ocaml/">Redexer and Ocaml</a>
       </li>
     
@@ -2003,10 +2002,6 @@ $ sudo mount /dev/nbd0p1 /mnt
     
       <li class="post">
         <a href="/blog/2013/02/17/%5B%28zhuan-%29%5D-ji-suan-ji-de-qi-dong/">【转】计算机的启动</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/01/12/qiao-bang-zhu-chuan-you-gan/">乔帮主传有感</a>
       </li>
     
   </ul>

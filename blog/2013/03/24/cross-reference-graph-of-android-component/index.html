@@ -1,0 +1,369 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Cross Reference Graph of Android Component - Mctrain's Blog</title>
+  <meta name="author" content="Liu Yutao">
+
+  
+  <meta name="description" content="由于项目的需要，这周写了一个ruby project——apk-static-xref。 虽然现在Android静态分析的项目很多，但是我都没有找到一个看上去很简单的功能：给定一个component，找出它所有调用到的函数，然后画出call graph。 现在的大部分call &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://ytliu.github.com/blog/2013/03/24/cross-reference-graph-of-android-component/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Mctrain's Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Mctrain's Blog</a></h1>
+  
+    <h2>Security, Virtualization, Network, as well as life moments</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss email">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+    <li><a href="ytliu.cc@gmail.com" rel="subscribe-email" title="subscribe via email">Email</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:ytliu.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Cross Reference Graph of Android Component</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-03-24T13:35:00+08:00" pubdate data-updated="true">Mar 24<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>由于项目的需要，这周写了一个ruby project——<a href="https://github.com/ytliu/apk-static-xref">apk-static-xref</a>。</p>
+
+<p>虽然现在Android静态分析的项目很多，但是我都没有找到一个看上去很简单的功能：给定一个component，找出它所有调用到的函数，然后画出call graph。</p>
+
+<p>现在的大部分call graph都只能限制在一个class文件里，这里所说的cross reference graph (XRG)就是指函数调用是跨class文件的，需要cross reference直到调用的是Android本身的API或者Java API。</p>
+
+<p>这其实是一个很简单的功能，但我不知道为什么一直找不到工具可以满足我的需求，直到找到了spark的一个<a href="http://appsrv.cse.cuhk.edu.hk/~mzheng/DroidTrace.pdf">slide</a>，里面提到一个cross reference graph。其实就是一个对smali文件的DFS算法。</p>
+
+<p>于是我把<a href="">smali-cfg</a>和<a href="">redexer</a>结合了一下，写了这个ruby project，具体做法就是：</p>
+
+<ul>
+<li><p>用apktool unpack apk：</p>
+
+<p>  $ java -jar apktool.jar -d source.apk target.dir</p></li>
+<li><p>用nokogiri parse AndroidManefest.xml 找出所有的service和activity：</p>
+
+<p>  Nokogiri::XML(f)</p></li>
+<li><p>用DFS遍历所有的smali文件，得出整个call graph的结点和边：</p></li>
+</ul>
+
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">run_assign</span><span class="p">(</span><span class="n">apk</span><span class="p">,</span> <span class="n">cls</span><span class="p">,</span> <span class="n">mtd</span><span class="p">,</span> <span class="n">pty</span><span class="p">,</span> <span class="n">flag</span><span class="p">,</span> <span class="n">ori_cls</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">match</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="nb">caller</span> <span class="o">=</span> <span class="kp">nil</span>
+</span><span class='line'>  <span class="n">callee</span> <span class="o">=</span> <span class="kp">nil</span>
+</span><span class='line'>  <span class="n">vclass</span> <span class="o">=</span> <span class="kp">nil</span>
+</span><span class='line'>  <span class="n">filename</span> <span class="o">=</span> <span class="n">apk</span><span class="o">.</span><span class="n">smali</span> <span class="o">+</span> <span class="n">cls</span> <span class="o">+</span> <span class="s2">&quot;.smali&quot;</span>
+</span><span class='line'>  <span class="k">if</span> <span class="no">File</span><span class="o">.</span><span class="n">file?</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">fh</span> <span class="o">=</span> <span class="no">File</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="k">return</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="n">lines</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">readlines</span>
+</span><span class='line'>  <span class="n">lines</span><span class="o">.</span><span class="n">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">line</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="n">-</span><span class="mi">1</span><span class="o">]</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">start_with?</span><span class="p">(</span><span class="s2">&quot;.class&quot;</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">vclass</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">[-</span><span class="mi">1</span><span class="o">][</span><span class="mi">1</span><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="n">-</span><span class="mi">1</span><span class="o">]</span>
+</span><span class='line'>    <span class="k">elsif</span> <span class="n">line</span><span class="o">.</span><span class="n">start_with?</span><span class="p">(</span><span class="s2">&quot;.method&quot;</span><span class="p">)</span>
+</span><span class='line'>      <span class="nb">caller</span> <span class="o">=</span> <span class="no">Invoker</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">vclass</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="nb">caller</span><span class="o">.</span><span class="n">mtd</span><span class="o">.</span><span class="n">eql?</span><span class="p">(</span><span class="n">mtd</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">caller</span><span class="o">.</span><span class="n">pty</span><span class="o">.</span><span class="n">eql?</span><span class="p">(</span><span class="n">pty</span><span class="p">))</span>
+</span><span class='line'>        <span class="n">match</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">elsif</span> <span class="n">line</span><span class="o">.</span><span class="n">start_with?</span><span class="p">(</span><span class="s2">&quot;.end method&quot;</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">match</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="k">elsif</span> <span class="n">line</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="s2">&quot;invoke-&quot;</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">callee</span> <span class="o">=</span> <span class="no">Invoked</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">match</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">flag</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">if</span> <span class="vg">$caller_methods</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">callee</span><span class="o">.</span><span class="n">str</span><span class="p">)</span>
+</span><span class='line'>          <span class="k">if</span> <span class="o">!</span><span class="vg">$caller_methods</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="nb">caller</span><span class="o">.</span><span class="n">str</span><span class="p">)</span>
+</span><span class='line'>            <span class="n">addNodes</span><span class="p">(</span><span class="nb">caller</span><span class="o">.</span><span class="n">str</span><span class="p">,</span> <span class="n">callee</span><span class="o">.</span><span class="n">str</span><span class="p">)</span> <span class="k">if</span> <span class="vg">$graph_need</span>
+</span><span class='line'>          <span class="k">end</span>
+</span><span class='line'>        <span class="k">else</span>
+</span><span class='line'>          <span class="n">addNodes</span><span class="p">(</span><span class="nb">caller</span><span class="o">.</span><span class="n">str</span><span class="p">,</span> <span class="n">callee</span><span class="o">.</span><span class="n">str</span><span class="p">)</span> <span class="k">if</span> <span class="vg">$graph_need</span>
+</span><span class='line'>          <span class="vg">$caller_methods</span> <span class="o">&lt;&lt;</span> <span class="nb">caller</span><span class="o">.</span><span class="n">str</span>
+</span><span class='line'>          <span class="n">run_assign</span><span class="p">(</span><span class="n">apk</span><span class="p">,</span> <span class="n">callee</span><span class="o">.</span><span class="n">cls</span><span class="p">,</span> <span class="n">callee</span><span class="o">.</span><span class="n">mtd</span><span class="p">,</span> <span class="n">callee</span><span class="o">.</span><span class="n">pty</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ori_cls</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><p>用ruby-graphviz画出call graph</p>
+
+<p>  $graph.output(:png => &#8220;#{to}.png&#8221;)</p></li>
+</ul>
+
+
+<p>其实整个过程非常的简单，不过可能自己代码写得比较烂，会不太好理解。另外，现在是先用apktool把apk翻译成smali之后再对smali进行操作，效率可能会比较慢，接下来准备把实现改成直接对dex文件进行分析，打算基于Android自带的dexdump或者开源的baksmali，顺便把dex的格式搞得更加清楚一点。</p>
+
+<hr />
+
+<p>由于下周一门课的原因，这周又把OSDI 2012的<a href="http://research.microsoft.com/pubs/173922/appinsight.pdf">AppInsight</a>的论文仔细看了一遍，觉得确实是做得很好很有用的一个系统。我希望自己能把它实现在Android上。其实整个原理也不是非常的难，我想最难的部分在于Windows本来就有一个Detour可以直接利用来做instrumentation和interception，非常的方便，但是Java本身好像没有一个相当的库，需要自己实现一遍。</p>
+
+<p>不知道这个计划需要多久才能完成，我可能要先找个和Detour功能类似的库改一改，希望这个作为自己第一个比较正式的开源项目不会中途破产吧。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Liu Yutao</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-03-24T13:35:00+08:00" pubdate data-updated="true">Mar 24<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android/'>Android</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ytliu.github.com/blog/2013/03/24/cross-reference-graph-of-android-component/" data-via="microtrain016" data-counturl="http://ytliu.github.com/blog/2013/03/24/cross-reference-graph-of-android-component/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/03/10/redexer-and-ocaml/" title="Previous Post: Redexer and Ocaml">&laquo; Redexer and Ocaml</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/03/24/cross-reference-graph-of-android-component/">Cross Reference Graph of Android Component</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/10/redexer-and-ocaml/">Redexer and Ocaml</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/">Dr. Android and Mr. Hide - xidashi引发的故事</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/02/23/traceview-in-android/">Traceview in Android</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/02/17/%5B%28zhuan-%29%5D-ji-suan-ji-de-qi-dong/">【转】计算机的启动</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("microtrain016", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/microtrain016" class="twitter-follow-button" data-show-count="false">Follow @microtrain016</a>
+  
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/mctrain016@gmail.com?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Liu Yutao -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
