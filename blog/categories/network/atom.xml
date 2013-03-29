@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Network | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/network/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-03-29T20:15:40+08:00</updated>
+  <updated>2013-03-29T22:12:49+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -14,10 +14,241 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Netfilter学习笔记（二）]]></title>
+    <link href="http://ytliu.github.com/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/"/>
+    <updated>2013-03-29T20:26:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2013/03/29/netfilterxue-xi-bi-ji-(er-)</id>
+    <content type="html"><![CDATA[<p>之前讲了关于netfilter和iptables的一些简单的原理和用法，对于iptables来说，如果只能对封包进行DROP、ACCEPT操作，那么就显得太弱了，其实在我看来iptables里面filter表中最牛逼的就在于QUEUE（NFQUEUE）这个target了。</p>
+
+<p>那么当iptables将封包插入QUEUE后，用户态又能用什么方法才能读到queue中的数据呢？</p>
+
+<p>这里介绍两种方法，一种是C语言中使用的<code>libipq</code>，一种是python中使用的<code>nfqueue</code>。</p>
+
+<h3>libipq</h3>
+
+<p><code>libipq</code>是一个对开发者提供的用于读取iptables queue的C库，具体的用法可以参看<a href="http://linux.die.net/man/3/libipq">linux man page</a>和<a href="http://www.imchris.org/projects/libipq.html">这里</a>的用法，需要注意的是在我的机器中必须得再加三个头文件：</p>
+
+<pre><code>#include &lt;netinet/in.h&gt;
+#include &lt;linux/ip.h&gt;
+#include &lt;linux/tcp.h&gt;
+</code></pre>
+
+<p>另外编译出来的文件必须得用<code>sudo</code>执行！！！</p>
+
+<p>这里主要用了一个数据结构</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">struct</span> <span class="n">ipq_handle</span> <span class="o">*</span><span class="n">h</span><span class="p">;</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">h</span> <span class="o">=</span> <span class="n">ipq_create_handle</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">PF_INET</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>另外需要设置一个模式，这里是<code>IPQ_COPY_PACKET</code>，即是将queue中的封包的payload和header一起拷贝到用户空间：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">status</span> <span class="o">=</span> <span class="n">ipq_set_mode</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">IPQ_COPY_PACKET</span><span class="p">,</span> <span class="n">BUFSIZE</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>之后通过：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">status</span> <span class="o">=</span> <span class="n">ipq_read</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">BUFSIZE</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>将queueu中的封包一个一个拷贝到用户空间，由用户进行操作，用户可以通过：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">ipq_message_type</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>得到包的类型，可能是<code>NLMSG_ERROR</code>，也有可能是<code>IPQM_PACKET</code>，如果是后者，即为一个正常的封包，可以通过类似于如下的代码对封包进行操作：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">case</span> <span class="n">IPQM_PACKET</span>: <span class="p">{</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">ipq_packet_msg_t</span> <span class="o">*</span><span class="n">m</span> <span class="o">=</span> <span class="n">ipq_get_packet</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">iphdr</span> <span class="o">*</span><span class="n">ip</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">iphdr</span><span class="o">*</span><span class="p">)</span> <span class="n">m</span><span class="o">-&amp;</span><span class="n">gt</span><span class="p">;</span><span class="n">payload</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">tcphdr</span> <span class="o">*</span><span class="n">tcp</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">tcphdr</span><span class="o">*</span><span class="p">)</span> <span class="p">(</span><span class="n">m</span><span class="o">-&amp;</span><span class="n">gt</span><span class="p">;</span><span class="n">payload</span> <span class="o">+</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">ip</span><span class="o">-&amp;</span><span class="n">gt</span><span class="p">;</span><span class="n">ihl</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">port</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">tcp</span><span class="o">-&amp;</span><span class="n">gt</span><span class="p">;</span><span class="n">dest</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">status</span> <span class="o">=</span> <span class="n">ipq_set_verdict</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">m</span><span class="o">-&amp;</span><span class="n">gt</span><span class="p">;</span><span class="n">packet_id</span><span class="p">,</span> <span class="n">NF_ACCEPT</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="n">status</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">die</span><span class="p">(</span><span class="n">h</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">break</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>上段代码的意思是先从<code>buf</code>中获得整个封包m，之后可以通过<code>struct iphdr</code>和<code>struct tcphdr</code>获得ip包头和tcp包头，最后有一个最关键的代码：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">status</span> <span class="o">=</span> <span class="n">ipq_set_verdict</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">m</span><span class="o">-&gt;</span><span class="n">packet_id</span><span class="p">,</span> <span class="n">NF_ACCEPT</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>这里的意思相当于原来在规则中target设为ACCEPT，当然也可以设置成<code>NF_DROP</code>等。</p>
+
+<p>在这里我有一个疑问，就是这里除了获得<code>struct tcphdr</code>之外，我没有找到和TCP的payload相关的结构，不知道该如何获得。</p>
+
+<hr />
+
+<h3>nfqueue</h3>
+
+<p>和C的libipq比起来，支持python的nfqueue会显得强大很多，特别是和<a href="http://www.secdev.org/projects/scapy/">scapy</a>结合起来用的时候。</p>
+
+<p>首先需要说明的是在iptables中的target除了之前提到的五项（ACCEPT，DROP，RETURN，QUEUE，other_chain）之外，还有一个叫<code>NFQUEUE</code>，它是QUEUE的扩展。相比于QUEUE，它可以由用户指定不同的queue number。</p>
+
+<p>在使用nfqueue之前，需要安装如下的包：</p>
+
+<pre><code>$ sudo aptitude install libnetfilter-queue-dev
+$ sudo aptitude install nfqueue-bindings-python
+$ sudo aptitude install python-scapy
+</code></pre>
+
+<p>之后就可以采用python对NFQUEUE进行操作了。</p>
+
+<p>假设我们将封包从主机A（<code>192.168.1.1</code>）传输到主机B（<code>192.168.1.2</code>）时，需要对封包进行分析，如果是TCP协议的包，并且其flags为 ACK|PSH 的话，则将其payload进行修改（比如替换成“hack”）：</p>
+
+<p>首先，需要先在主机A中对iptables进行操作：</p>
+
+<pre><code>$ sudo iptables -A OUTPUT -d 192.168.1.2 -p tcp -j NFQUEUE
+</code></pre>
+
+<p>然后利用下面的代码：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span><span class="nn">sys</span><span class="o">,</span><span class="nn">nfqueue</span><span class="o">,</span><span class="nn">socket</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">scapy.all</span> <span class="kn">import</span> <span class="o">*&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="k">def</span> <span class="nf">ch_payload_and_send</span><span class="p">(</span><span class="n">pkt</span><span class="p">):</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">pkt</span><span class="p">[</span><span class="n">TCP</span><span class="p">]</span><span class="o">.</span><span class="n">payload</span> <span class="o">==</span> <span class="s">&quot;hack&quot;</span>
+</span><span class='line'><span class="n">send</span><span class="p">(</span><span class="n">pkt</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">data</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+</span><span class='line'><span class="n">pkt</span> <span class="o">=</span> <span class="n">IP</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Check if TCP flags is ACK|PSH</span>
+</span><span class='line'><span class="k">if</span> <span class="n">pkt</span><span class="p">[</span><span class="n">TCP</span><span class="p">]</span><span class="o">.</span><span class="n">flags</span> <span class="o">==</span> <span class="mi">24</span><span class="p">:</span>
+</span><span class='line'>    <span class="c"># Dropping the packet</span>
+</span><span class='line'>    <span class="n">payload</span><span class="o">.</span><span class="n">set_verdict</span><span class="p">(</span><span class="n">nfqueue</span><span class="o">.</span><span class="n">NF_DROP</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">ch_payload_and_send</span><span class="p">(</span><span class="n">pkt</span><span class="p">)</span>
+</span><span class='line'><span class="k">else</span><span class="p">:</span>
+</span><span class='line'>    <span class="c"># Accepting the packet</span>
+</span><span class='line'>    <span class="n">payload</span><span class="o">.</span><span class="n">set_verdict</span><span class="p">(</span><span class="n">nfqueue</span><span class="o">.</span><span class="n">NF_ACCEPT</span><span class="p">)</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">q</span> <span class="o">=</span> <span class="n">nfqueue</span><span class="o">.</span><span class="n">queue</span><span class="p">()</span>
+</span><span class='line'><span class="n">q</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+</span><span class='line'><span class="n">q</span><span class="o">.</span><span class="n">unbind</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">)</span>
+</span><span class='line'><span class="n">q</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">)</span>
+</span><span class='line'><span class="n">q</span><span class="o">.</span><span class="n">set_callback</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
+</span><span class='line'><span class="n">q</span><span class="o">.</span><span class="n">create_queue</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">try</span><span class="p">:</span>
+</span><span class='line'>    <span class="n">q</span><span class="o">.</span><span class="n">try_run</span><span class="p">()</span>
+</span><span class='line'><span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;Exiting...&quot;</span>
+</span><span class='line'>    <span class="n">q</span><span class="o">.</span><span class="n">unbind</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">q</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">main</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>这里用到了<code>scapy</code>这个非常牛逼的模块，它可以直接通过如<code>IP()</code>，<code>TCP()</code>等直接对包进行解释和操作，非常方便，具体的可以参看它的<a href="http://www.secdev.org/projects/scapy/doc/">文档</a>。这里只是说明下它的安装方式：</p>
+
+<pre><code>$ wget scapy.net
+$ mv index.html scapy-latest.zip
+$ chmod +x scapy-latest.zip
+$ mv scapy-latest.zip /usr/local/bin/scapy
+</code></pre>
+
+<p>然后就可以运行：</p>
+
+<pre><code>$ sudo scapy
+</code></pre>
+
+<p>直接开启scapy的交互模式了。</p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Netfilter学习笔记（一）]]></title>
-    <link href="http://ytliu.github.com/blog/2013/03/29/netfilterxue-xi-bi-ji/"/>
+    <link href="http://ytliu.github.com/blog/2013/03/29/netfilterxue-xi-bi-ji-%28yi-%29/"/>
     <updated>2013-03-29T18:39:00+08:00</updated>
-    <id>http://ytliu.github.com/blog/2013/03/29/netfilterxue-xi-bi-ji</id>
+    <id>http://ytliu.github.com/blog/2013/03/29/netfilterxue-xi-bi-ji-(yi-)</id>
     <content type="html"><![CDATA[<p>这两天在学习<code>iptables</code>，感觉这个东西实在是太牛逼！想用两篇博文来介绍一番。</p>
 
 <p>第一篇会介绍下netfilter和iptables的关系，以及iptables的原理；第二篇希望通过<code>libipq</code>和<code>nfqueue-bindings-python</code>来介绍下user态如何利用C和Python来调用iptables的接口获得封包的信息。</p>

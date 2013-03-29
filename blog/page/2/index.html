@@ -9,7 +9,7 @@
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="在了解dynamic linker之前，得先对ELF文件有一个初步的了解： 在jollen的博客中有一断对ELF Session的表格: 很有参考价值。其中将会涉及到的sections有.got, .plt, .interp。 另外在Computer Science from the Bottom &hellip;">
+  <meta name="description" content="那我觉得今天过的好没意义啊。 早晨起床，刷牙，洗脸，拉尿，换衣服，滑轮滑去买了两个肉包，到实验室喝了杯蜂蜜水，写了两行related work，被叫去开组会，突然华为的人进来又听海波和他们讨论了一个上午，中午吃了碗和方便面长的一样但是比方便面难吃还要17块钱的“辛拉面”， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,58 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/12/20/ru-guo-ming-tian-shi-shi-jie-mo-ri/">如果明天是世界末日</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-20T21:44:00+08:00" pubdate data-updated="true">Dec 20<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>那我觉得今天过的好没意义啊。</p>
+
+<p>早晨起床，刷牙，洗脸，拉尿，换衣服，滑轮滑去买了两个肉包，到实验室喝了杯蜂蜜水，写了两行related work，被叫去开组会，突然华为的人进来又听海波和他们讨论了一个上午，中午吃了碗和方便面长的一样但是比方便面难吃还要17块钱的“辛拉面”，回到实验室抄了两个小时的政治课笔记，莫名其妙地又待了一个小时写了几行related work，唯一还算比较有意义的就是晚上和实验室去吃了世界末日前最后一餐，回来被小呆众闺蜜调戏了一番，然后和“追梦的贱人们”聊了会儿天&#8230;然后等下又要冒着雨会寝室，洗脸洗脚，刷牙睡觉&#8230;</p>
+
+<p>如果明天真的是世界末日的话，那这个就算我的遗嘱了吧&#8230;</p>
+
+<p>算了，虽然懒，但是还是再加几句吧：</p>
+
+<blockquote><p>很高兴认识你们（你们懂的），如果还有下辈子（我还是比较相信投胎一说的），我还是希望在另外一个星球遇到你们，然后和你们一起傻一起疯，一起度过最二逼的青春岁月。<br/>然后，我还要在初中遇到小呆，经过一段暧昧的光年，传递那么几封可以用来回忆当年青涩傻逼岁月的信，然后再来上那个霸气的短信“刘宇涛先生，要不我们不谈了，直接结婚吧”，再然后，度过一段充满思念的异地恋，最终在一起，每周都能见个面，开启个“相亲相爱”模式，或者偶尔听你哭一哭，安静地看着你流泪，然后来个强有力的男人的拥抱&#8230;<br/>至于读书嘛~就不读那么认真啦，多享受享受生活，把自己想做的事不管有钱没钱有时间没时间都一股脑儿挤出时间来做掉，省的又来个世界末日啥的。<br/>世界太危险，读博要谨慎啊&#8230;</p></blockquote>
+
+
+<p>好了，就这些吧，让暴风雨来的更猛烈些，把这一切都冲毁吧，包括我以上那些无聊的YY&#8230;</p>
+
+<p>还是回去早点洗洗睡了吧》》》</p>
+
+<blockquote><p>就算世界没了，那又关我鸟事呢啦啦啦》》》</p></blockquote>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1937,192 +1989,6 @@ If you remember, /data, /system, and /cache make up a majority of your internal 
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/10/20/regain-my-vms-account/">Regain My VM&#8217;s Account</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-10-20T13:53:00+08:00" pubdate data-updated="true">Oct 20<span>th</span>, 2012</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>这两天在做opennebula项目的时候遇到一个问题，我忘记掉之前那几个虚拟机的用户密码了！试了好多可能的密码都不对，只能想办法把密码改掉了。</p>
-
-<p>虚拟机的好处在于我可以把它直接mount到物理主机上对其进行操作，不过镜像文件不是一个普通的设备块，不能通过一般的方法mount，只能用不一般的方法了：</p>
-
-<p>首先我有两种镜像，一个是普通的qemu镜像，以.img结尾的文件，一种是KVM的qcow2文件。</p>
-
-<h5>.img镜像</h5>
-
-<p>对于第一种，飞机教了我一个办法：</p>
-
-<pre><code>$ fdisk -l vm.img
-Disk datastores/vm.img: 8589 MB, 8589934592 bytes
-255 heads, 63 sectors/track, 1044 cylinders, total 16777216 sectors
-Units = sectors of 1 * 512 = 512 bytes
-Sector size (logical/physical): 512 bytes / 512 bytes
-I/O size (minimum/optimal): 512 bytes / 512 bytes
-Disk identifier: 0x0004bacc
-Device Boot      Start         End      Blocks   Id  System
-datastores/vm3.img1   *        2048    15958015     7977984   83  Linux
-datastores/vm3.img2        15960062    16775167      407553    5  Extended
-datastores/vm3.img5        15960064    16775167      407552   82  Linux swap / Solaris
-</code></pre>
-
-<p>注意里面的一个数2048，然后执行下面一条指令：</p>
-
-<pre><code>$ mount -o offset=$((2048*512)),loop vm.img /mnt
-</code></pre>
-
-<p>然后就mount到/mnt上去了。</p>
-
-<h5>.qcow2镜像</h5>
-
-<p>第二种镜像得用另外一个方法，这个是从<a href="http://blog.loftninjas.org/2008/10/27/mounting-kvm-qcow2-qemu-disk-images/">这里</a>看到的：</p>
-
-<p>首先要先aptitude install 一个nbd-client，通过</p>
-
-<pre><code>$ sudo modprobe nbd max_part=8
-$ sudo qemu-nbd --connect=/dev/nbd0 vm.qcow2
-$ sudo fdisk /dev/nbd0
-$ sudo mount /dev/nbd0p1 /mnt
-</code></pre>
-
-<p>即完成了mount，当然我对其中的原理也不太了解就是了。</p>
-
-<h5>chroot</h5>
-
-<p>最后是如何改密码，我是痛过chroot来做的，这里想简单介绍下这个命令：</p>
-
-<p>刚开始我直接运行：</p>
-
-<pre><code>$ sudo chroot .
-</code></pre>
-
-<p>然后报了一个这个错误：</p>
-
-<pre><code>chroot: failed to run command `/bin/zsh': No such file or directory`
-</code></pre>
-
-<p>之后了解了chroot的<a href="http://www.ibm.com/developerworks/cn/linux/l-cn-chroot/">工作流程</a>才知道这是怎么回事：</p>
-
-<p>一个相对完整的chroot流程是这样的：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;unistd.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="n">argc</span><span class="o">&lt;</span><span class="mi">2</span><span class="p">){</span>
-</span><span class='line'>  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Usage: chroot NEWROOT [COMMAND...] </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;newroot = %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
-</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="n">chroot</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="p">{</span>
-</span><span class='line'>  <span class="n">perror</span><span class="p">(</span><span class="s">&quot;chroot&quot;</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="n">chdir</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>  <span class="n">perror</span><span class="p">(</span><span class="s">&quot;chdir&quot;</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">getenv</span><span class="p">(</span><span class="s">&quot;SHELL&quot;</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-</span><span class='line'>      <span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="s">&quot;/bin/sh&quot;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="s">&quot;-i&quot;</span><span class="p">;</span>
-</span><span class='line'>  <span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>  <span class="n">argv</span> <span class="o">+=</span> <span class="mi">2</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">execvp</span> <span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">argv</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;chroot: cannot run command `%s`</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">argv</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>在chdir之后会先看看用户有没有指定特定的shell，如果没有则根据环境变量中的SHELL来指定相同的shell，否则会使用用户指定的shell运行（argv += 2)。由于我原来用户的shell是<em>/bin/zsh</em>, 且我没有指定特定的shell，所以在chroot之后就默认使用<em>/bin/zsh</em>，但是在这个镜像的文件系统中并没有<em>/bin/zsh</em>，所以就会报错。</p>
-
-<p>所以我只需要（1）将环境变量中的shell设成<em>/bin/bash</em>或者（2）指定一个shell（$ sudo chroot . /bin/bash）就可以了</p>
-
-<p>之后就可以通过运行</p>
-
-<pre><code>$ passwd root
-</code></pre>
-
-<p>来改变root的密码了。</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/3/">&larr; Older</a>
@@ -2140,7 +2006,11 @@ $ sudo mount /dev/nbd0p1 /mnt
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji/">Netfilter学习笔记（一）</a>
+        <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/">Netfilter学习笔记（二）</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28yi-%29/">Netfilter学习笔记（一）</a>
       </li>
     
       <li class="post">
@@ -2153,10 +2023,6 @@ $ sudo mount /dev/nbd0p1 /mnt
     
       <li class="post">
         <a href="/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/">Dr. Android and Mr. Hide - xidashi引发的故事</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/02/23/traceview-in-android/">Traceview in Android</a>
       </li>
     
   </ul>
