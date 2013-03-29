@@ -4,7 +4,7 @@
   <title><![CDATA[Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-03-24T14:31:05+08:00</updated>
+  <updated>2013-03-29T20:15:40+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -12,6 +12,74 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Netfilter学习笔记（一）]]></title>
+    <link href="http://ytliu.github.com/blog/2013/03/29/netfilterxue-xi-bi-ji/"/>
+    <updated>2013-03-29T18:39:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2013/03/29/netfilterxue-xi-bi-ji</id>
+    <content type="html"><![CDATA[<p>这两天在学习<code>iptables</code>，感觉这个东西实在是太牛逼！想用两篇博文来介绍一番。</p>
+
+<p>第一篇会介绍下netfilter和iptables的关系，以及iptables的原理；第二篇希望通过<code>libipq</code>和<code>nfqueue-bindings-python</code>来介绍下user态如何利用C和Python来调用iptables的接口获得封包的信息。</p>
+
+<h3>netfilter</h3>
+
+<p>简单地说，netfilter是一套在计算机网络栈中过滤和修改封包的框架，它的做法是在Linux Kernel中插入了一系列的hook，并允许kernel在不同层的网络栈中注册回调函数，这些回调函数会在封包进入相应的hook的时候被调用到。</p>
+
+<p>网络栈中对netfilter的支持如图所示：</p>
+
+<p><img src="http://ytliu.github.com/images/2013-03-29-1.png" title="package flow in netfiter and general networking" alt="netfilter" /></p>
+
+<p>可以看到在链路层和网络层中按照封包流的路径有五种类型的hooks: prerouting, input, forward, output, postrouting。这五种hooks会在封包到达之时按照封包流的顺序调用相应的回调函数，对四种类型的表中的chain（会在iptables中描述）进行过滤和修改：filter, nat, mangle, raw。而定义这些过滤的规则则是由一个用户态的命令<code>iptables</code>进行配置，也就是我接下来要详细描述的命令。</p>
+
+<h3>iptables</h3>
+
+<p><a href="http://itzone.hk/article/index.php?tid=14">这里</a>有6篇系列的文章介绍iptables的，讲的挺清楚，蛮适合入门学习的。</p>
+
+<p>前面说过iptables有四种类型的表：filter，nat，mangle，raw，这里只是对filter表进行介绍：</p>
+
+<p>filter表主要用于对封包进行过滤，在该表中有三条默认的chain：INPUT，FORWARD，OUTPUT。</p>
+
+<p>chain是做什么的呢？(转自<a href="http://itzone.hk/article/article.php?aid=200502091507054036">这里</a>)</p>
+
+<blockquote><p>所謂chain就是一組封包過濾規則，您可以在INPUT chain中加入一條防止所有外界封包進入的規則；您可以在OUTPUT chain中加入一條防止用戶連接某網頁伺服器。準備進入網絡的封包，會順著chain內的過濾規則被稽核，若果該封包並不符合任何規則，則會直接進入網 內，因為INPUT和OUTPUT在Linux kernel裡被預設為ACCEPT，而FORWARD則被預設為DROP。</p></blockquote>
+
+<p>比如说，如果要把发到某个地址（如192.168.1.2）的包丢弃，可以这样做：</p>
+
+<pre><code>$ sudo iptables -A OUTPUT -d 192.168.1.2 -j DROP
+</code></pre>
+
+<p>这里<code>-A</code>指对OUTPUT这条链的规则进行修改，<code>-d</code>表示这个封包的destination，<code>-j</code>后加的是target，有五种选择：ACCEPT（不作任何操作，让封包流过），DROP（将封包丢弃），QUEUE（将封包插入队列，传递到用户态处理，这个会在第二篇中详细描述），RETURN（直接从该chain中返回，到前一个chain的下一条规则继续执行），以及自己定义的CHAIN，如下：</p>
+
+<pre><code>$ sudo iptables -N SELF_CHAIN
+</code></pre>
+
+<p>也就是说我们可以按照不同的源地址、目标地址、端口、协议等规则分类，由不同的chain进行处理，可以更合理地对过滤条件进行管理。</p>
+
+<p>另外，有几个常用的选项这里提一下：</p>
+
+<pre><code>-A chain                # modify a chain
+-D chain rulenum        # delete a specific rule of chain
+-I chain rulenum rule   # insert rule in rulenum of chain
+-R chain rulenum rule   # replace rule with rulenum of chain
+-L [chain]              # list rules of chain
+-F [chain]              # flush the rules of chain
+-N chain                # new a chain
+-X [chain]              # delete chain
+
+-p protocol             # e.g., tcp, udp, icmp...
+-s source address       # e.g., 192.168.1.22
+-d destination address  # e.g., 192.168.1.13
+-j target               # e.g., ACCEPT, DROP, RETURN, QUEUE, other-chain
+-i in-interface         # e.g., eth0
+-o out-interface        # e.g., eth0
+</code></pre>
+
+<hr />
+
+<p>下一篇主要介绍当<code>iptables</code>的target是QUEUE或者NFQUEUE时，用户态要如何调用相关接口。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Cross Reference Graph of Android Component]]></title>
@@ -3066,47 +3134,6 @@ $ sudo mount /dev/nbd0p1 /mnt
 </code></pre>
 
 <p>来改变root的密码了。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[android messaging mechanism]]></title>
-    <link href="http://ytliu.github.com/blog/2012/10/12/android-messaging-mechanism/"/>
-    <updated>2012-10-12T21:43:00+08:00</updated>
-    <id>http://ytliu.github.com/blog/2012/10/12/android-messaging-mechanism</id>
-    <content type="html"><![CDATA[<p>这两天做remote binder遇到一个bug，具体是什么就不细说了，总之是和android的message机制相关，在Handler.java里面通过mQueue.enqueueMessage()成功后却没有办法从Looper.java里面的mQueue.next()中读出该条message。搞了半天，打印了一堆log，最后发现竟然是因为Looper的线程被我自己block住了。这个主要是由于自己对其理解的错误造成的，之前我一直以为对于每个Activity（或Service）来说，除了主线程之外，都会有一个专用的Looper线程进行消息队列的轮询，今天和乃正讨论了下，其实不是这样的。对于一个进程来说，如果你没有需求说需要有某个线程做某些特定的事（比如socket监听），那么你的主线程就会进入Looper循环进行消息队列的轮询，否则你就需要自己再新建一个线程，或者重新开一个looper，或者进行socket监听&#8230;</p>
-
-<p>此外还有一点，looper是thread local的，对于这个的理解，应该是这样的：在每个线程新建之后，都会有一个原来线程的mQueue的引用，而如果你要自己做一些特定的事，比如重新开一个新的Looper进行其它消息的轮询，那么没有问题，你新建一个looper，但是要注意，你的mQueue是唯一的，也就是说，你之前的对原来线程的mQueue的引用就没了，也就是说，对于一个线程来说只可能有唯一的mQueue。</p>
-
-<p>之后就是message的流程。有两种可能的情况：</p>
-
-<ul>
-<li>sendMessage(): 这是最常见的形式，这个msg就是一个普通的message，它会依次调用sendMessageDelayed(), sendMessageAtTime(), queue.enqueueMessage()，最后将消息插到队列中去。</li>
-<li>post(): 我这次遇到的就是这种形式，在ServiceDispatcher中用到的就是它，它传递的message是一个Runnable对象，叫RunConnection，在post里面会逐步调用sendMessageDelayed(), sendMessageAtTime(), queue.enqueueMessage()，并且会将msg.callback设成RunConnection对象。</li>
-</ul>
-
-
-<p>之后在Looper中会进入while循环，每次取出一个msg(<em>queue.next()</em>)，然后调用dispatchMessage()，在里面会有下面这段代码：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>if (msg.callback != null) {
-</span><span class='line'>    msg.callback.run();
-</span><span class='line'>}
-</span><span class='line'>else {
-</span><span class='line'>    ...
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<p>也就是说如果是post传进来的RunConnection对象的msg的话将会直接运行它的run函数，否则会直接调用handleMessage()进行处理。</p>
-
-<hr />
-
-<p>android的message机制其实就是一种异步消息处理机制，进程通过Handler的sendMessage或post将msg进行enqueueMessage，然后通过该线程自己的Looper进行消息队列轮询并根据相应的情况进行handle。</p>
 ]]></content>
   </entry>
   
