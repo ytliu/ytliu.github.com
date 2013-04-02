@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Network | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/network/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-03-29T22:12:49+08:00</updated>
+  <updated>2013-04-02T11:34:03+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -100,7 +100,7 @@
 </span><span class='line'><span class="p">}</span>
 </span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
 </span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
 <p>上段代码的意思是先从<code>buf</code>中获得整个封包m，之后可以通过<code>struct iphdr</code>和<code>struct tcphdr</code>获得ip包头和tcp包头，最后有一个最关键的代码：</p>

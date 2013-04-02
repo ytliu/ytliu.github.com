@@ -9,7 +9,7 @@
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="首先申明，这其实并不是一篇android root教程，因为我并没有用什么exploit的方法，也没有用CWM等这些第三方ROM，而是该了ASOP，然后把它刷到机子上，然后对其进行所谓的root，装了一个dSploit和busybox。 具体的做法是这样的： 更新到ASOP的最新版 - 4.2.4 &hellip;">
+  <meta name="description" content="首先申明，这其实并不是一篇android root教程，因为我并没有用什么exploit的方法，也没有用CWM等这些第三方ROM，而是改了ASOP，然后把它刷到机子上，然后对其进行所谓的root，装了一个dSploit和busybox。 具体的做法是这样的： 更新到ASOP的最新版 - 4.2.4 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -92,7 +92,7 @@
   </header>
 
 
-<div class="entry-content"><p>首先申明，这其实并不是一篇android root教程，因为我并没有用什么exploit的方法，也没有用CWM等这些第三方ROM，而是该了ASOP，然后把它刷到机子上，然后对其进行所谓的root，装了一个dSploit和busybox。</p>
+<div class="entry-content"><p>首先申明，这其实并不是一篇android root教程，因为我并没有用什么exploit的方法，也没有用CWM等这些第三方ROM，而是改了ASOP，然后把它刷到机子上，然后对其进行所谓的root，装了一个dSploit和busybox。</p>
 
 <p>具体的做法是这样的：</p>
 
@@ -118,6 +118,37 @@
 
 <ul>
 <li>把ASOP代码中的/system/extras/su/su.c该掉，把检查的部分全部去掉</li>
+</ul>
+
+
+<p>在这里，我把</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">if</span> <span class="p">(</span><span class="n">myuid</span> <span class="o">!=</span> <span class="n">AID_ROOT</span> <span class="o">&amp;&amp;</span> <span class="n">myuid</span> <span class="o">!=</span> <span class="n">AID_SHELL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="s">&quot;su: uid %d not allowed to su</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">myuid</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>注释掉，另外，把</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">if</span><span class="p">(</span><span class="n">setgid</span><span class="p">(</span><span class="n">gid</span><span class="p">)</span> <span class="o">||</span> <span class="n">setuid</span><span class="p">(</span><span class="n">uid</span><span class="p">))</span> <span class="p">{</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>换成了</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">if</span><span class="p">(</span><span class="n">setgid</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">||</span> <span class="n">setuid</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span> <span class="p">{</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
 <li>然后刷机</li>
 </ul>
 
