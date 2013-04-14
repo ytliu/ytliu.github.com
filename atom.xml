@@ -4,7 +4,7 @@
   <title><![CDATA[Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-04-14T21:03:32+08:00</updated>
+  <updated>2013-04-14T21:30:04+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -154,7 +154,7 @@
 
 <p>这里注意在Reader的代码中，<code>rcu_read_lock()</code>会关闭中断，禁止在一个核中其它进程的抢断，而<code>rcu_read_unlock()</code>则会打开中断，恢复抢断机制。于是writer就可以根据reader进程是否进行过context switch来判断说是否对Shared_data的读过程是否全部结束了：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-04-14-04.png" title="RCU 2" alt="RCU 2" /></p>
+<p><img src="http://ytliu.github.com/images/2013-04-14-04.png" title="RCU Figure" alt="RCU figure 2" /></p>
 
 <p>RCU还要考虑的一个问题是在reader中是否能允许sleep？因为如果一个reader在读的过程中如果碰到一段IO操作，那么它如果不sleep的话，则会很大地浪费CPU资源，而如果sleep的话，则会发生一次context switch，而此时，读的过程其实并没有结束，与RCU的语义就不符了。</p>
 
