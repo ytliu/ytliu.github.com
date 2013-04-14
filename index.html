@@ -9,7 +9,8 @@
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="之前讲了关于netfilter和iptables的一些简单的原理和用法，对于iptables来说，如果只能对封包进行DROP、ACCEPT操作，那么就显得太弱了，其实在我看来iptables里面filter表中最牛逼的就在于QUEUE（NFQUEUE）这个target了。 &hellip;">
+  <meta name="description" content="
+">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +67,600 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/04/14/tong-bu-yuan-yu-xue-xi-bi-ji-lock%2Crcuhe-transaction/">同步原语学习笔记 - Lock，RCU和Transaction</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-04-14T14:24:00+08:00" pubdate data-updated="true">Apr 14<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content">
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/04/09/netfilterxue-xi-bi-ji-%28san-%29/">Netfilter学习笔记（三）</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-04-09T21:21:00+08:00" pubdate data-updated="true">Apr 9<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>这次的内容主要是关于在Android上如何使用iptables。</p>
+
+<p>其实在android源码中已经有对iptables进行了支持，如何确定可以参看<a href="http://www.roman10.net/how-to-build-and-use-libnetfilter_queue-for-android/">这里</a>。</p>
+
+<p>这里简单说下如何采用nfqueue对其进行控制：</p>
+
+<p>首先说下一个很简单的场景：我们需要将从手机端发到192.168.1.2服务器的所有TCP包都拦截下来，将包的信息打印出来，并将其发送出去。</p>
+
+<p>具体的步骤如下：</p>
+
+<ul>
+<li><p>首先将手机连到PC上，运行：</p>
+
+<p>  $ adb shell
+  $ su
+  #</p></li>
+</ul>
+
+
+<p>进入root模式，这个时候可以配置iptables：</p>
+
+<pre><code># iptables -A OUTPUT -t tcp -d 192.168.1.2 -j NFQUEUE
+</code></pre>
+
+<p>这样到192.168.1.2的所有TCP包都会进入NFQUEUE等着被处理。</p>
+
+<ul>
+<li><p>此时我们需要写程序来处理NFQUEUE里面的包，首先我们在PC上新建一个Android项目：</p>
+
+<p>  $ android create project &#8211;target <target_ID> -name IptablesTest &#8211;path ./IptablesTest &#8211;activity IptablesTestActivity  &#8211;package com.iptables.test
+  $ cd IptablesTest
+  $ mkdir jni</p></li>
+</ul>
+
+
+<p>接下来，要下载两个包（<a href="http://www.netfilter.org/projects/libnfnetlink/downloads.html">libnfnetlink</a>和<a href="http://www.netfilter.org/projects/libnetfilter_queue/downloads.html">libnetfilter_queue</a>）到jni目录下。</p>
+
+<p>然后在jni目录下创建一个文件叫做nfqnl_test.c：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;unistd.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;netinet/in.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;linux/types.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;linux/netfilter.h&gt;       </span><span class="cm">/* for NF_ACCEPT */</span><span class="cp"></span>
+</span><span class='line'><span class="cp">#include &lt;errno.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &lt;libnetfilter_queue/libnetfilter_queue.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cm">/* returns packet id */</span>
+</span><span class='line'><span class="k">static</span> <span class="n">u_int32_t</span> <span class="nf">print_pkt</span> <span class="p">(</span><span class="k">struct</span> <span class="n">nfq_data</span> <span class="o">*</span><span class="n">tb</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">struct</span> <span class="n">nfqnl_msg_packet_hdr</span> <span class="o">*</span><span class="n">ph</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">struct</span> <span class="n">nfqnl_msg_packet_hw</span> <span class="o">*</span><span class="n">hwph</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">u_int32_t</span> <span class="n">mark</span><span class="p">,</span><span class="n">ifi</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">ret</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">data</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">ph</span> <span class="o">=</span> <span class="n">nfq_get_msg_packet_hdr</span><span class="p">(</span><span class="n">tb</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">ph</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">id</span> <span class="o">=</span> <span class="n">ntohl</span><span class="p">(</span><span class="n">ph</span><span class="o">-&gt;</span><span class="n">packet_id</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;hw_protocol=0x%04x hook=%u id=%u &quot;</span><span class="p">,</span>
+</span><span class='line'>          <span class="n">ntohs</span><span class="p">(</span><span class="n">ph</span><span class="o">-&gt;</span><span class="n">hw_protocol</span><span class="p">),</span> <span class="n">ph</span><span class="o">-&gt;</span><span class="n">hook</span><span class="p">,</span> <span class="n">id</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">hwph</span> <span class="o">=</span> <span class="n">nfq_get_packet_hw</span><span class="p">(</span><span class="n">tb</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">hwph</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="kt">int</span> <span class="n">i</span><span class="p">,</span> <span class="n">hlen</span> <span class="o">=</span> <span class="n">ntohs</span><span class="p">(</span><span class="n">hwph</span><span class="o">-&gt;</span><span class="n">hw_addrlen</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;hw_src_addr=&quot;</span><span class="p">);</span>
+</span><span class='line'>      <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">hlen</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span><span class='line'>          <span class="n">printf</span><span class="p">(</span><span class="s">&quot;%02x:&quot;</span><span class="p">,</span> <span class="n">hwph</span><span class="o">-&gt;</span><span class="n">hw_addr</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+</span><span class='line'>      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;%02x &quot;</span><span class="p">,</span> <span class="n">hwph</span><span class="o">-&gt;</span><span class="n">hw_addr</span><span class="p">[</span><span class="n">hlen</span><span class="o">-</span><span class="mi">1</span><span class="p">]);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">mark</span> <span class="o">=</span> <span class="n">nfq_get_nfmark</span><span class="p">(</span><span class="n">tb</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">mark</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;mark=%u &quot;</span><span class="p">,</span> <span class="n">mark</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">ifi</span> <span class="o">=</span> <span class="n">nfq_get_indev</span><span class="p">(</span><span class="n">tb</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">ifi</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;indev=%u &quot;</span><span class="p">,</span> <span class="n">ifi</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">ifi</span> <span class="o">=</span> <span class="n">nfq_get_outdev</span><span class="p">(</span><span class="n">tb</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">ifi</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;outdev=%u &quot;</span><span class="p">,</span> <span class="n">ifi</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">ifi</span> <span class="o">=</span> <span class="n">nfq_get_physindev</span><span class="p">(</span><span class="n">tb</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">ifi</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;physindev=%u &quot;</span><span class="p">,</span> <span class="n">ifi</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">ifi</span> <span class="o">=</span> <span class="n">nfq_get_physoutdev</span><span class="p">(</span><span class="n">tb</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">ifi</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;physoutdev=%u &quot;</span><span class="p">,</span> <span class="n">ifi</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">ret</span> <span class="o">=</span> <span class="n">nfq_get_payload</span><span class="p">(</span><span class="n">tb</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">data</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;payload_len=%d &quot;</span><span class="p">,</span> <span class="n">ret</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">fputc</span><span class="p">(</span><span class="sc">&#39;\n&#39;</span><span class="p">,</span> <span class="n">stdout</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="n">id</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>  
+</span><span class='line'>
+</span><span class='line'><span class="k">static</span> <span class="kt">int</span> <span class="nf">cb</span><span class="p">(</span><span class="k">struct</span> <span class="n">nfq_q_handle</span> <span class="o">*</span><span class="n">qh</span><span class="p">,</span> <span class="k">struct</span> <span class="n">nfgenmsg</span> <span class="o">*</span><span class="n">nfmsg</span><span class="p">,</span>
+</span><span class='line'>        <span class="k">struct</span> <span class="n">nfq_data</span> <span class="o">*</span><span class="n">nfa</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">u_int32_t</span> <span class="n">id</span> <span class="o">=</span> <span class="n">print_pkt</span><span class="p">(</span><span class="n">nfa</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;entering callback</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">nfq_set_verdict</span><span class="p">(</span><span class="n">qh</span><span class="p">,</span> <span class="n">id</span><span class="p">,</span> <span class="n">NF_ACCEPT</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">struct</span> <span class="n">nfq_handle</span> <span class="o">*</span><span class="n">h</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">struct</span> <span class="n">nfq_q_handle</span> <span class="o">*</span><span class="n">qh</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">struct</span> <span class="n">nfnl_handle</span> <span class="o">*</span><span class="n">nh</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">fd</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">rv</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">4096</span><span class="p">]</span> <span class="n">__attribute__</span> <span class="p">((</span><span class="n">aligned</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;opening library handle</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">h</span> <span class="o">=</span> <span class="n">nfq_open</span><span class="p">();</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">h</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;error during nfq_open()</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;unbinding existing nf_queue handler for AF_INET (if any)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">nfq_unbind_pf</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">AF_INET</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;error during nfq_unbind_pf()</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;binding nfnetlink_queue as nf_queue handler for AF_INET</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">nfq_bind_pf</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">AF_INET</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;error during nfq_bind_pf()</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;binding this socket to queue &#39;0&#39;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">qh</span> <span class="o">=</span> <span class="n">nfq_create_queue</span><span class="p">(</span><span class="n">h</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">cb</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">qh</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;error during nfq_create_queue()</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;setting copy_packet mode</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">nfq_set_mode</span><span class="p">(</span><span class="n">qh</span><span class="p">,</span> <span class="n">NFQNL_COPY_PACKET</span><span class="p">,</span> <span class="mh">0xffff</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;can&#39;t set packet_copy mode</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">fd</span> <span class="o">=</span> <span class="n">nfq_fd</span><span class="p">(</span><span class="n">h</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">for</span> <span class="p">(;;)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">((</span><span class="n">rv</span> <span class="o">=</span> <span class="n">recv</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span> <span class="mi">0</span><span class="p">))</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">printf</span><span class="p">(</span><span class="s">&quot;pkt received</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>          <span class="n">nfq_handle_packet</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">rv</span><span class="p">);</span>
+</span><span class='line'>          <span class="k">continue</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">rv</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">errno</span> <span class="o">==</span> <span class="n">ENOBUFS</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">printf</span><span class="p">(</span><span class="s">&quot;losing packets!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>          <span class="k">continue</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>      <span class="n">perror</span><span class="p">(</span><span class="s">&quot;recv failed&quot;</span><span class="p">);</span>
+</span><span class='line'>      <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;unbinding from queue 0</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">nfq_destroy_queue</span><span class="p">(</span><span class="n">qh</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;closing library handle</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">nfq_close</span><span class="p">(</span><span class="n">h</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里的原理很简单，就是通过：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">qh</span> <span class="o">=</span> <span class="n">nfq_create_queue</span><span class="p">(</span><span class="n">h</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">cb</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>注册了一个callback函数cb，在</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">nfq_handle_packet</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">rv</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>的时候就会将收到的包传给该函数进行处理，当然了，还可以像<a href="http://ytliu.github.io/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/">这里</a>一样通过<code>struct iphdr</code>和<code>struct tcphdr</code>结构体来获得payload里面的IP包头和TCP包的信息，对其进行处理。</p>
+
+<ul>
+<li>之后在jni目录下创建<code>Android.mk</code>文件：</li>
+</ul>
+
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#LOCAL_PATH is used to locate source files in the development tree.</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#the macro my-dir provided by the build system, indicates the path of the current directory</span>
+</span><span class='line'>
+</span><span class='line'><span class="nl">LOCAL_PATH:</span><span class="o">=</span><span class="err">$</span><span class="p">(</span><span class="n">call</span> <span class="n">my</span><span class="o">-</span><span class="n">dir</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#####################################################################</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#            build libnflink                    #</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#####################################################################</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">include</span> <span class="err">$</span><span class="p">(</span><span class="n">CLEAR_VARS</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="nl">LOCAL_MODULE:</span><span class="o">=</span><span class="n">nflink</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">LOCAL_C_INCLUDES</span> <span class="o">:=</span> <span class="err">$</span><span class="p">(</span><span class="n">LOCAL_PATH</span><span class="p">)</span><span class="o">/</span><span class="n">libnfnetlink</span><span class="o">-</span><span class="mf">1.0.0</span><span class="o">/</span><span class="n">include</span>
+</span><span class='line'>
+</span><span class='line'><span class="nl">LOCAL_SRC_FILES:</span><span class="o">=</span>\
+</span><span class='line'>
+</span><span class='line'>    <span class="n">libnfnetlink</span><span class="o">-</span><span class="mf">1.0.0</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">iftable</span><span class="p">.</span><span class="n">c</span> \
+</span><span class='line'>
+</span><span class='line'>    <span class="n">libnfnetlink</span><span class="o">-</span><span class="mf">1.0.0</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">rtnl</span><span class="p">.</span><span class="n">c</span> \
+</span><span class='line'>
+</span><span class='line'>    <span class="n">libnfnetlink</span><span class="o">-</span><span class="mf">1.0.0</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">libnfnetlink</span><span class="p">.</span><span class="n">c</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">include</span> <span class="err">$</span><span class="p">(</span><span class="n">BUILD_STATIC_LIBRARY</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include $(BUILD_SHARED_LIBRARY)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#####################################################################</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#            build libnetfilter_queue            #</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#####################################################################</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">include</span> <span class="err">$</span><span class="p">(</span><span class="n">CLEAR_VARS</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">LOCAL_C_INCLUDES</span> <span class="o">:=</span> <span class="err">$</span><span class="p">(</span><span class="n">LOCAL_PATH</span><span class="p">)</span><span class="o">/</span><span class="n">libnfnetlink</span><span class="o">-</span><span class="mf">1.0.0</span><span class="o">/</span><span class="n">include</span> \
+</span><span class='line'>
+</span><span class='line'>    <span class="err">$</span><span class="p">(</span><span class="n">LOCAL_PATH</span><span class="p">)</span><span class="o">/</span><span class="n">libnetfilter_queue</span><span class="o">-</span><span class="mf">1.0.0</span><span class="o">/</span><span class="n">include</span>
+</span><span class='line'>
+</span><span class='line'><span class="nl">LOCAL_MODULE:</span><span class="o">=</span><span class="n">netfilter_queue</span>
+</span><span class='line'>
+</span><span class='line'><span class="nl">LOCAL_SRC_FILES:</span><span class="o">=</span><span class="n">libnetfilter_queue</span><span class="o">-</span><span class="mf">1.0.0</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">libnetfilter_queue</span><span class="p">.</span><span class="n">c</span>
+</span><span class='line'>
+</span><span class='line'><span class="nl">LOCAL_STATIC_LIBRARIES:</span><span class="o">=</span><span class="n">libnflink</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">include</span> <span class="err">$</span><span class="p">(</span><span class="n">BUILD_STATIC_LIBRARY</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include $(BUILD_SHARED_LIBRARY)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#####################################################################</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#            build our code                    #</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#####################################################################</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">include</span> <span class="err">$</span><span class="p">(</span><span class="n">CLEAR_VARS</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">LOCAL_C_INCLUDES</span> <span class="o">:=</span> <span class="err">$</span><span class="p">(</span><span class="n">LOCAL_PATH</span><span class="p">)</span><span class="o">/</span><span class="n">libnfnetlink</span><span class="o">-</span><span class="mf">1.0.0</span><span class="o">/</span><span class="n">include</span> \
+</span><span class='line'>
+</span><span class='line'>    <span class="err">$</span><span class="p">(</span><span class="n">LOCAL_PATH</span><span class="p">)</span><span class="o">/</span><span class="n">libnetfilter_queue</span><span class="o">-</span><span class="mf">1.0.0</span><span class="o">/</span><span class="n">include</span>
+</span><span class='line'>
+</span><span class='line'><span class="nl">LOCAL_MODULE:</span><span class="o">=</span><span class="n">nfqnltest</span>
+</span><span class='line'>
+</span><span class='line'><span class="nl">LOCAL_SRC_FILES:</span><span class="o">=</span><span class="n">nfqnl_test</span><span class="p">.</span><span class="n">c</span>
+</span><span class='line'>
+</span><span class='line'><span class="nl">LOCAL_STATIC_LIBRARIES:</span><span class="o">=</span><span class="n">libnetfilter_queue</span>
+</span><span class='line'>
+</span><span class='line'><span class="nl">LOCAL_LDLIBS:</span><span class="o">=-</span><span class="n">llog</span> <span class="o">-</span><span class="n">lm</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include $(BUILD_SHARED_LIBRARY)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">include</span> <span class="err">$</span><span class="p">(</span><span class="n">BUILD_EXECUTABLE</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><p>之后，调用ndk-build来创建可执行文件nfqnltest，它位于libs目录下。</p></li>
+<li><p>将nfqnltest传进Android中：</p>
+
+<p>  $ adb shell
+  $ su
+  # mkdir /data/data/nfqnltest
+  # chmod 777 /data/data/nfqnltest</p></li>
+</ul>
+
+
+<p>打开一个shell：</p>
+
+<pre><code>$ adb push libs/nfqnltest /data/data/nfqnltest/”
+</code></pre>
+
+<p>转回刚刚那个shell</p>
+
+<pre><code># cd /data/data/nfqnltest
+# ./nfqnltest
+</code></pre>
+
+<p>这样整个过程就完成了。</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1607,269 +2202,6 @@ state and I/O.
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/01/06/base64bian-ma/">Base64编码</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-01-06T12:42:00+08:00" pubdate data-updated="true">Jan 6<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>这两天看<a href="http://www.csc.ncsu.edu/faculty/jiang/" title="Xuxian Jiang">Jiang</a>团队对<a href="http://www.csc.ncsu.edu/faculty/jiang/AnserverBot/" title="AnserverBot Malware">AnserverBot</a>的一篇详细的<a href="http://www.csc.ncsu.edu/faculty/jiang/pubs/AnserverBot_Analysis.pdf" title="AnserverBot Analysis">分析</a>中提到AnserverBot中对很多数据（比如C&amp;C server的url等）进行了Base64编码，于是，我对这种编码进行了了解，并根据他们实现的python解码脚本，写了一个ruby的解码脚本。</p>
-
-<h4>Base64</h4>
-
-<p>以下资料基本上来自于<a href="http://en.wikipedia.org/wiki/Base64" title="Base64">wiki</a></p>
-
-<p>Base64用于对字符串进行编码，并将该编码通过网络传输出去，源于<code>MIME</code>内容（如邮件）的编码，用于防止内容在网络传输中被篡改。</p>
-
-<p>接下来会通过一个示例进行说明：</p>
-
-<p>首先我们会有一张Base64 index table:</p>
-
-<p><img src="http://ytliu.github.com/images/2013-01-06-1.png" title="Base64 index table" alt="Base64 index table" /></p>
-
-<p>该表记录了0-63（即000000-111111)对应的ASCII字符。</p>
-
-<p>然后我们有一段需要翻译的字符串，一段从<a href="http://en.wikipedia.org/wiki/Thomas_Hobbes" title="Thomas Hobbes">Thomas Hobbes</a> <a href="http://en.wikipedia.org/wiki/Leviathan_book" title="Leviathan">Leviathan</a>的引用：</p>
-
-<blockquote><p>Man is distinguished, not only by his reason, but by this singular passion from other animals, which is a lust of the mind, that by a perseverance of delight in the continued and indefatigable generation of knowledge, exceeds the short vehemence of any carnal pleasure.</p></blockquote>
-
-<p>如果将每一个字母的ASCII码作为一个8-bit的二进制数展开的话会得到一个二进制串，比如我们<code>Man</code>的三个字母<code>M</code>、<code>a</code>、<code>n</code>的ASCII码分别为<code>77</code>、<code>97</code>、<code>110</code>，展开二进制并连起来既得到<code>010011010110000101101110</code>。然后我们将这个3x8的bit分成4x6，并将每6个bit组成的数字记下来，然后通过查询前面的那张<em>Base64 index table</em>即可得到四个字符<code>TWFu</code>，也就是<code>Man</code>的Base64表达形式。如下图所示：</p>
-
-<p><img src="http://ytliu.github.com/images/2013-01-06-2.png" title="Base64 example" alt="Base64 example" /></p>
-
-<p>当然这张<em>Base64 index table</em>可以采用任意的字母数字顺序，而不用按照这种顺序，只要解码的时候用同一张index table就可以了。</p>
-
-<p>还有一点要注意的是如果字符的数目不是3的倍数该怎么办？也就是说最后一个block也有可能是1个字符或者2个字符。这个时候就需要在后面再加0来进行补齐了，然后再用Base64的规则进行转换，在编码后的base64文本后加上一个或两个<code>=</code>号，代表补足的字节数。也就是说，当最后剩余1个字符时，最后一个6位的base64字节块有四位是0值，最后附加上两个等号；如果最后剩余2个字符时，最后一个6位的base64字节块有两位是0值，最后附加一个等号。</p>
-
-<h4>Base64 decode by Ruby</h4>
-
-<p>在ruby中可以通过<code>requite 'base64'</code>来很方便地对Base64字符串进行解码，比如在AnserverBot中，采用了<code>STvJjktoVFZ9f0PGlicqy3xK7zH8ruXdn5WwDRIeb1UmEgOhYs2NpLC4QBa6AM+/_</code>的<em>index table</em>进行编码，于是ruby程序如下所示：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># decrypt str encoded by base64</span>
-</span><span class='line'><span class="c1"># ARGV[0] translate command (0 for string, 1 for file)</span>
-</span><span class='line'><span class="c1"># ARGV[1] translate string or file</span>
-</span><span class='line'><span class="c1"># ARGV[2] my_base64chars if exist</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;base64&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">BEGIN</span> <span class="p">{</span> <span class="nb">puts</span> <span class="s2">&quot;Hello!</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">cmd</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">].</span><span class="n">to_i</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="no">ARGV</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">2</span>
-</span><span class='line'>  <span class="nb">puts</span> <span class="s2">&quot;Usage: ruby </span><span class="si">#{</span><span class="vg">$0</span><span class="si">}</span><span class="s2"> [0|1] [str|file] [base64chars]&quot;</span>
-</span><span class='line'>  <span class="nb">exit</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="n">cmd</span> <span class="o">==</span> <span class="mi">0</span>
-</span><span class='line'>  <span class="n">s</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span>
-</span><span class='line'><span class="k">elsif</span> <span class="n">cmd</span> <span class="o">==</span> <span class="mi">1</span>
-</span><span class='line'>  <span class="n">f</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span>
-</span><span class='line'>  <span class="n">s</span> <span class="o">=</span> <span class="no">File</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="nb">puts</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">translate string is:</span><span class="se">\n</span><span class="si">#{</span><span class="n">s</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">std_base64chars</span> <span class="o">=</span> <span class="s2">&quot;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="no">ARGV</span><span class="o">[</span><span class="mi">2</span><span class="o">]</span> <span class="o">!=</span> <span class="kp">nil</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="no">ARGV</span><span class="o">[</span><span class="mi">2</span><span class="o">].</span><span class="n">size</span> <span class="o">&gt;=</span> <span class="mi">65</span><span class="p">)</span>
-</span><span class='line'>  <span class="n">my_base64chars</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">2</span><span class="o">]</span>
-</span><span class='line'><span class="k">else</span>
-</span><span class='line'>  <span class="n">my_base64chars</span>  <span class="o">=</span> <span class="s2">&quot;STvJjktoVFZ9f0PGlicqy3xK7zH8ruXdn5WwDRIeb1UmEgOhYs2NpLC4QBa6AM+/_&quot;</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="nb">puts</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">translate str according to </span><span class="si">#{</span><span class="n">my_base64chars</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">tr</span><span class="p">(</span><span class="n">my_base64chars</span><span class="p">,</span> <span class="n">std_base64chars</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">data</span> <span class="o">=</span> <span class="no">Base64</span><span class="o">.</span><span class="n">decode64</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-</span><span class='line'><span class="nb">puts</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">translated str is </span><span class="si">#{</span><span class="n">data</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">END</span> <span class="p">{</span> <span class="nb">puts</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Bye!&quot;</span> <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>其中<code>s.tr(my_base64chars, std_base64chars)</code>是将自定义的<em>index table</em>和标准<em>index table</em>进行下转换，将字符串中的字符用标准<em>index table</em>中对应的字符进行替换，然后再通过<code>Base64.decode64(s)</code>进行解码。</p>
-
-<p>整个过程还是很简单的。</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/12/30/qemu-study-for-android-emulator/">Qemu Study for Android Emulator</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-12-30T19:10:00+08:00" pubdate data-updated="true">Dec 30<span>th</span>, 2012</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>这两天看了下android emulator的源代码，位置在<code>android-src/external/qemu</code>里面，</p>
-
-<p>编译和启动的方式很简单；</p>
-
-<pre><code>$ ./android-configure.sh
-$ make
-$ export ANDROID_SDK_ROOT=/path/to/androdi-sdk
-$ emulator-arm @4.2
-</code></pre>
-
-<p>你可以对源码进行修改，然后重新编译、使用，而这里主要要讲的是qemu的运行原理，资料来源是<a href="http://lists.gnu.org/archive/html/qemu-devel/2011-04/pdfhC5rVdz7U8.pdf">Qemu detailed study</a>。要说明的一点是，android emulator原理基本上是和qemu一样的，只是加了一些android specific的东西在里面。</p>
-
-<p>首先是qemu整体流程：</p>
-
-<p><img src="http://ytliu.github.com/images/2012-12-30-1.png" title="qemu process" alt="qemu process" /></p>
-
-<p>首先将guest code（这里即为arm code）被TCG（Tiny Code Generator)转换成一个中间表达，然后再转换成host code（这里即为x86 code），具体来说分为两步：</p>
-
-<ul>
-<li>一个TB（Translation Block）被翻译成TCG ops</li>
-<li>TCG ops被翻译成host code</li>
-</ul>
-
-
-<p>我们先来看下qemu的code base：</p>
-
-<p><img src="http://ytliu.github.com/images/2012-12-30-2.png" title="qemu code base" alt="qemu code base" /></p>
-
-<ul>
-<li><code>vl.c/vl-android.c</code>: 这个是整个qemu的入口函数，主要是初始化qemu环境，然后进入<code>main_loop</code>；</li>
-<li><code>target-xyz/translate.c</code>: 将guest code翻译成TCG ops；</li>
-<li><code>tcg/*/tcg-target.c</code>: 将TCG ops翻译成host code；</li>
-<li><code>tcg/tcg.c</code>: TCG的主函数；</li>
-<li><code>cpu-exec.c</code>: 寻找下一个TB（如果没找到则调用tcg.c生成TB），然后执行。</li>
-</ul>
-
-
-<p>在qemu中也很好地利用了locality，即没产生一段code（TCG ops或host code），就将其存在一个code cache中，然后用LRU进行替换。</p>
-
-<h4>运行流程（code perspective）</h4>
-
-<p>主要分为两部分： <em>代码生成</em>和<em>代码运行</em></p>
-
-<h5>代码生成</h5>
-
-<p>这是主要部分，流程是这样的：</p>
-
-<p><img src="http://ytliu.github.com/images/2012-12-30-3.png" title="qemu process from code perspective" alt="qemu process from code perspective" /></p>
-
-<p>其中函数<code>cpu_exec()</code>相当于主要的执行循环函数，它将TB第一次初始化，在两个嵌套无限for循环中通过<code>tb_find_fast()</code>来获得host code TB，然后通过<code>tcg_qemu_tb_exec()</code>来执行相应代码。</p>
-
-<p><code>tb_find_fast</code>会首先查看code cache中是否有TB存在了，有则直接执行<code>tcg_qemu_tb_exec()</code>，否则通过<code>tb_find_slow()</code>来查找或者生成TB，后者通过一系列调用，最后到达<code>disas_insn()</code>，该函数执行了实际的guest code到TCG ops的翻译，并将其加入TCG ops的code buffer，最后调用<code>tcg_gen_code()</code>来生成host code。</p>
-
-<h5>代码运行</h5>
-
-<p>代码运行就是通过<code>tcg_qem_tb_exec()</code>来实现的，可以看到，其实这是一个宏，定义在<code>tcg/tcg.h</code>里面：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#define tcg_qemu_tb_exec(tb_ptr) \</span>
-</span><span class='line'><span class="cp"> ((long REGPARM __attribute__ ((longcall)) (*)(void *))code_gen_prologue)(tb_ptr)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>这是一个感觉非常复杂的调用，我们知道， <code>((long REGPARM (*)(void *))</code> 是一个指向函数的指针，<code>void *</code>是它的参数，返回值为<code>long</code>；而在这里 <code>REGPARAM(*)</code>是一个GCC选项，表示函数是通过寄存器传参而不是通过栈传参的。</p>
-
-<p>而一个数组的名字表示的是指向这个数组的基地址，于是，<code>(function_pointer) array_name</code>则会将这个基地址cast成一个函数地址。</p>
-
-<p>另外，一个函数可以通过<code>(*pointer_to_func)(args)</code>被调用，所以<code>((long REGPARM (*)(void *))code_gen_prologue)(tc_ptr)</code>进行了一次函数调用，似乎在这里少了一个<code>*</code>号，不过其实只要测试下可以发现 <code>(*pointer_to_func)(args)</code>和<code>(pointer_to_func)(args)</code>是一样的。</p>
-
-<p>所以上面<code>tcg_qemu_tb_exec(tb_ptr)</code>翻译的宏可以表示为一个数组<code>code_gen_prologue</code>被cast成一个函数指针，参数为<code>tc_ptr</code>，返回值为<code>long</code>（指向下一个TB），并且被调用。其实，被<code>code_gen_prologue</code>指向的函数就是<code>Function Prologue</code>，将控制流转到<code>tc_ptr</code>指向的host code开头部分。</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -1885,6 +2217,14 @@ $ emulator-arm @4.2
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/04/14/tong-bu-yuan-yu-xue-xi-bi-ji-lock%2Crcuhe-transaction/">同步原语学习笔记 - Lock，RCU和Transaction</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/04/09/netfilterxue-xi-bi-ji-%28san-%29/">Netfilter学习笔记（三）</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/">Netfilter学习笔记（二）</a>
       </li>
     
@@ -1894,14 +2234,6 @@ $ emulator-arm @4.2
     
       <li class="post">
         <a href="/blog/2013/03/24/cross-reference-graph-of-android-component/">Cross Reference Graph of Android Component</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/10/redexer-and-ocaml/">Redexer and Ocaml</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/">Dr. Android and Mr. Hide - xidashi引发的故事</a>
       </li>
     
   </ul>

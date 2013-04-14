@@ -9,7 +9,7 @@
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="这周开始看和学《Metasploit》，真是一个神器啊！原来这种工具还有一种比较学术的、很有正义感的名字叫&#8221;Peneration Test Tool&#8221;啊，不过也确实很有道理就是了，毕竟攻击与防范真是因人而异， &hellip;">
+  <meta name="description" content="已经决定要学ruby和rails了，就从最实际的开始吧~ CSE要求TA每次recitation完了以后给小朋友们发邮件告知成绩，就尝试用ruby写了个脚本，其实这件事最简单的应该是直接用shell脚本来做的，既然在学ruby嘛~就逮着机会用咯~而且还和小Z学到很多东西呢。 其实要做的事情很简单， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,168 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/04/01/notes-about-ruby/">Notes About Ruby</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-04-01T19:58:00+08:00" pubdate data-updated="true">Apr 1<span>st</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>已经决定要学ruby和rails了，就从最实际的开始吧~</p>
+
+<p>CSE要求TA每次recitation完了以后给小朋友们发邮件告知成绩，就尝试用ruby写了个脚本，其实这件事最简单的应该是直接用shell脚本来做的，既然在学ruby嘛~就逮着机会用咯~而且还和小Z学到很多东西呢。</p>
+
+<p>其实要做的事情很简单，就把学生的成绩按照<em>&#8220;学号 分数&#8221;</em>一行行写在文件里，分数是按照<em>&#8220;1.5/0.5/0.5&#8221;</em>的顺序排放的，最后要通过一行行读文件，然后用gmail发给相应学生的学号邮箱里面，标题为REC SCORE，内容是</p>
+
+<pre><code>2.5 （summary/qa/discussion = 1.5/0.5/0.5）
+</code></pre>
+
+<p>其它也没什么好多说的，先贴代码吧：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;gmail&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">sendgmail</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+</span><span class='line'>  <span class="nb">p</span> <span class="s2">&quot;in sendgmail&quot;</span>
+</span><span class='line'>  <span class="no">Gmail</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">gmail</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">lines</span> <span class="o">=</span> <span class="no">IO</span><span class="o">.</span><span class="n">readlines</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">line</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">to_mail</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="si">}</span><span class="s2">@fudan.edu.cn&quot;</span>
+</span><span class='line'>      <span class="n">score</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">tscore</span> <span class="o">=</span> <span class="nb">format</span><span class="p">(</span><span class="s2">&quot;%.2f&quot;</span><span class="p">,</span> <span class="n">score</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:to_f</span><span class="p">)</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="o">|</span><span class="n">a</span><span class="p">,</span> <span class="n">e</span><span class="o">|</span> <span class="n">a</span> <span class="o">+</span> <span class="n">e</span> <span class="p">})</span>
+</span><span class='line'>      <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="n">tscore</span><span class="si">}</span><span class="s2"> (summary/qa/discussion = </span><span class="si">#{</span><span class="n">score</span><span class="si">}</span><span class="s2">)&quot;</span>
+</span><span class='line'>      <span class="nb">p</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="n">to_mail</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="n">content</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">gmail</span><span class="o">.</span><span class="n">deliver</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">to</span> <span class="n">to_mail</span>
+</span><span class='line'>  <span class="n">subject</span> <span class="s1">&#39;REC2 Score&#39;</span>
+</span><span class='line'>  <span class="n">text_part</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">body</span> <span class="n">content</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">username</span> <span class="o">=</span> <span class="s1">&#39;mctrain016@gmail.com&#39;</span>
+</span><span class='line'><span class="n">password</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
+</span><span class='line'><span class="c1">#sendgmail(username, password)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">sendgmail</span><span class="p">(</span><span class="s1">&#39;rec2_score&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里主要是用了一个gem库<em>ruby-gmail</em>，要先</p>
+
+<pre><code>gem install ruby-gmail
+gem install mime
+</code></pre>
+
+<p>里面封装好了用ruby发gmail的方法，这个没有什么好说的，唯一想说的是小Z教我的map和reduce的用法：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>      <span class="n">tscore</span> <span class="o">=</span> <span class="nb">format</span><span class="p">(</span><span class="s2">&quot;%.2f&quot;</span><span class="p">,</span> <span class="n">score</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:to_f</span><span class="p">)</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="o">|</span><span class="n">a</span><span class="p">,</span> <span class="n">e</span><span class="o">|</span> <span class="n">a</span> <span class="o">+</span> <span class="n">e</span> <span class="p">})</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里<em>.map</em>是对Array里面的所有元素都做一遍to_f操作变成一个新的Array，<em>.inject(0)</em>则是在为之后的reduce赋一个初始值0，之后每一次reduce都进行一次<em>a + e</em>的操作，将a作为输出，然后再将<em>a, e</em>作为输入。举一个例子：</p>
+
+<p><img src="http://ytliu.github.com/images/2012-04-01-1.png" title="reduce example" alt="example-1" /></p>
+
+<p>希望之后还有什么需要的都可以用ruby来尝试下，然后再慢慢地学习ruby on rails，不会忘记我的梦想滴~</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/03/26/wo-de-meng-xiang/">我的梦想</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-26T14:15:00+08:00" pubdate data-updated="true">Mar 26<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><blockquote><p>这是这篇博文的MD5和SHA1，它有我最最好的朋友进行见证，我只是希望当20年后回过头来看它的时候我能无怨无悔<br/><blockquote><p>MD5:  e451b95a2e65d728275604ee59d0e431<br/>SHA1: bb44aef1eecd0b1b09b55a16d88eb4b9aa0cc32d</p></blockquote></p></blockquote>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -883,138 +1045,6 @@ cd /pentest/sniffers/xspy/
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2011/12/23/paper-reading-mobile-security-survey-and-ds-failure-detection/">Paper Reading - Mobile Security Survey &amp; DS Failure Detection</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-12-23T13:38:00+08:00" pubdate data-updated="true">Dec 23<span>rd</span>, 2011</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>今天考坑爹的专题讲座，昨天组会的paper reading只能拖到现在写了。  <br/>
-先稍微提下为什么要有这个section吧~我一直觉得自己进PPI一年半，开过的组会听过的paper到现在为止大部分都不记得了，效率太尼玛低下了！于是乎我就想把自己一些比较有感触的paper整理下，至少忘得会慢些吧~</p>
-
-<p>好了，废话结束。进入正题。</p>
-
-<p>昨天讲了两篇paper，一篇是S&amp;P的security section的，Z神讲的，这篇其实和我们现在的方向挺相关的，不过确实没有任何创新，是一片完完全全的survey，title is</p>
-
-<pre><code>    "Mobile Security Catching up? Revealing the Nuts and Boits of the Security of Mobile Devices"
-</code></pre>
-
-<p>作者是Michael Becher，它介绍了现在手机上存在的一些安全问题，包括和Desktop的比较，以及一些attack model，比如：</p>
-
-<pre><code>    Hardware-centric attack
-            MITM attack - 中间人攻击
-            JTAG attack
-            forensic attack - 没听懂。。。
-    Device-independent - 和普通服务器上的攻击差不多
-    Software-centric attack
-    user layer attack
-</code></pre>
-
-<p>其中，关于JTAG attack,</p>
-
-<blockquote><p>JTAG port is used for factory and field diagnostics and provides device-specific access to the internal flip-flops that store all the chip’s state.<br/>Since JTAG access gives the hardware equivalent of a software debugger, attackers have been using it from the beginning. The first attackers were probably competitors reverse engineering designs to copy them or improve their own. Currently, a packaged version of this attack has been in use for years to get free satellite TV.</p><footer><strong>@Nate Lawson</strong> <cite><a href='http://rdist.root.org/2007/04/06/jtag-attacks-and-pr-submarines'>rdist.root.org/2007/04/06/&hellip;</a></cite></footer></blockquote>
-
-
-<p>还有关于Software-centric attack, 小Z讲了一个例子，比如说对iOS的pdf漏洞的良性利用，至于用来干嘛的，大家都懂得，jailbreak，不过其实我完全不知道这个是怎么样就得到root权限的，这几天研究下。</p>
-
-<p>最后还有一点比较感兴趣的是小Z提到android的process isolation，我挺感兴趣的，它说android里面是用到context的概念进行进程间通讯，在kernel里面有一个binder进行管理，如果把kernel作为TPM那应该就没有什么安全问题了吧，不过其实还是存疑的，我不知道有没有一份关于android的安全机制的survey，上网搜了下，找到一篇宾大的&#8221;understand android security&#8221;，抽空看下。</p>
-
-<p>其实这篇是一个完完全全的survey，小Z讲的也比较简单，不过其实手机的安全问题还是蛮多的，比如有提到的一个隐私的保护，有很多这方面的研究，比如通过限制控制流，比如TaintDroid，我想还有没有更强的机制呢？比如把Nicholai的histar用在手机上？</p>
-
-<hr />
-
-<p>另一篇是SOSP&#8217;11的</p>
-
-<pre><code>    "Detecting Failures in Distributed Systems with the FALCON Spy Network"
-</code></pre>
-
-<p>其实是一篇想法很简单的paper，只不过之前的人没有把这个问题当做一个问题罢了。想法简单来说是这样的，现在在distributed system里面判断节点是否挂掉主要用的是end-to-end timeout机制，这样的缺点是发现节点挂掉可能会有比较长的延迟，比如说60s，那么在这60s里面机器A可能已经down掉了但却还被分配了任务从而造成availability变差，而这篇的目标就是：</p>
-
-<pre><code>    Fast detection + reliability,
-</code></pre>
-
-<p>用的方法也很直接：gather inside information, avoid end-to-end timeout。相当于在运行应用程序主机的每一层跑一个spy（说白了就是和应用程序同个进程的一个线程），而每一层包括应用程序、OS、VMM，甚至是switch，用两个图就很容易理解：</p>
-
-<p><img src="http://ytliu.github.com/images/2011-12-23-1.png" title="FALCON's Model" alt="FALCON's Model" />
-<img src="http://ytliu.github.com/images/2011-12-23-2.png" title="FALCON's Implementation" alt="FALCON's Implementation" /></p>
-
-<p>从后来的evaluation来看它的detection速度确实变小好多，CPU的overhead也很小，不过我觉得有两个问题：  <br/>
-第一，在分布式系统中一台机器挂掉的几率可能很小，真的有必要为这么小的几率做一件这么复杂的事吗？比如原来是10秒钟检查到一个一个月才挂一次的机器现在用1秒钟来检查，却要付出一直用client和spy交互的代价？    <br/>
-第二，如Model里每一层的spy都要和client端交互，那么网络带宽就要占用很多吧，为什么作者不测试网络带宽的占用率呢？CPU的overhead小可能是因为本来服务器的程序就不是CPU intensive的，但是确实IO intensive，那为什么不说下网络带宽被额外占用多少呢？还有，对于作者提出的架构来说，每一层spy与client的交互是走network的，如果用PV或HVM的话都得经过最下层的switch，那么按照作者的逻辑，既然其中一层的spy挂了就相当于全部挂了，那为什么不仅仅利用最下层的switch的spy提供的信息来判断呢？这样岂不是可以节省网络带宽？</p>
-
-<p>The End.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2011/12/21/kai-pian-yi-shi/">开篇仪式</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-12-21T15:58:00+08:00" pubdate data-updated="true">Dec 21<span>st</span>, 2011</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>其实很早就一直在想要写博客了，之前也尝试过（<a href="http://blog.csdn.net/microtrain016" title="microtrain016's blog">一只小小小鸟</a>），但是最后还是没有坚持下来。   <br/>
-昨天看了鹏老大的一篇博文 - <a href="http://mindhacks.cn/2011/11/04/how-to-interview-a-person-for-two-years/">《怎样花两年时间去面试一个人》</a>，真的很有感触，其实我不能算一个geek，技术其实也挺一般的，在自己看来离人才还差得远，但是里面提到的&#8221;书单计划&#8221;和&#8221;github计划&#8221;应该是一个慢慢积累的过程，我还有半年的本科生涯，之后还有至少五年的博士，我没有要急于找工作的负担，为什么不趁这个最最珍贵的时间来积累呢？我一直相信于&#8221;厚积薄发&#8221;，还记得本科的时候看着自己与其他人的距离我写下&#8221;时间会拉近人与人之间的差距&#8221;，三年过去我觉得自己做到了一些，超过了一些当时在我心目中的牛人。但当我进入PPI，当我开始要考虑自己的博士生涯的时候发现，自己又成了一个更高层次的弱者，我为此感到兴奋，我未来的生活又可以在这种激情中度过，只是在这慢慢的积累中我希望看到一点一滴的进步，我很清楚自己在发散思维上的弱势，我急需一些方法提高。</p>
-
-<p>我写博客是希望将自己在这个学习的过程中的感悟、收获以一种相比于记忆更不会消逝的方式记录下来，如果还能引起别人带来那么一丁点儿的共鸣那再好不过了，我从不祈求于自己能写出多么牛逼的技术文章，任何技术上的收获、生活中的感悟我都会记录下来，我从不认为文字分所谓的&#8221;贫贱贵富&#8221;，只要是自己的就是最真实的。</p>
-
-<p>至于为什么要用Octopress+Github，是因为我们实验室的两个大牛（<a href="http://blog.yxwang.me">zellux</a>和<a href="http://chenyufei.info">ChenYufei</a>）都开始尝试着用了它，而且我也想感受用vi写博文的感觉所以就尝试写段时间，我希望这个尝试能一直进行下去。也希望能从中得到那些我希望得到的东西。</p>
-
-<p>开篇结束，坚持是未来最大的挑战！</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/5/">&larr; Older</a>
@@ -1032,6 +1062,14 @@ cd /pentest/sniffers/xspy/
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/04/14/tong-bu-yuan-yu-xue-xi-bi-ji-lock%2Crcuhe-transaction/">同步原语学习笔记 - Lock，RCU和Transaction</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/04/09/netfilterxue-xi-bi-ji-%28san-%29/">Netfilter学习笔记（三）</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/">Netfilter学习笔记（二）</a>
       </li>
     
@@ -1041,14 +1079,6 @@ cd /pentest/sniffers/xspy/
     
       <li class="post">
         <a href="/blog/2013/03/24/cross-reference-graph-of-android-component/">Cross Reference Graph of Android Component</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/10/redexer-and-ocaml/">Redexer and Ocaml</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/">Dr. Android and Mr. Hide - xidashi引发的故事</a>
       </li>
     
   </ul>

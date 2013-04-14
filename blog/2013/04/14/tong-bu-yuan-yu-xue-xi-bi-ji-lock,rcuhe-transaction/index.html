@@ -5,11 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Markdown语法测试 - Mctrain's Blog</title>
+  <title>同步原语学习笔记 - Lock，RCU和Transaction - Mctrain's Blog</title>
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="http://ytliu.github.com [mctrain](http://ytliu.github.com &#8220;mctrain&#8217;s blog&#8221;) mctrain mctrain-2 ![pic](http://ytliu.github.com/images &hellip;">
+  <meta name="description" content="
+">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://ytliu.github.com/blog/2011/12/21/markdownyu-fa-ce-shi/">
+  <link rel="canonical" href="http://ytliu.github.com/blog/2013/04/14/tong-bu-yuan-yu-xue-xi-bi-ji-lock%2Crcuhe-transaction/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -69,7 +70,7 @@
   
   <header>
     
-      <h1 class="entry-title">Markdown语法测试</h1>
+      <h1 class="entry-title">同步原语学习笔记 - Lock，RCU和Transaction</h1>
     
     
       <p class="meta">
@@ -85,121 +86,14 @@
   
 
 
-<time datetime="2011-12-21T15:17:00+08:00" pubdate data-updated="true">Dec 21<span>st</span>, 2011</time>
+<time datetime="2013-04-14T14:24:00+08:00" pubdate data-updated="true">Apr 14<span>th</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p><a href="http://ytliu.github.com">http://ytliu.github.com</a></p>
-
-<p>[mctrain](http://ytliu.github.com &#8220;mctrain&#8217;s blog&#8221;)  <br/>
-<a href="http://ytliu.github.com" title="mctrain's blog">mctrain</a>  <br/>
-<a href="http://ytliu.github.com" title="mctrain's blog">mctrain-2</a></p>
-
-<pre><code>    ![pic](http://ytliu.github.com/images/search.png "pic")
-</code></pre>
-
-<p><img src="http://ytliu.github.com/images/search.png" title="pic" alt="pic" /></p>
-
-<pre><code>    #title1
-</code></pre>
-
-<h1>title1</h1>
-
-<pre><code>    ##title2
-</code></pre>
-
-<h2>title2</h2>
-
-<pre><code>    ###title3
-</code></pre>
-
-<h3>title3</h3>
-
-<pre><code>    ####title4
-</code></pre>
-
-<h4>title4</h4>
-
-<pre><code>    #####title5
-</code></pre>
-
-<h5>title5</h5>
-
-<pre><code>    ######title6
-</code></pre>
-
-<h6>title6</h6>
-
-<pre><code>    *italic*
-</code></pre>
-
-<p><em>italic</em></p>
-
-<pre><code>    **bold**
-</code></pre>
-
-<p><strong>bold</strong></p>
-
-<pre><code>    ***italic&amp;bold***
-</code></pre>
-
-<p><strong><em>italic&amp;bold</em></strong></p>
-
-<pre><code>    &gt;highlight
-</code></pre>
-
-<blockquote><p>highlight</p></blockquote>
-
-<pre><code>    &lt;html&gt; *a* &lt;/html&gt;
-</code></pre>
-
-<p><html> <em>a</em> </html></p>
-
-<ul>
-<li>1</li>
-<li>2</li>
-<li><p>3</p></li>
-<li><p>first</p></li>
-<li>second</li>
-<li>third</li>
-<li>fourth</li>
-</ul>
-
-
-<p>hr-high</p>
-
-<hr />
-
-<p>hr-below</p>
-
-<blockquote><p>highlight</p>
-
-<blockquote><p>highlight again</p></blockquote></blockquote>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Awesome code snippet</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="p">[</span><span class="n">rectangle</span> <span class="nl">setX:</span> <span class="mi">10</span> <span class="nl">y:</span> <span class="mi">10</span> <span class="nl">width:</span> <span class="mi">20</span> <span class="nl">height:</span> <span class="mi">20</span><span class="p">];</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span>Javascript Array Syntax </span><a href='http://j.mp/pPUUmW'>MDN Documentation </a></figcaption> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">var</span> <span class="nx">arr1</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">arrayLength</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">arr2</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">element0</span><span class="p">,</span> <span class="nx">element1</span><span class="p">,</span> <span class="p">...,</span> <span class="nx">elementN</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
+<div class="entry-content">
 </div>
 
 
@@ -222,21 +116,15 @@
   
 
 
-<time datetime="2011-12-21T15:17:00+08:00" pubdate data-updated="true">Dec 21<span>st</span>, 2011</time>
+<time datetime="2013-04-14T14:24:00+08:00" pubdate data-updated="true">Apr 14<span>th</span>, 2013</time>
       
-
-<span class="categories">
-  
-    <a class='category' href='/blog/categories/杂/'>杂</a>
-  
-</span>
 
 
     </p>
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ytliu.github.com/blog/2011/12/21/markdownyu-fa-ce-shi/" data-via="microtrain016" data-counturl="http://ytliu.github.com/blog/2011/12/21/markdownyu-fa-ce-shi/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ytliu.github.com/blog/2013/04/14/tong-bu-yuan-yu-xue-xi-bi-ji-lock%2Crcuhe-transaction/" data-via="microtrain016" data-counturl="http://ytliu.github.com/blog/2013/04/14/tong-bu-yuan-yu-xue-xi-bi-ji-lock%2Crcuhe-transaction/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -247,8 +135,8 @@
     
     <p class="meta">
       
+        <a class="basic-alignment left" href="/blog/2013/04/09/netfilterxue-xi-bi-ji-%28san-%29/" title="Previous Post: Netfilter学习笔记（三）">&laquo; Netfilter学习笔记（三）</a>
       
-        <a class="basic-alignment right" href="/blog/2011/12/21/kai-pian-yi-shi/" title="Next Post: 开篇仪式">开篇仪式 &raquo;</a>
       
     </p>
   </footer>

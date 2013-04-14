@@ -4,7 +4,7 @@
   <title><![CDATA[Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-04-02T11:34:03+08:00</updated>
+  <updated>2013-04-14T15:04:49+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -12,6 +12,546 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[同步原语学习笔记 - Lock，RCU和Transaction]]></title>
+    <link href="http://ytliu.github.com/blog/2013/04/14/tong-bu-yuan-yu-xue-xi-bi-ji-lock%2Crcuhe-transaction/"/>
+    <updated>2013-04-14T14:24:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2013/04/14/tong-bu-yuan-yu-xue-xi-bi-ji-lock,rcuhe-transaction</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Netfilter学习笔记（三）]]></title>
+    <link href="http://ytliu.github.com/blog/2013/04/09/netfilterxue-xi-bi-ji-%28san-%29/"/>
+    <updated>2013-04-09T21:21:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2013/04/09/netfilterxue-xi-bi-ji-(san-)</id>
+    <content type="html"><![CDATA[<p>这次的内容主要是关于在Android上如何使用iptables。</p>
+
+<p>其实在android源码中已经有对iptables进行了支持，如何确定可以参看<a href="http://www.roman10.net/how-to-build-and-use-libnetfilter_queue-for-android/">这里</a>。</p>
+
+<p>这里简单说下如何采用nfqueue对其进行控制：</p>
+
+<p>首先说下一个很简单的场景：我们需要将从手机端发到192.168.1.2服务器的所有TCP包都拦截下来，将包的信息打印出来，并将其发送出去。</p>
+
+<p>具体的步骤如下：</p>
+
+<ul>
+<li><p>首先将手机连到PC上，运行：</p>
+
+<p>  $ adb shell
+  $ su
+  #</p></li>
+</ul>
+
+
+<p>进入root模式，这个时候可以配置iptables：</p>
+
+<pre><code># iptables -A OUTPUT -t tcp -d 192.168.1.2 -j NFQUEUE
+</code></pre>
+
+<p>这样到192.168.1.2的所有TCP包都会进入NFQUEUE等着被处理。</p>
+
+<ul>
+<li><p>此时我们需要写程序来处理NFQUEUE里面的包，首先我们在PC上新建一个Android项目：</p>
+
+<p>  $ android create project &#8211;target <target_ID> -name IptablesTest &#8211;path ./IptablesTest &#8211;activity IptablesTestActivity  &#8211;package com.iptables.test
+  $ cd IptablesTest
+  $ mkdir jni</p></li>
+</ul>
+
+
+<p>接下来，要下载两个包（<a href="http://www.netfilter.org/projects/libnfnetlink/downloads.html">libnfnetlink</a>和<a href="http://www.netfilter.org/projects/libnetfilter_queue/downloads.html">libnetfilter_queue</a>）到jni目录下。</p>
+
+<p>然后在jni目录下创建一个文件叫做nfqnl_test.c：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;unistd.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;netinet/in.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;linux/types.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;linux/netfilter.h&gt;       </span><span class="cm">/* for NF_ACCEPT */</span><span class="cp"></span>
+</span><span class='line'><span class="cp">#include &lt;errno.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &lt;libnetfilter_queue/libnetfilter_queue.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cm">/* returns packet id */</span>
+</span><span class='line'><span class="k">static</span> <span class="n">u_int32_t</span> <span class="nf">print_pkt</span> <span class="p">(</span><span class="k">struct</span> <span class="n">nfq_data</span> <span class="o">*</span><span class="n">tb</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">struct</span> <span class="n">nfqnl_msg_packet_hdr</span> <span class="o">*</span><span class="n">ph</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">struct</span> <span class="n">nfqnl_msg_packet_hw</span> <span class="o">*</span><span class="n">hwph</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">u_int32_t</span> <span class="n">mark</span><span class="p">,</span><span class="n">ifi</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">ret</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">data</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">ph</span> <span class="o">=</span> <span class="n">nfq_get_msg_packet_hdr</span><span class="p">(</span><span class="n">tb</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">ph</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">id</span> <span class="o">=</span> <span class="n">ntohl</span><span class="p">(</span><span class="n">ph</span><span class="o">-&gt;</span><span class="n">packet_id</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;hw_protocol=0x%04x hook=%u id=%u &quot;</span><span class="p">,</span>
+</span><span class='line'>          <span class="n">ntohs</span><span class="p">(</span><span class="n">ph</span><span class="o">-&gt;</span><span class="n">hw_protocol</span><span class="p">),</span> <span class="n">ph</span><span class="o">-&gt;</span><span class="n">hook</span><span class="p">,</span> <span class="n">id</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">hwph</span> <span class="o">=</span> <span class="n">nfq_get_packet_hw</span><span class="p">(</span><span class="n">tb</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">hwph</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="kt">int</span> <span class="n">i</span><span class="p">,</span> <span class="n">hlen</span> <span class="o">=</span> <span class="n">ntohs</span><span class="p">(</span><span class="n">hwph</span><span class="o">-&gt;</span><span class="n">hw_addrlen</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;hw_src_addr=&quot;</span><span class="p">);</span>
+</span><span class='line'>      <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">hlen</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span><span class='line'>          <span class="n">printf</span><span class="p">(</span><span class="s">&quot;%02x:&quot;</span><span class="p">,</span> <span class="n">hwph</span><span class="o">-&gt;</span><span class="n">hw_addr</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+</span><span class='line'>      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;%02x &quot;</span><span class="p">,</span> <span class="n">hwph</span><span class="o">-&gt;</span><span class="n">hw_addr</span><span class="p">[</span><span class="n">hlen</span><span class="o">-</span><span class="mi">1</span><span class="p">]);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">mark</span> <span class="o">=</span> <span class="n">nfq_get_nfmark</span><span class="p">(</span><span class="n">tb</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">mark</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;mark=%u &quot;</span><span class="p">,</span> <span class="n">mark</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">ifi</span> <span class="o">=</span> <span class="n">nfq_get_indev</span><span class="p">(</span><span class="n">tb</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">ifi</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;indev=%u &quot;</span><span class="p">,</span> <span class="n">ifi</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">ifi</span> <span class="o">=</span> <span class="n">nfq_get_outdev</span><span class="p">(</span><span class="n">tb</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">ifi</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;outdev=%u &quot;</span><span class="p">,</span> <span class="n">ifi</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">ifi</span> <span class="o">=</span> <span class="n">nfq_get_physindev</span><span class="p">(</span><span class="n">tb</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">ifi</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;physindev=%u &quot;</span><span class="p">,</span> <span class="n">ifi</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">ifi</span> <span class="o">=</span> <span class="n">nfq_get_physoutdev</span><span class="p">(</span><span class="n">tb</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">ifi</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;physoutdev=%u &quot;</span><span class="p">,</span> <span class="n">ifi</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">ret</span> <span class="o">=</span> <span class="n">nfq_get_payload</span><span class="p">(</span><span class="n">tb</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">data</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;payload_len=%d &quot;</span><span class="p">,</span> <span class="n">ret</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">fputc</span><span class="p">(</span><span class="sc">&#39;\n&#39;</span><span class="p">,</span> <span class="n">stdout</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="n">id</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>  
+</span><span class='line'>
+</span><span class='line'><span class="k">static</span> <span class="kt">int</span> <span class="nf">cb</span><span class="p">(</span><span class="k">struct</span> <span class="n">nfq_q_handle</span> <span class="o">*</span><span class="n">qh</span><span class="p">,</span> <span class="k">struct</span> <span class="n">nfgenmsg</span> <span class="o">*</span><span class="n">nfmsg</span><span class="p">,</span>
+</span><span class='line'>        <span class="k">struct</span> <span class="n">nfq_data</span> <span class="o">*</span><span class="n">nfa</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">u_int32_t</span> <span class="n">id</span> <span class="o">=</span> <span class="n">print_pkt</span><span class="p">(</span><span class="n">nfa</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;entering callback</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">nfq_set_verdict</span><span class="p">(</span><span class="n">qh</span><span class="p">,</span> <span class="n">id</span><span class="p">,</span> <span class="n">NF_ACCEPT</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">struct</span> <span class="n">nfq_handle</span> <span class="o">*</span><span class="n">h</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">struct</span> <span class="n">nfq_q_handle</span> <span class="o">*</span><span class="n">qh</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">struct</span> <span class="n">nfnl_handle</span> <span class="o">*</span><span class="n">nh</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">fd</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">rv</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">4096</span><span class="p">]</span> <span class="n">__attribute__</span> <span class="p">((</span><span class="n">aligned</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;opening library handle</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">h</span> <span class="o">=</span> <span class="n">nfq_open</span><span class="p">();</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">h</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;error during nfq_open()</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;unbinding existing nf_queue handler for AF_INET (if any)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">nfq_unbind_pf</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">AF_INET</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;error during nfq_unbind_pf()</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;binding nfnetlink_queue as nf_queue handler for AF_INET</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">nfq_bind_pf</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">AF_INET</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;error during nfq_bind_pf()</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;binding this socket to queue &#39;0&#39;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">qh</span> <span class="o">=</span> <span class="n">nfq_create_queue</span><span class="p">(</span><span class="n">h</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">cb</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">qh</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;error during nfq_create_queue()</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;setting copy_packet mode</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">nfq_set_mode</span><span class="p">(</span><span class="n">qh</span><span class="p">,</span> <span class="n">NFQNL_COPY_PACKET</span><span class="p">,</span> <span class="mh">0xffff</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;can&#39;t set packet_copy mode</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">fd</span> <span class="o">=</span> <span class="n">nfq_fd</span><span class="p">(</span><span class="n">h</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">for</span> <span class="p">(;;)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">((</span><span class="n">rv</span> <span class="o">=</span> <span class="n">recv</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span> <span class="mi">0</span><span class="p">))</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">printf</span><span class="p">(</span><span class="s">&quot;pkt received</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>          <span class="n">nfq_handle_packet</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">rv</span><span class="p">);</span>
+</span><span class='line'>          <span class="k">continue</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">rv</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">errno</span> <span class="o">==</span> <span class="n">ENOBUFS</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">printf</span><span class="p">(</span><span class="s">&quot;losing packets!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>          <span class="k">continue</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>      <span class="n">perror</span><span class="p">(</span><span class="s">&quot;recv failed&quot;</span><span class="p">);</span>
+</span><span class='line'>      <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;unbinding from queue 0</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">nfq_destroy_queue</span><span class="p">(</span><span class="n">qh</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;closing library handle</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">nfq_close</span><span class="p">(</span><span class="n">h</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里的原理很简单，就是通过：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">qh</span> <span class="o">=</span> <span class="n">nfq_create_queue</span><span class="p">(</span><span class="n">h</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">cb</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>注册了一个callback函数cb，在</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">nfq_handle_packet</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">rv</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>的时候就会将收到的包传给该函数进行处理，当然了，还可以像<a href="http://ytliu.github.io/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/">这里</a>一样通过<code>struct iphdr</code>和<code>struct tcphdr</code>结构体来获得payload里面的IP包头和TCP包的信息，对其进行处理。</p>
+
+<ul>
+<li>之后在jni目录下创建<code>Android.mk</code>文件：</li>
+</ul>
+
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#LOCAL_PATH is used to locate source files in the development tree.</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#the macro my-dir provided by the build system, indicates the path of the current directory</span>
+</span><span class='line'>
+</span><span class='line'><span class="nl">LOCAL_PATH:</span><span class="o">=</span><span class="err">$</span><span class="p">(</span><span class="n">call</span> <span class="n">my</span><span class="o">-</span><span class="n">dir</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#####################################################################</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#            build libnflink                    #</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#####################################################################</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">include</span> <span class="err">$</span><span class="p">(</span><span class="n">CLEAR_VARS</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="nl">LOCAL_MODULE:</span><span class="o">=</span><span class="n">nflink</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">LOCAL_C_INCLUDES</span> <span class="o">:=</span> <span class="err">$</span><span class="p">(</span><span class="n">LOCAL_PATH</span><span class="p">)</span><span class="o">/</span><span class="n">libnfnetlink</span><span class="o">-</span><span class="mf">1.0.0</span><span class="o">/</span><span class="n">include</span>
+</span><span class='line'>
+</span><span class='line'><span class="nl">LOCAL_SRC_FILES:</span><span class="o">=</span>\
+</span><span class='line'>
+</span><span class='line'>    <span class="n">libnfnetlink</span><span class="o">-</span><span class="mf">1.0.0</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">iftable</span><span class="p">.</span><span class="n">c</span> \
+</span><span class='line'>
+</span><span class='line'>    <span class="n">libnfnetlink</span><span class="o">-</span><span class="mf">1.0.0</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">rtnl</span><span class="p">.</span><span class="n">c</span> \
+</span><span class='line'>
+</span><span class='line'>    <span class="n">libnfnetlink</span><span class="o">-</span><span class="mf">1.0.0</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">libnfnetlink</span><span class="p">.</span><span class="n">c</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">include</span> <span class="err">$</span><span class="p">(</span><span class="n">BUILD_STATIC_LIBRARY</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include $(BUILD_SHARED_LIBRARY)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#####################################################################</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#            build libnetfilter_queue            #</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#####################################################################</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">include</span> <span class="err">$</span><span class="p">(</span><span class="n">CLEAR_VARS</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">LOCAL_C_INCLUDES</span> <span class="o">:=</span> <span class="err">$</span><span class="p">(</span><span class="n">LOCAL_PATH</span><span class="p">)</span><span class="o">/</span><span class="n">libnfnetlink</span><span class="o">-</span><span class="mf">1.0.0</span><span class="o">/</span><span class="n">include</span> \
+</span><span class='line'>
+</span><span class='line'>    <span class="err">$</span><span class="p">(</span><span class="n">LOCAL_PATH</span><span class="p">)</span><span class="o">/</span><span class="n">libnetfilter_queue</span><span class="o">-</span><span class="mf">1.0.0</span><span class="o">/</span><span class="n">include</span>
+</span><span class='line'>
+</span><span class='line'><span class="nl">LOCAL_MODULE:</span><span class="o">=</span><span class="n">netfilter_queue</span>
+</span><span class='line'>
+</span><span class='line'><span class="nl">LOCAL_SRC_FILES:</span><span class="o">=</span><span class="n">libnetfilter_queue</span><span class="o">-</span><span class="mf">1.0.0</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">libnetfilter_queue</span><span class="p">.</span><span class="n">c</span>
+</span><span class='line'>
+</span><span class='line'><span class="nl">LOCAL_STATIC_LIBRARIES:</span><span class="o">=</span><span class="n">libnflink</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">include</span> <span class="err">$</span><span class="p">(</span><span class="n">BUILD_STATIC_LIBRARY</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include $(BUILD_SHARED_LIBRARY)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#####################################################################</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#            build our code                    #</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#####################################################################</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">include</span> <span class="err">$</span><span class="p">(</span><span class="n">CLEAR_VARS</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">LOCAL_C_INCLUDES</span> <span class="o">:=</span> <span class="err">$</span><span class="p">(</span><span class="n">LOCAL_PATH</span><span class="p">)</span><span class="o">/</span><span class="n">libnfnetlink</span><span class="o">-</span><span class="mf">1.0.0</span><span class="o">/</span><span class="n">include</span> \
+</span><span class='line'>
+</span><span class='line'>    <span class="err">$</span><span class="p">(</span><span class="n">LOCAL_PATH</span><span class="p">)</span><span class="o">/</span><span class="n">libnetfilter_queue</span><span class="o">-</span><span class="mf">1.0.0</span><span class="o">/</span><span class="n">include</span>
+</span><span class='line'>
+</span><span class='line'><span class="nl">LOCAL_MODULE:</span><span class="o">=</span><span class="n">nfqnltest</span>
+</span><span class='line'>
+</span><span class='line'><span class="nl">LOCAL_SRC_FILES:</span><span class="o">=</span><span class="n">nfqnl_test</span><span class="p">.</span><span class="n">c</span>
+</span><span class='line'>
+</span><span class='line'><span class="nl">LOCAL_STATIC_LIBRARIES:</span><span class="o">=</span><span class="n">libnetfilter_queue</span>
+</span><span class='line'>
+</span><span class='line'><span class="nl">LOCAL_LDLIBS:</span><span class="o">=-</span><span class="n">llog</span> <span class="o">-</span><span class="n">lm</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include $(BUILD_SHARED_LIBRARY)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">include</span> <span class="err">$</span><span class="p">(</span><span class="n">BUILD_EXECUTABLE</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><p>之后，调用ndk-build来创建可执行文件nfqnltest，它位于libs目录下。</p></li>
+<li><p>将nfqnltest传进Android中：</p>
+
+<p>  $ adb shell
+  $ su
+  # mkdir /data/data/nfqnltest
+  # chmod 777 /data/data/nfqnltest</p></li>
+</ul>
+
+
+<p>打开一个shell：</p>
+
+<pre><code>$ adb push libs/nfqnltest /data/data/nfqnltest/”
+</code></pre>
+
+<p>转回刚刚那个shell</p>
+
+<pre><code># cd /data/data/nfqnltest
+# ./nfqnltest
+</code></pre>
+
+<p>这样整个过程就完成了。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Netfilter学习笔记（二）]]></title>
@@ -2645,587 +3185,6 @@ If you remember, /data, /system, and /cache make up a majority of your internal 
 <p>第一篇是<a href="http://blog.csdn.net/luoshengyang/article/details/6642463" title="java API">这篇文章</a>，主要介绍了怎么从java里面的ServiceManager.getService()开始的流程；</p>
 
 <p>还有一篇是<a href="http://blog.csdn.net/luoshengyang/article/details/6633311" title="getService">这篇文章</a>，深入介绍了在C++和driver层是如何调用getService的</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Parcel object in android]]></title>
-    <link href="http://ytliu.github.com/blog/2012/11/03/parcel-object-in-android/"/>
-    <updated>2012-11-03T21:42:00+08:00</updated>
-    <id>http://ytliu.github.com/blog/2012/11/03/parcel-object-in-android</id>
-    <content type="html"><![CDATA[<p>还记得之前被Android Framework里面的那个Parcel类搞得很摸不清头脑，这次为了完成一个任务把它彻底理了一遍，终于弄清楚了很多。</p>
-
-<p>要做的事是这样子的：我有一个经过Parcel封装过的数据data，我需要通过socket把它发送到远程的一个进程中去进行处理，再返回一个Parcel对象reply。</p>
-
-<p>首先在做这个之前我们先来看下Parcel在android中的用法和实现：</p>
-
-<h5>用法</h5>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">String</span> <span class="nf">sayHello</span><span class="o">(</span><span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">String</span> <span class="n">message</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">RemoteException</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>    <span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">Parcel</span> <span class="n">_data</span> <span class="o">=</span> <span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">Parcel</span><span class="o">.</span><span class="na">obtain</span><span class="o">();</span>
-</span><span class='line'>    <span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">Parcel</span> <span class="n">_reply</span> <span class="o">=</span> <span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">Parcel</span><span class="o">.</span><span class="na">obtain</span><span class="o">();</span>
-</span><span class='line'>    <span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">String</span> <span class="n">_result</span><span class="o">;</span>
-</span><span class='line'>    <span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">_data</span><span class="o">.</span><span class="na">writeInterfaceToken</span><span class="o">(</span><span class="n">DESCRIPTOR</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">_data</span><span class="o">.</span><span class="na">writeString</span><span class="o">(</span><span class="n">message</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">mRemote</span><span class="o">.</span><span class="na">transact</span><span class="o">(</span><span class="n">Stub</span><span class="o">.</span><span class="na">TRANSACTION_sayHello</span><span class="o">,</span> <span class="n">_data</span><span class="o">,</span> <span class="n">_reply</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">_reply</span><span class="o">.</span><span class="na">readException</span><span class="o">();</span>
-</span><span class='line'>  <span class="n">_result</span> <span class="o">=</span> <span class="n">_reply</span><span class="o">.</span><span class="na">readString</span><span class="o">();</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>这是一段用的最多的code，我们在android中的BinderProxy对象中调用一个sayHello()方法，它会首先封装一个Parcel对象，并将其作为参数调用transact()函数，通过android的Binder机制传到另一个进程的BBinder的onTransact()函数中：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span> <span class="kd">public</span> <span class="kt">boolean</span> <span class="n">onTransact</span><span class="o">(</span><span class="kt">int</span> <span class="n">code</span><span class="o">,</span> <span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">Parcel</span> <span class="n">data</span><span class="o">,</span> <span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">Parcel</span> <span class="n">reply</span><span class="o">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">RemoteException</span>
-</span><span class='line'><span class="o">{</span>
-</span><span class='line'>    <span class="k">switch</span> <span class="o">(</span><span class="n">code</span><span class="o">)</span>
-</span><span class='line'>    <span class="o">{</span>
-</span><span class='line'>  <span class="k">case</span> <span class="nl">INTERFACE_TRANSACTION:</span>
-</span><span class='line'>      <span class="o">{</span>
-</span><span class='line'>      <span class="n">reply</span><span class="o">.</span><span class="na">writeString</span><span class="o">(</span><span class="n">DESCRIPTOR</span><span class="o">);</span>
-</span><span class='line'>      <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
-</span><span class='line'>      <span class="o">}</span>
-</span><span class='line'>  <span class="k">case</span> <span class="nl">TRANSACTION_sayHello:</span>
-</span><span class='line'>      <span class="o">{</span>
-</span><span class='line'>      <span class="n">data</span><span class="o">.</span><span class="na">enforceInterface</span><span class="o">(</span><span class="n">DESCRIPTOR</span><span class="o">);</span>
-</span><span class='line'>      <span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">String</span> <span class="n">_arg0</span><span class="o">;</span>
-</span><span class='line'>      <span class="n">_arg0</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="na">readString</span><span class="o">();</span>
-</span><span class='line'>      <span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">String</span> <span class="n">_result</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">sayHello</span><span class="o">(</span><span class="n">_arg0</span><span class="o">);</span>
-</span><span class='line'>      <span class="n">reply</span><span class="o">.</span><span class="na">writeNoException</span><span class="o">();</span>
-</span><span class='line'>      <span class="n">reply</span><span class="o">.</span><span class="na">writeString</span><span class="o">(</span><span class="n">_result</span><span class="o">);</span>
-</span><span class='line'>      <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
-</span><span class='line'>      <span class="o">}</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>    <span class="k">return</span> <span class="kd">super</span><span class="o">.</span><span class="na">onTransact</span><span class="o">(</span><span class="n">code</span><span class="o">,</span> <span class="n">data</span><span class="o">,</span> <span class="n">reply</span><span class="o">,</span> <span class="n">flags</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>而这两个进程数据的传递是在driver里面通过内存拷贝进行的。</p>
-
-<p>那么如果我希望不通过binder driver而直接将Parcel对象data通过socket传到另一个进程那么该怎么办呢？大家都知道在Java里面要传递一个数据，该数据必须得是Serializable的。那么Parcel类是这样的吗？</p>
-
-<p>需要先来看看Parcel的实现:</p>
-
-<h5>实现</h5>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Parcel</span> <span class="o">{</span>
-</span><span class='line'>    <span class="o">...</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kd">final</span> <span class="kd">native</span> <span class="kt">int</span> <span class="nf">dataSize</span><span class="o">();</span>
-</span><span class='line'>    <span class="o">...</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kd">final</span> <span class="kd">native</span> <span class="kt">int</span> <span class="nf">dataPosition</span><span class="o">();</span>
-</span><span class='line'>    <span class="o">...</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kd">final</span> <span class="kd">native</span> <span class="kt">byte</span><span class="o">[]</span> <span class="nf">marshall</span><span class="o">();</span>
-</span><span class='line'>    <span class="o">...</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kd">final</span> <span class="kd">native</span> <span class="kt">void</span> <span class="nf">unmarshall</span><span class="o">(</span><span class="kt">byte</span><span class="o">[]</span> <span class="n">data</span><span class="o">,</span> <span class="kt">int</span> <span class="n">offest</span><span class="o">,</span> <span class="kt">int</span> <span class="n">length</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">...</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kd">final</span> <span class="kd">native</span> <span class="kt">void</span> <span class="nf">writeInterfaceToken</span><span class="o">(</span><span class="n">String</span> <span class="n">interfaceName</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">...</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kd">final</span> <span class="kd">native</span> <span class="kt">void</span> <span class="nf">enforceInterface</span><span class="o">(</span><span class="n">String</span> <span class="n">interfaceName</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">...</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kd">final</span> <span class="kd">native</span> <span class="kt">void</span> <span class="nf">writeString</span><span class="o">(</span><span class="n">String</span> <span class="n">val</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">...</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kd">final</span> <span class="kd">native</span> <span class="n">String</span> <span class="nf">readString</span><span class="o">();</span>
-</span><span class='line'>    <span class="o">...</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>首先可以看到Parcel并没有implements Serializable，同时它的方法都是JNI方法，可以在frameworks/base/core/jni/android_util_Binder.cpp里面找到，这里以writeString()为例：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">static</span> <span class="kt">void</span> <span class="nf">android_os_Parcel_writeString</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">clazz</span><span class="p">,</span> <span class="n">jstring</span> <span class="n">val</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">Parcel</span><span class="o">*</span> <span class="n">parcel</span> <span class="o">=</span> <span class="n">parcelForJavaObject</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">clazz</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">parcel</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="n">status_t</span> <span class="n">err</span> <span class="o">=</span> <span class="n">NO_MEMORY</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">const</span> <span class="n">jchar</span><span class="o">*</span> <span class="n">str</span> <span class="o">=</span> <span class="n">env</span><span class="o">-&gt;</span><span class="n">GetStringCritical</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">str</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="n">err</span> <span class="o">=</span> <span class="n">parcel</span><span class="o">-&gt;</span><span class="n">writeString16</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="n">env</span><span class="o">-&gt;</span><span class="n">GetStringLength</span><span class="p">(</span><span class="n">val</span><span class="p">));</span>
-</span><span class='line'>                <span class="n">env</span><span class="o">-&gt;</span><span class="n">ReleaseStringCritical</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">str</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>            <span class="n">err</span> <span class="o">=</span> <span class="n">parcel</span><span class="o">-&gt;</span><span class="n">writeString16</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">err</span> <span class="o">!=</span> <span class="n">NO_ERROR</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="n">signalExceptionForError</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">clazz</span><span class="p">,</span> <span class="n">err</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>里面调用了Parcel的writeString16()这个方法，而这个Parcel是一个C类，实现在frameworks/base/libs/binder/Parcel.cpp里面：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-<span class='line-number'>82</span>
-<span class='line-number'>83</span>
-<span class='line-number'>84</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="p">...</span>
-</span><span class='line'><span class="n">status_t</span> <span class="n">Parcel</span><span class="o">::</span><span class="n">writeString16</span><span class="p">(</span><span class="k">const</span> <span class="n">char16_t</span><span class="o">*</span> <span class="n">str</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">len</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">str</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="k">return</span> <span class="n">writeInt32</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">status_t</span> <span class="n">err</span> <span class="o">=</span> <span class="n">writeInt32</span><span class="p">(</span><span class="n">len</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">err</span> <span class="o">==</span> <span class="n">NO_ERROR</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="n">len</span> <span class="o">*=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">char16_t</span><span class="p">);</span>
-</span><span class='line'>        <span class="kt">uint8_t</span><span class="o">*</span> <span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint8_t</span><span class="o">*</span><span class="p">)</span><span class="n">writeInplace</span><span class="p">(</span><span class="n">len</span><span class="o">+</span><span class="k">sizeof</span><span class="p">(</span><span class="n">char16_t</span><span class="p">));</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="n">memcpy</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">str</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
-</span><span class='line'>            <span class="o">*</span><span class="n">reinterpret_cast</span><span class="o">&lt;</span><span class="n">char16_t</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">data</span><span class="o">+</span><span class="n">len</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>            <span class="k">return</span> <span class="n">NO_ERROR</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="n">err</span> <span class="o">=</span> <span class="n">mError</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">err</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="p">...</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">status_t</span> <span class="n">Parcel</span><span class="o">::</span><span class="n">writeInt32</span><span class="p">(</span><span class="kt">int32_t</span> <span class="n">val</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">writeAligned</span><span class="p">(</span><span class="n">val</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="p">...</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">template</span><span class="o">&lt;</span><span class="n">class</span> <span class="n">T</span><span class="o">&gt;</span>
-</span><span class='line'><span class="n">status_t</span> <span class="n">Parcel</span><span class="o">::</span><span class="n">writeAligned</span><span class="p">(</span><span class="n">T</span> <span class="n">val</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="n">COMPILE_TIME_ASSERT_FUNCTION_SCOPE</span><span class="p">(</span><span class="n">PAD_SIZE</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">))</span> <span class="o">==</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">));</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">if</span> <span class="p">((</span><span class="n">mDataPos</span><span class="o">+</span><span class="k">sizeof</span><span class="p">(</span><span class="n">val</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="n">mDataCapacity</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'><span class="nl">restart_write:</span>
-</span><span class='line'>        <span class="o">*</span><span class="n">reinterpret_cast</span><span class="o">&lt;</span><span class="n">T</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">mData</span><span class="o">+</span><span class="n">mDataPos</span><span class="p">)</span> <span class="o">=</span> <span class="n">val</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">return</span> <span class="n">finishWrite</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">val</span><span class="p">));</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">status_t</span> <span class="n">err</span> <span class="o">=</span> <span class="n">growData</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">val</span><span class="p">));</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">err</span> <span class="o">==</span> <span class="n">NO_ERROR</span><span class="p">)</span> <span class="k">goto</span> <span class="n">restart_write</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">err</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="p">...</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">void</span><span class="o">*</span> <span class="n">Parcel</span><span class="o">::</span><span class="n">writeInplace</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">len</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">const</span> <span class="kt">size_t</span> <span class="n">padded</span> <span class="o">=</span> <span class="n">PAD_SIZE</span><span class="p">(</span><span class="n">len</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// sanity check for integer overflow</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">mDataPos</span><span class="o">+</span><span class="n">padded</span> <span class="o">&lt;</span> <span class="n">mDataPos</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">if</span> <span class="p">((</span><span class="n">mDataPos</span><span class="o">+</span><span class="n">padded</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">mDataCapacity</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'><span class="nl">restart_write:</span>
-</span><span class='line'>        <span class="c1">//printf(&quot;Writing %ld bytes, padded to %ld\n&quot;, len, padded);</span>
-</span><span class='line'>        <span class="kt">uint8_t</span><span class="o">*</span> <span class="k">const</span> <span class="n">data</span> <span class="o">=</span> <span class="n">mData</span><span class="o">+</span><span class="n">mDataPos</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// Need to pad at end?</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">padded</span> <span class="o">!=</span> <span class="n">len</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'><span class="cp">#if BYTE_ORDER == BIG_ENDIAN</span>
-</span><span class='line'>            <span class="k">static</span> <span class="k">const</span> <span class="kt">uint32_t</span> <span class="n">mask</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-</span><span class='line'>                <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0xffffff00</span><span class="p">,</span> <span class="mh">0xffff0000</span><span class="p">,</span> <span class="mh">0xff000000</span>
-</span><span class='line'>            <span class="p">};</span>
-</span><span class='line'><span class="cp">#endif</span>
-</span><span class='line'><span class="cp">#if BYTE_ORDER == LITTLE_ENDIAN</span>
-</span><span class='line'>            <span class="k">static</span> <span class="k">const</span> <span class="kt">uint32_t</span> <span class="n">mask</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-</span><span class='line'>                <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00ffffff</span><span class="p">,</span> <span class="mh">0x0000ffff</span><span class="p">,</span> <span class="mh">0x000000ff</span>
-</span><span class='line'>            <span class="p">};</span>
-</span><span class='line'><span class="cp">#endif</span>
-</span><span class='line'>            <span class="c1">//printf(&quot;Applying pad mask: %p to %p\n&quot;, (void*)mask[padded-len],</span>
-</span><span class='line'>            <span class="c1">//    *reinterpret_cast&lt;void**&gt;(data+padded-4));</span>
-</span><span class='line'>            <span class="o">*</span><span class="n">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">uint32_t</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">data</span><span class="o">+</span><span class="n">padded</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span> <span class="o">&amp;=</span> <span class="n">mask</span><span class="p">[</span><span class="n">padded</span><span class="o">-</span><span class="n">len</span><span class="p">];</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="n">finishWrite</span><span class="p">(</span><span class="n">padded</span><span class="p">);</span>
-</span><span class='line'>        <span class="k">return</span> <span class="n">data</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">status_t</span> <span class="n">err</span> <span class="o">=</span> <span class="n">growData</span><span class="p">(</span><span class="n">padded</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">err</span> <span class="o">==</span> <span class="n">NO_ERROR</span><span class="p">)</span> <span class="k">goto</span> <span class="n">restart_write</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>其实整个Parcel的实现是这样的，每一个Parcel对象有一个指针mData，指向一块内存的起始地址，一个指针mDataPos，指向到目前未知已经读到的数据的大小。在写一个String的时候，首先将字符串的大小通过writeInt32()写到某个合适的内存地址中：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'>    <span class="k">if</span> <span class="p">((</span><span class="n">mDataPos</span><span class="o">+</span><span class="k">sizeof</span><span class="p">(</span><span class="n">val</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="n">mDataCapacity</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'><span class="nl">restart_write:</span>
-</span><span class='line'>        <span class="o">*</span><span class="n">reinterpret_cast</span><span class="o">&lt;</span><span class="n">T</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">mData</span><span class="o">+</span><span class="n">mDataPos</span><span class="p">)</span> <span class="o">=</span> <span class="n">val</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">return</span> <span class="n">finishWrite</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">val</span><span class="p">));</span>
-</span><span class='line'>    <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>然后通过writeInplace将字符串按照合适的Align方式写到之后的内存地址中：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'>    <span class="kt">uint8_t</span><span class="o">*</span> <span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint8_t</span><span class="o">*</span><span class="p">)</span><span class="n">writeInplace</span><span class="p">(</span><span class="n">len</span><span class="o">+</span><span class="k">sizeof</span><span class="p">(</span><span class="n">char16_t</span><span class="p">));</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="n">memcpy</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">str</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
-</span><span class='line'>  <span class="o">*</span><span class="n">reinterpret_cast</span><span class="o">&lt;</span><span class="n">char16_t</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">data</span><span class="o">+</span><span class="n">len</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>  <span class="k">return</span> <span class="n">NO_ERROR</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>最后更新相对应的mDataSize和mDataPos值。</p>
-
-<hr />
-
-<h6>Parcel对象的序列化</h6>
-
-<p>也就是说我们在java层是没有办法不通过其提供的接口获得一个Parcel对象内存中的数据的，也就是说如果我们需要将Parcel对象通过socket传输，就只有两种方式：</p>
-
-<ul>
-<li>在jni层进行socket传输；</li>
-<li>手动对其进行序列化，并将序列化的数据通过socket传输过去。</li>
-</ul>
-
-
-<p>其实细心的人可以发现我刚刚在列举Parcel的一系列jni方法的时候还列举了两个方法：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Parcel</span> <span class="o">{</span>
-</span><span class='line'>    <span class="o">...</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kd">final</span> <span class="kd">native</span> <span class="kt">byte</span><span class="o">[]</span> <span class="nf">marshall</span><span class="o">();</span>
-</span><span class='line'>    <span class="o">...</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kd">final</span> <span class="kd">native</span> <span class="kt">void</span> <span class="nf">unmarshall</span><span class="o">(</span><span class="kt">byte</span><span class="o">[]</span> <span class="n">data</span><span class="o">,</span> <span class="kt">int</span> <span class="n">offest</span><span class="o">,</span> <span class="kt">int</span> <span class="n">length</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">...</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>这两个方法在jni里面是这样实现的：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">static</span> <span class="n">jbyteArray</span> <span class="nf">android_os_Parcel_marshall</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">clazz</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">Parcel</span><span class="o">*</span> <span class="n">parcel</span> <span class="o">=</span> <span class="n">parcelForJavaObject</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">clazz</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">parcel</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>       <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// do not marshall if there are binder objects in the parcel</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">parcel</span><span class="o">-&gt;</span><span class="n">objectsCount</span><span class="p">())</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">jniThrowException</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">&quot;java/lang/RuntimeException&quot;</span><span class="p">,</span> <span class="s">&quot;Tried to marshall a Parcel that contained Binder objects.&quot;</span><span class="p">);</span>
-</span><span class='line'>        <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">jbyteArray</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">env</span><span class="o">-&gt;</span><span class="n">NewByteArray</span><span class="p">(</span><span class="n">parcel</span><span class="o">-&gt;</span><span class="n">dataSize</span><span class="p">());</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">jbyte</span><span class="o">*</span> <span class="n">array</span> <span class="o">=</span> <span class="p">(</span><span class="n">jbyte</span><span class="o">*</span><span class="p">)</span><span class="n">env</span><span class="o">-&gt;</span><span class="n">GetPrimitiveArrayCritical</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">array</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="n">memcpy</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">parcel</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">(),</span> <span class="n">parcel</span><span class="o">-&gt;</span><span class="n">dataSize</span><span class="p">());</span>
-</span><span class='line'>            <span class="n">env</span><span class="o">-&gt;</span><span class="n">ReleasePrimitiveArrayCritical</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">array</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">static</span> <span class="kt">void</span> <span class="nf">android_os_Parcel_unmarshall</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">clazz</span><span class="p">,</span> <span class="n">jbyteArray</span> <span class="n">data</span><span class="p">,</span> <span class="n">jint</span> <span class="n">offset</span><span class="p">,</span> <span class="n">jint</span> <span class="n">length</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">Parcel</span><span class="o">*</span> <span class="n">parcel</span> <span class="o">=</span> <span class="n">parcelForJavaObject</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">clazz</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">parcel</span> <span class="o">==</span> <span class="nb">NULL</span> <span class="o">||</span> <span class="n">length</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>       <span class="k">return</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">jbyte</span><span class="o">*</span> <span class="n">array</span> <span class="o">=</span> <span class="p">(</span><span class="n">jbyte</span><span class="o">*</span><span class="p">)</span><span class="n">env</span><span class="o">-&gt;</span><span class="n">GetPrimitiveArrayCritical</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">array</span><span class="p">)</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">parcel</span><span class="o">-&gt;</span><span class="n">setDataSize</span><span class="p">(</span><span class="n">length</span><span class="p">);</span>
-</span><span class='line'>        <span class="n">parcel</span><span class="o">-&gt;</span><span class="n">setDataPosition</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="kt">void</span><span class="o">*</span> <span class="n">raw</span> <span class="o">=</span> <span class="n">parcel</span><span class="o">-&gt;</span><span class="n">writeInplace</span><span class="p">(</span><span class="n">length</span><span class="p">);</span>
-</span><span class='line'>        <span class="n">memcpy</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="p">(</span><span class="n">array</span> <span class="o">+</span> <span class="n">offset</span><span class="p">),</span> <span class="n">length</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="n">env</span><span class="o">-&gt;</span><span class="n">ReleasePrimitiveArrayCritical</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">array</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>marshall和unmarshall正是两个Parcel提供的将其自身进行序列化和反序列化的方法，marshall()将其本身转换成一个byte[]数据序列，即将mData指向内存中的值通过内存拷贝的形式传到一个byte[]变量中去并返回，而unmarshall()则是将byte[]变量中的数据拷贝到Parcel对象的mData指向内存中。</p>
-
-<p>也就是说，我们可以通过marshall方法将data序列化成byte[]变量dataBytes，通过socket的write传递到远端，在远端通过unmarshall方法将其转换回来。</p>
-
-<p>另外通过实现，发现还有一个需要注意的地方，在远端通过unmarshall对象转换回来的时候，还需要调用data.setDataPosition(0)将mDataPos设成初始未知，否则之后无法读取正常的数据。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[GoAgent setup note]]></title>
-    <link href="http://ytliu.github.com/blog/2012/10/27/goagent-setup-note/"/>
-    <updated>2012-10-27T12:21:00+08:00</updated>
-    <id>http://ytliu.github.com/blog/2012/10/27/goagent-setup-note</id>
-    <content type="html"><![CDATA[<p>这次去武汉开会的时候听翔哥提到GoAgent很好用，就尝试着去搭了下环境。</p>
-
-<p><a href="http://irising.me/2012/02/13376/%20GoAgent">原文地址</a></p>
-
-<p>说实话这个环境搭起来真的很方便，主要分为四步：</p>
-
-<ul>
-<li><p>申请Google App Engine的请用，这个就不细说了，具体参看原文，唯一一个要注意的是在里面有一个Storage Schema的选项要选择High Replication (我之前注册的应用没有这一项，要转变成这个还挺麻烦的)。</p></li>
-<li><p>安装GoAgent的客户端：代码的地址在<a href="http://code.google.com/p/goagent/">这里</a>，然后要修改local目录下的proxy.ini文件，之后要安装一个证书（不过据说不安装也行）。最后上传到GAE上：</p>
-
-<p>  $ cd goagent/server</p>
-
-<p>  $ python uploader.zip update ./</p></li>
-</ul>
-
-
-<p>会在后面提示输入appid和GAE账户信息。</p>
-
-<ul>
-<li><p>设置代理：新建一个网络位置，例如：命名为代理，并将Web代理、安全Web代理两项勾选上，代理服务器地址均为，127.0.0.1,端口为8087。</p></li>
-<li><p>GoAgent使用：首先先在终端运行如下命令：</p>
-
-<p>  $ cd goagent/local</p>
-
-<p>  $ python proxy.python</p></li>
-</ul>
-
-
-<p>然后再在苹果菜单下切换location成代理。</p>
-
-<p>这样就可以通过GoAgent上网了。</p>
-
-<h4>GoAgentX</h4>
-
-<p>由于这个需要每次都在终端下输入命令，切换网络位置，最关键的是如果换了一个代理服务器的地址的话还要手动更新，所以在P哥的推荐下我选择了使用GoAgentX，这个是GoAgent的图形界面版，而且可以自动更新，十分方便。</p>
-
-<h6>安装</h6>
-
-<p>下载地址在<a href="https://github.com/downloads/ohdarling/GoAgentX/GoAgentX-v1.3.6.dmg%20GoAgentX">这里</a>，直接点击安装就可以了。然后会在桌面上方的任务栏里有个戴帽子的小人图像出现，点击显示主窗口，在服务配置里面修改端口和appid，在代理配置里面勾选“不修改系统代理配置”，之后启动，并修改网络位置就可以了。</p>
-
-<hr />
-
-<p>我感觉苹果电脑配置这些东西都非常的方便，而且程序运行的也很稳定，相当赞啊~</p>
 ]]></content>
   </entry>
   
