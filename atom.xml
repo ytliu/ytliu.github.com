@@ -4,7 +4,7 @@
   <title><![CDATA[Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-04-14T15:09:22+08:00</updated>
+  <updated>2013-04-14T15:12:08+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -531,7 +531,8 @@
 <li><p>之后，调用ndk-build来创建可执行文件nfqnltest，它位于libs目录下。</p></li>
 <li><p>将nfqnltest传进Android中：</p>
 
-<p>  $ adb shell$ su
+<p>  $ adb shell
+  $ su
   # mkdir /data/data/nfqnltest
   # chmod 777 /data/data/nfqnltest</p></li>
 </ul>
