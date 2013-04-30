@@ -219,25 +219,25 @@ int child(char **arg) { /* * force the task to stop before executing &hellip;">
 <thead>
 <tr>
 <th align="center">pid         </th>
-<th align="center"> Description</th>
+<th align="left"> Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td align="center">pid == -1   </td>
-<td align="center"> 等待任一个子进程（与wait等效）；</td>
+<td align="left"> 等待任一个子进程（与wait等效）；</td>
 </tr>
 <tr>
 <td align="center">pid > 0     </td>
-<td align="center"> 则等待其进程ID与pid相等的子进程。</td>
+<td align="left"> 则等待其进程ID与pid相等的子进程。</td>
 </tr>
 <tr>
 <td align="center">pid == 0    </td>
-<td align="center"> 等待其组ID等于调用进程组ID的任一个子进程。</td>
+<td align="left"> 等待其组ID等于调用进程组ID的任一个子进程。</td>
 </tr>
 <tr>
 <td align="center">pid &lt; -1    </td>
-<td align="center"> 等待其组ID等于pid绝对值的任一子进程。</td>
+<td align="left"> 等待其组ID等于pid绝对值的任一子进程。</td>
 </tr>
 </tbody>
 </table>
@@ -249,21 +249,21 @@ int child(char **arg) { /* * force the task to stop before executing &hellip;">
 <thead>
 <tr>
 <th align="center">macro               </th>
-<th align="center"> Description</th>
+<th align="left"> Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td align="center">WIFEXITED(status)   </td>
-<td align="center"> 若子进程是正常退出的，则为真，此时可以调用WEXITSTATUS(status)获得退出值</td>
+<td align="left"> 若子进程是正常退出的，则为真，此时可以调用WEXITSTATUS(status)获得退出值</td>
 </tr>
 <tr>
 <td align="center">WEXITSTATUS(status) </td>
-<td align="center"> 若子进程是被异常终止的，则为真，此时可以调用WTERMSIG(status)获得使其终止的信号编号</td>
+<td align="left"> 若子进程是被异常终止的，则为真，此时可以调用WTERMSIG(status)获得使其终止的信号编号</td>
 </tr>
 <tr>
 <td align="center">WIFSTOPPED(status)  </td>
-<td align="center"> 若子进程是暂停状态，则为真，此时可以调用WTERMSIG(status)获得使其暂停的信号编号</td>
+<td align="left"> 若子进程是暂停状态，则为真，此时可以调用WTERMSIG(status)获得使其暂停的信号编号</td>
 </tr>
 </tbody>
 </table>
@@ -275,17 +275,17 @@ int child(char **arg) { /* * force the task to stop before executing &hellip;">
 <thead>
 <tr>
 <th align="center">option      </th>
-<th align="center"> Description</th>
+<th align="left"> Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td align="center">WNOHANG     </td>
-<td align="center"> waitpid在调用时发现没有已退出的子进程可收集，则返回0</td>
+<td align="left"> waitpid在调用时发现没有已退出的子进程可收集，则返回0</td>
 </tr>
 <tr>
 <td align="center">WUNTRACED   </td>
-<td align="center"> 在所有符合条件的pid中，如果其中有已经stopped的进程，则立即返回（而对于traced的进程，即使没有该选项，如果其stopped了，也会立即返回）</td>
+<td align="left"> 在所有符合条件的pid中，如果其中有已经stopped的进程，则立即返回（而对于traced的进程，即使没有该选项，如果其stopped了，也会立即返回）</td>
 </tr>
 </tbody>
 </table>

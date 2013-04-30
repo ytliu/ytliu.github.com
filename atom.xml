@@ -4,7 +4,7 @@
   <title><![CDATA[Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-04-30T16:51:56+08:00</updated>
+  <updated>2013-04-30T17:02:31+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -28,161 +28,161 @@
 <thead>
 <tr>
 <th align="center">System Call             </th>
-<th align="center"> Description</th>
+<th align="left"> Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td align="center">fork                    </td>
-<td align="center"> 创建一个新进程</td>
+<td align="left"> 创建一个新进程</td>
 </tr>
 <tr>
 <td align="center">clone                   </td>
-<td align="center"> 按指定条件创建子进程</td>
+<td align="left"> 按指定条件创建子进程</td>
 </tr>
 <tr>
 <td align="center">execve                  </td>
-<td align="center"> 运行可执行文件</td>
+<td align="left"> 运行可执行文件</td>
 </tr>
 <tr>
 <td align="center">exit                    </td>
-<td align="center"> 中止进程</td>
+<td align="left"> 中止进程</td>
 </tr>
 <tr>
 <td align="center">_exit                   </td>
-<td align="center"> 立即中止当前进程</td>
+<td align="left"> 立即中止当前进程</td>
 </tr>
 <tr>
 <td align="center">getdtablesize           </td>
-<td align="center"> 进程所能打开的最大文件数</td>
+<td align="left"> 进程所能打开的最大文件数</td>
 </tr>
 <tr>
 <td align="center">getpgid                 </td>
-<td align="center"> 获取指定进程组标识号</td>
+<td align="left"> 获取指定进程组标识号</td>
 </tr>
 <tr>
 <td align="center">setpgid                 </td>
-<td align="center"> 设置指定进程组标志号</td>
+<td align="left"> 设置指定进程组标志号</td>
 </tr>
 <tr>
 <td align="center">getpgrp                 </td>
-<td align="center"> 获取当前进程组标识号</td>
+<td align="left"> 获取当前进程组标识号</td>
 </tr>
 <tr>
 <td align="center">setpgrp                 </td>
-<td align="center"> 设置当前进程组标志号</td>
+<td align="left"> 设置当前进程组标志号</td>
 </tr>
 <tr>
 <td align="center">getpid                  </td>
-<td align="center"> 获取进程标识号</td>
+<td align="left"> 获取进程标识号</td>
 </tr>
 <tr>
 <td align="center">getppid                 </td>
-<td align="center"> 获取父进程标识号</td>
+<td align="left"> 获取父进程标识号</td>
 </tr>
 <tr>
 <td align="center">getpriority             </td>
-<td align="center"> 获取调度优先级</td>
+<td align="left"> 获取调度优先级</td>
 </tr>
 <tr>
 <td align="center">setpriority             </td>
-<td align="center"> 设置调度优先级</td>
+<td align="left"> 设置调度优先级</td>
 </tr>
 <tr>
 <td align="center">modify_ldt              </td>
-<td align="center"> 读写进程的本地描述表</td>
+<td align="left"> 读写进程的本地描述表</td>
 </tr>
 <tr>
 <td align="center">nanosleep               </td>
-<td align="center"> 使进程睡眠指定的时间</td>
+<td align="left"> 使进程睡眠指定的时间</td>
 </tr>
 <tr>
 <td align="center">nice                    </td>
-<td align="center"> 改变分时进程的优先级</td>
+<td align="left"> 改变分时进程的优先级</td>
 </tr>
 <tr>
 <td align="center">pause                   </td>
-<td align="center"> 挂起进程，等待信号</td>
+<td align="left"> 挂起进程，等待信号</td>
 </tr>
 <tr>
 <td align="center">personality             </td>
-<td align="center"> 设置进程运行域</td>
+<td align="left"> 设置进程运行域</td>
 </tr>
 <tr>
 <td align="center">prctl                   </td>
-<td align="center"> 对进程进行特定操作</td>
+<td align="left"> 对进程进行特定操作</td>
 </tr>
 <tr>
 <td align="center">ptrace                  </td>
-<td align="center"> 进程跟踪</td>
+<td align="left"> 进程跟踪</td>
 </tr>
 <tr>
 <td align="center">sched_get_priority_max  </td>
-<td align="center"> 取得静态优先级的上限</td>
+<td align="left"> 取得静态优先级的上限</td>
 </tr>
 <tr>
 <td align="center">sched_get_priority_min  </td>
-<td align="center"> 取得静态优先级的下限</td>
+<td align="left"> 取得静态优先级的下限</td>
 </tr>
 <tr>
 <td align="center">sched_getparam          </td>
-<td align="center"> 取得进程的调度参数</td>
+<td align="left"> 取得进程的调度参数</td>
 </tr>
 <tr>
 <td align="center">sched_getscheduler      </td>
-<td align="center"> 取得指定进程的调度策略</td>
+<td align="left"> 取得指定进程的调度策略</td>
 </tr>
 <tr>
 <td align="center">sched_rr_get_interval   </td>
-<td align="center"> 取得按RR算法调度的实时进程的时间片长度</td>
+<td align="left"> 取得按RR算法调度的实时进程的时间片长度</td>
 </tr>
 <tr>
 <td align="center">sched_setparam          </td>
-<td align="center"> 设置进程的调度参数</td>
+<td align="left"> 设置进程的调度参数</td>
 </tr>
 <tr>
 <td align="center">sched_setscheduler      </td>
-<td align="center"> 设置指定进程的调度策略和参数</td>
+<td align="left"> 设置指定进程的调度策略和参数</td>
 </tr>
 <tr>
 <td align="center">sched_yield             </td>
-<td align="center"> 进程主动让出处理器,并将自己等候调度队列队尾</td>
+<td align="left"> 进程主动让出处理器,并将自己等候调度队列队尾</td>
 </tr>
 <tr>
 <td align="center">vfork                   </td>
-<td align="center"> 创建一个子进程，以供执行新程序，常与execve等同时使用</td>
+<td align="left"> 创建一个子进程，以供执行新程序，常与execve等同时使用</td>
 </tr>
 <tr>
 <td align="center">wait                    </td>
-<td align="center"> 等待子进程终止</td>
+<td align="left"> 等待子进程终止</td>
 </tr>
 <tr>
 <td align="center">wait3                   </td>
-<td align="center"> 参见wait</td>
+<td align="left"> 参见wait</td>
 </tr>
 <tr>
 <td align="center">waitpid                 </td>
-<td align="center"> 等待指定子进程终止</td>
+<td align="left"> 等待指定子进程终止</td>
 </tr>
 <tr>
 <td align="center">wait4                   </td>
-<td align="center"> 参见waitpid</td>
+<td align="left"> 参见waitpid</td>
 </tr>
 <tr>
 <td align="center">capget                  </td>
-<td align="center"> 获取进程权限</td>
+<td align="left"> 获取进程权限</td>
 </tr>
 <tr>
 <td align="center">capset                  </td>
-<td align="center"> 设置进程权限</td>
+<td align="left"> 设置进程权限</td>
 </tr>
 <tr>
 <td align="center">getsid                  </td>
-<td align="center"> 获取会晤标识号</td>
+<td align="left"> 获取会晤标识号</td>
 </tr>
 <tr>
 <td align="center">setsid                  </td>
-<td align="center"> 设置会晤标识号</td>
+<td align="left"> 设置会晤标识号</td>
 </tr>
 </tbody>
 </table>
@@ -196,89 +196,89 @@
 <thead>
 <tr>
 <th align="center">System Call   </th>
-<th align="center"> Description</th>
+<th align="left"> Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td align="center">fcntl         </td>
-<td align="center"> 文件控制</td>
+<td align="left"> 文件控制</td>
 </tr>
 <tr>
 <td align="center">open          </td>
-<td align="center"> 打开文件</td>
+<td align="left"> 打开文件</td>
 </tr>
 <tr>
 <td align="center">creat         </td>
-<td align="center"> 创建新文件</td>
+<td align="left"> 创建新文件</td>
 </tr>
 <tr>
 <td align="center">close         </td>
-<td align="center"> 关闭文件描述字</td>
+<td align="left"> 关闭文件描述字</td>
 </tr>
 <tr>
 <td align="center">read          </td>
-<td align="center"> 读文件</td>
+<td align="left"> 读文件</td>
 </tr>
 <tr>
 <td align="center">write         </td>
-<td align="center"> 写文件</td>
+<td align="left"> 写文件</td>
 </tr>
 <tr>
 <td align="center">readv         </td>
-<td align="center"> 从文件读入数据到缓冲数组中</td>
+<td align="left"> 从文件读入数据到缓冲数组中</td>
 </tr>
 <tr>
 <td align="center">writev        </td>
-<td align="center"> 将缓冲数组里的数据写入文件</td>
+<td align="left"> 将缓冲数组里的数据写入文件</td>
 </tr>
 <tr>
 <td align="center">pread         </td>
-<td align="center"> 对文件随机读</td>
+<td align="left"> 对文件随机读</td>
 </tr>
 <tr>
 <td align="center">pwrite        </td>
-<td align="center"> 对文件随机写</td>
+<td align="left"> 对文件随机写</td>
 </tr>
 <tr>
 <td align="center">lseek         </td>
-<td align="center"> 移动文件指针</td>
+<td align="left"> 移动文件指针</td>
 </tr>
 <tr>
 <td align="center">_llseek       </td>
-<td align="center"> 在64位地址空间里移动文件指针</td>
+<td align="left"> 在64位地址空间里移动文件指针</td>
 </tr>
 <tr>
 <td align="center">dup           </td>
-<td align="center"> 复制已打开的文件描述字</td>
+<td align="left"> 复制已打开的文件描述字</td>
 </tr>
 <tr>
 <td align="center">dup2          </td>
-<td align="center"> 按指定条件复制文件描述字</td>
+<td align="left"> 按指定条件复制文件描述字</td>
 </tr>
 <tr>
 <td align="center">flock         </td>
-<td align="center"> 文件加/解锁</td>
+<td align="left"> 文件加/解锁</td>
 </tr>
 <tr>
 <td align="center">poll          </td>
-<td align="center"> I/O多路转换</td>
+<td align="left"> I/O多路转换</td>
 </tr>
 <tr>
 <td align="center">truncate      </td>
-<td align="center"> 截断文件</td>
+<td align="left"> 截断文件</td>
 </tr>
 <tr>
 <td align="center">ftruncate     </td>
-<td align="center"> 参见truncate</td>
+<td align="left"> 参见truncate</td>
 </tr>
 <tr>
 <td align="center">umask         </td>
-<td align="center"> 设置文件权限掩码</td>
+<td align="left"> 设置文件权限掩码</td>
 </tr>
 <tr>
 <td align="center">fsync         </td>
-<td align="center"> 把文件在内存中的部分写回磁盘</td>
+<td align="left"> 把文件在内存中的部分写回磁盘</td>
 </tr>
 </tbody>
 </table>
@@ -290,129 +290,129 @@
 <thead>
 <tr>
 <th align="center">System Call   </th>
-<th align="center"> Description</th>
+<th align="left"> Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td align="center">access        </td>
-<td align="center"> 确定文件的可存取性</td>
+<td align="left"> 确定文件的可存取性</td>
 </tr>
 <tr>
 <td align="center">chdir         </td>
-<td align="center"> 改变当前工作目录</td>
+<td align="left"> 改变当前工作目录</td>
 </tr>
 <tr>
 <td align="center">fchdir        </td>
-<td align="center"> 参见chdir</td>
+<td align="left"> 参见chdir</td>
 </tr>
 <tr>
 <td align="center">chmod         </td>
-<td align="center"> 改变文件方式</td>
+<td align="left"> 改变文件方式</td>
 </tr>
 <tr>
 <td align="center">fchmod        </td>
-<td align="center"> 参见chmod</td>
+<td align="left"> 参见chmod</td>
 </tr>
 <tr>
 <td align="center">chown         </td>
-<td align="center"> 改变文件的属主或用户组</td>
+<td align="left"> 改变文件的属主或用户组</td>
 </tr>
 <tr>
 <td align="center">fchown        </td>
-<td align="center"> 参见chown</td>
+<td align="left"> 参见chown</td>
 </tr>
 <tr>
 <td align="center">lchown        </td>
-<td align="center"> 参见chown</td>
+<td align="left"> 参见chown</td>
 </tr>
 <tr>
 <td align="center">chroot        </td>
-<td align="center"> 改变根目录</td>
+<td align="left"> 改变根目录</td>
 </tr>
 <tr>
 <td align="center">stat          </td>
-<td align="center"> 取文件状态信息</td>
+<td align="left"> 取文件状态信息</td>
 </tr>
 <tr>
 <td align="center">lstat         </td>
-<td align="center"> 参见stat</td>
+<td align="left"> 参见stat</td>
 </tr>
 <tr>
 <td align="center">fstat         </td>
-<td align="center"> 参见stat</td>
+<td align="left"> 参见stat</td>
 </tr>
 <tr>
 <td align="center">statfs        </td>
-<td align="center"> 取文件系统信息</td>
+<td align="left"> 取文件系统信息</td>
 </tr>
 <tr>
 <td align="center">fstatfs       </td>
-<td align="center"> 参见statfs</td>
+<td align="left"> 参见statfs</td>
 </tr>
 <tr>
 <td align="center">readdir       </td>
-<td align="center"> 读取目录项</td>
+<td align="left"> 读取目录项</td>
 </tr>
 <tr>
 <td align="center">getdents      </td>
-<td align="center"> 读取目录项</td>
+<td align="left"> 读取目录项</td>
 </tr>
 <tr>
 <td align="center">mkdir         </td>
-<td align="center"> 创建目录</td>
+<td align="left"> 创建目录</td>
 </tr>
 <tr>
 <td align="center">mknod         </td>
-<td align="center"> 创建索引节点</td>
+<td align="left"> 创建索引节点</td>
 </tr>
 <tr>
 <td align="center">rmdir         </td>
-<td align="center"> 删除目录</td>
+<td align="left"> 删除目录</td>
 </tr>
 <tr>
 <td align="center">rename        </td>
-<td align="center"> 文件改名</td>
+<td align="left"> 文件改名</td>
 </tr>
 <tr>
 <td align="center">link          </td>
-<td align="center"> 创建链接</td>
+<td align="left"> 创建链接</td>
 </tr>
 <tr>
 <td align="center">symlink       </td>
-<td align="center"> 创建符号链接</td>
+<td align="left"> 创建符号链接</td>
 </tr>
 <tr>
 <td align="center">unlink        </td>
-<td align="center"> 删除链接</td>
+<td align="left"> 删除链接</td>
 </tr>
 <tr>
 <td align="center">readlink      </td>
-<td align="center"> 读符号链接的值</td>
+<td align="left"> 读符号链接的值</td>
 </tr>
 <tr>
 <td align="center">mount         </td>
-<td align="center"> 安装文件系统</td>
+<td align="left"> 安装文件系统</td>
 </tr>
 <tr>
 <td align="center">umount        </td>
-<td align="center"> 卸下文件系统</td>
+<td align="left"> 卸下文件系统</td>
 </tr>
 <tr>
 <td align="center">ustat         </td>
-<td align="center"> 取文件系统信息</td>
+<td align="left"> 取文件系统信息</td>
 </tr>
 <tr>
 <td align="center">utime         </td>
-<td align="center"> 改变文件的访问修改时间</td>
+<td align="left"> 改变文件的访问修改时间</td>
 </tr>
 <tr>
 <td align="center">utimes        </td>
-<td align="center"> 参见utime</td>
+<td align="left"> 参见utime</td>
 </tr>
 <tr>
 <td align="center">quotactl      </td>
-<td align="center"> 控制磁盘配额</td>
+<td align="left"> 控制磁盘配额</td>
 </tr>
 </tbody>
 </table>
@@ -424,145 +424,145 @@
 <thead>
 <tr>
 <th align="center">System Call         </th>
-<th align="center"> Description</th>
+<th align="left"> Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td align="center">ioctl               </td>
-<td align="center"> I/O总控制函数</td>
+<td align="left"> I/O总控制函数</td>
 </tr>
 <tr>
 <td align="center">_sysctl             </td>
-<td align="center"> 读/写系统参数</td>
+<td align="left"> 读/写系统参数</td>
 </tr>
 <tr>
 <td align="center">acct                </td>
-<td align="center"> 启用或禁止进程记账</td>
+<td align="left"> 启用或禁止进程记账</td>
 </tr>
 <tr>
 <td align="center">getrlimit           </td>
-<td align="center"> 获取系统资源上限</td>
+<td align="left"> 获取系统资源上限</td>
 </tr>
 <tr>
 <td align="center">setrlimit           </td>
-<td align="center"> 设置系统资源上限</td>
+<td align="left"> 设置系统资源上限</td>
 </tr>
 <tr>
 <td align="center">getrusage           </td>
-<td align="center"> 获取系统资源使用情况</td>
+<td align="left"> 获取系统资源使用情况</td>
 </tr>
 <tr>
 <td align="center">uselib              </td>
-<td align="center"> 选择要使用的二进制函数库</td>
+<td align="left"> 选择要使用的二进制函数库</td>
 </tr>
 <tr>
 <td align="center">ioperm              </td>
-<td align="center"> 设置端口I/O权限</td>
+<td align="left"> 设置端口I/O权限</td>
 </tr>
 <tr>
 <td align="center">iopl                </td>
-<td align="center"> 改变进程I/O权限级别</td>
+<td align="left"> 改变进程I/O权限级别</td>
 </tr>
 <tr>
 <td align="center">outb                </td>
-<td align="center"> 低级端口操作</td>
+<td align="left"> 低级端口操作</td>
 </tr>
 <tr>
 <td align="center">reboot              </td>
-<td align="center"> 重新启动</td>
+<td align="left"> 重新启动</td>
 </tr>
 <tr>
 <td align="center">swapon              </td>
-<td align="center"> 打开交换文件和设备</td>
+<td align="left"> 打开交换文件和设备</td>
 </tr>
 <tr>
 <td align="center">swapoff             </td>
-<td align="center"> 关闭交换文件和设备</td>
+<td align="left"> 关闭交换文件和设备</td>
 </tr>
 <tr>
 <td align="center">bdflush             </td>
-<td align="center"> 控制bdflush守护进程</td>
+<td align="left"> 控制bdflush守护进程</td>
 </tr>
 <tr>
 <td align="center">sysfs               </td>
-<td align="center"> 取核心支持的文件系统类型</td>
+<td align="left"> 取核心支持的文件系统类型</td>
 </tr>
 <tr>
 <td align="center">sysinfo             </td>
-<td align="center"> 取得系统信息</td>
+<td align="left"> 取得系统信息</td>
 </tr>
 <tr>
 <td align="center">adjtimex            </td>
-<td align="center"> 调整系统时钟</td>
+<td align="left"> 调整系统时钟</td>
 </tr>
 <tr>
 <td align="center">alarm               </td>
-<td align="center"> 设置进程的闹钟</td>
+<td align="left"> 设置进程的闹钟</td>
 </tr>
 <tr>
 <td align="center">getitimer           </td>
-<td align="center"> 获取计时器值</td>
+<td align="left"> 获取计时器值</td>
 </tr>
 <tr>
 <td align="center">setitimer           </td>
-<td align="center"> 设置计时器值</td>
+<td align="left"> 设置计时器值</td>
 </tr>
 <tr>
 <td align="center">gettimeofday        </td>
-<td align="center"> 取时间和时区</td>
+<td align="left"> 取时间和时区</td>
 </tr>
 <tr>
 <td align="center">settimeofday        </td>
-<td align="center"> 设置时间和时区</td>
+<td align="left"> 设置时间和时区</td>
 </tr>
 <tr>
 <td align="center">stime               </td>
-<td align="center"> 设置系统日期和时间</td>
+<td align="left"> 设置系统日期和时间</td>
 </tr>
 <tr>
 <td align="center">time                </td>
-<td align="center"> 取得系统时间</td>
+<td align="left"> 取得系统时间</td>
 </tr>
 <tr>
 <td align="center">times               </td>
-<td align="center"> 取进程运行时间</td>
+<td align="left"> 取进程运行时间</td>
 </tr>
 <tr>
 <td align="center">uname               </td>
-<td align="center"> 获取当前UNIX系统的名称、版本和主机等信息</td>
+<td align="left"> 获取当前UNIX系统的名称、版本和主机等信息</td>
 </tr>
 <tr>
 <td align="center">vhangup             </td>
-<td align="center"> 挂起当前终端</td>
+<td align="left"> 挂起当前终端</td>
 </tr>
 <tr>
 <td align="center">nfsservctl          </td>
-<td align="center"> 对NFS守护进程进行控制</td>
+<td align="left"> 对NFS守护进程进行控制</td>
 </tr>
 <tr>
 <td align="center">vm86                </td>
-<td align="center"> 进入模拟8086模式</td>
+<td align="left"> 进入模拟8086模式</td>
 </tr>
 <tr>
 <td align="center">create_module       </td>
-<td align="center"> 创建可装载的模块项</td>
+<td align="left"> 创建可装载的模块项</td>
 </tr>
 <tr>
 <td align="center">delete_module       </td>
-<td align="center"> 删除可装载的模块项</td>
+<td align="left"> 删除可装载的模块项</td>
 </tr>
 <tr>
 <td align="center">init_module         </td>
-<td align="center"> 初始化模块</td>
+<td align="left"> 初始化模块</td>
 </tr>
 <tr>
 <td align="center">query_module        </td>
-<td align="center"> 查询模块信息</td>
+<td align="left"> 查询模块信息</td>
 </tr>
 <tr>
 <td align="center">*get_kernel_syms    </td>
-<td align="center"> 取得核心符号,已被query_module代替</td>
+<td align="left"> 取得核心符号,已被query_module代替</td>
 </tr>
 </tbody>
 </table>
@@ -574,65 +574,65 @@
 <thead>
 <tr>
 <th align="center">System Call   </th>
-<th align="center"> Description</th>
+<th align="left"> Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td align="center">brk           </td>
-<td align="center"> 改变数据段空间的分配</td>
+<td align="left"> 改变数据段空间的分配</td>
 </tr>
 <tr>
 <td align="center">sbrk          </td>
-<td align="center"> 参见brk</td>
+<td align="left"> 参见brk</td>
 </tr>
 <tr>
 <td align="center">mlock         </td>
-<td align="center"> 内存页面加锁</td>
+<td align="left"> 内存页面加锁</td>
 </tr>
 <tr>
 <td align="center">munlock       </td>
-<td align="center"> 内存页面解锁</td>
+<td align="left"> 内存页面解锁</td>
 </tr>
 <tr>
 <td align="center">mlockall      </td>
-<td align="center"> 调用进程所有内存页面加锁</td>
+<td align="left"> 调用进程所有内存页面加锁</td>
 </tr>
 <tr>
 <td align="center">munlockall    </td>
-<td align="center"> 调用进程所有内存页面解锁</td>
+<td align="left"> 调用进程所有内存页面解锁</td>
 </tr>
 <tr>
 <td align="center">mmap          </td>
-<td align="center"> 映射虚拟内存页</td>
+<td align="left"> 映射虚拟内存页</td>
 </tr>
 <tr>
 <td align="center">munmap        </td>
-<td align="center"> 去除内存页映射</td>
+<td align="left"> 去除内存页映射</td>
 </tr>
 <tr>
 <td align="center">mremap        </td>
-<td align="center"> 重新映射虚拟内存地址</td>
+<td align="left"> 重新映射虚拟内存地址</td>
 </tr>
 <tr>
 <td align="center">msync         </td>
-<td align="center"> 将映射内存中的数据写回磁盘</td>
+<td align="left"> 将映射内存中的数据写回磁盘</td>
 </tr>
 <tr>
 <td align="center">mprotect      </td>
-<td align="center"> 设置内存映像保护</td>
+<td align="left"> 设置内存映像保护</td>
 </tr>
 <tr>
 <td align="center">getpagesize   </td>
-<td align="center"> 获取页面大小</td>
+<td align="left"> 获取页面大小</td>
 </tr>
 <tr>
 <td align="center">sync          </td>
-<td align="center"> 将内存缓冲区数据写回硬盘</td>
+<td align="left"> 将内存缓冲区数据写回硬盘</td>
 </tr>
 <tr>
 <td align="center">cacheflush    </td>
-<td align="center"> 将指定缓冲区中的内容写回磁盘</td>
+<td align="left"> 将指定缓冲区中的内容写回磁盘</td>
 </tr>
 </tbody>
 </table>
@@ -644,33 +644,33 @@
 <thead>
 <tr>
 <th align="center">System Call     </th>
-<th align="center"> Description</th>
+<th align="left"> Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td align="center">getdomainname   </td>
-<td align="center"> 取域名</td>
+<td align="left"> 取域名</td>
 </tr>
 <tr>
 <td align="center">setdomainname   </td>
-<td align="center"> 设置域名</td>
+<td align="left"> 设置域名</td>
 </tr>
 <tr>
 <td align="center">gethostid       </td>
-<td align="center"> 获取主机标识号</td>
+<td align="left"> 获取主机标识号</td>
 </tr>
 <tr>
 <td align="center">sethostid       </td>
-<td align="center"> 设置主机标识号</td>
+<td align="left"> 设置主机标识号</td>
 </tr>
 <tr>
 <td align="center">gethostname     </td>
-<td align="center"> 获取本主机名称</td>
+<td align="left"> 获取本主机名称</td>
 </tr>
 <tr>
 <td align="center">sethostname     </td>
-<td align="center"> 设置主机名称</td>
+<td align="left"> 设置主机名称</td>
 </tr>
 </tbody>
 </table>
@@ -682,89 +682,89 @@
 <thead>
 <tr>
 <th align="center">System Call   </th>
-<th align="center"> Description</th>
+<th align="left"> Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td align="center">socketcall    </td>
-<td align="center"> socket系统调用</td>
+<td align="left"> socket系统调用</td>
 </tr>
 <tr>
 <td align="center">socket        </td>
-<td align="center"> 建立socket</td>
+<td align="left"> 建立socket</td>
 </tr>
 <tr>
 <td align="center">bind          </td>
-<td align="center"> 绑定socket到端口</td>
+<td align="left"> 绑定socket到端口</td>
 </tr>
 <tr>
 <td align="center">connect       </td>
-<td align="center"> 连接远程主机</td>
+<td align="left"> 连接远程主机</td>
 </tr>
 <tr>
 <td align="center">accept        </td>
-<td align="center"> 响应socket连接请求</td>
+<td align="left"> 响应socket连接请求</td>
 </tr>
 <tr>
 <td align="center">send          </td>
-<td align="center"> 通过socket发送信息</td>
+<td align="left"> 通过socket发送信息</td>
 </tr>
 <tr>
 <td align="center">sendto        </td>
-<td align="center"> 发送UDP信息</td>
+<td align="left"> 发送UDP信息</td>
 </tr>
 <tr>
 <td align="center">sendmsg       </td>
-<td align="center"> 参见send</td>
+<td align="left"> 参见send</td>
 </tr>
 <tr>
 <td align="center">recv          </td>
-<td align="center"> 通过socket接收信息</td>
+<td align="left"> 通过socket接收信息</td>
 </tr>
 <tr>
 <td align="center">recvfrom      </td>
-<td align="center"> 接收UDP信息</td>
+<td align="left"> 接收UDP信息</td>
 </tr>
 <tr>
 <td align="center">recvmsg       </td>
-<td align="center"> 参见recv</td>
+<td align="left"> 参见recv</td>
 </tr>
 <tr>
 <td align="center">listen        </td>
-<td align="center"> 监听socket端口</td>
+<td align="left"> 监听socket端口</td>
 </tr>
 <tr>
 <td align="center">select        </td>
-<td align="center"> 对多路同步I/O进行轮询</td>
+<td align="left"> 对多路同步I/O进行轮询</td>
 </tr>
 <tr>
 <td align="center">shutdown      </td>
-<td align="center"> 关闭socket上的连接</td>
+<td align="left"> 关闭socket上的连接</td>
 </tr>
 <tr>
 <td align="center">getsockname   </td>
-<td align="center"> 取得本地socket名字</td>
+<td align="left"> 取得本地socket名字</td>
 </tr>
 <tr>
 <td align="center">getpeername   </td>
-<td align="center"> 获取通信对方的socket名字</td>
+<td align="left"> 获取通信对方的socket名字</td>
 </tr>
 <tr>
 <td align="center">getsockopt    </td>
-<td align="center"> 取端口设置</td>
+<td align="left"> 取端口设置</td>
 </tr>
 <tr>
 <td align="center">setsockopt    </td>
-<td align="center"> 设置端口参数</td>
+<td align="left"> 设置端口参数</td>
 </tr>
 <tr>
 <td align="center">sendfile      </td>
-<td align="center"> 在文件或端口间传输数据</td>
+<td align="left"> 在文件或端口间传输数据</td>
 </tr>
 <tr>
 <td align="center">socketpair    </td>
-<td align="center"> 创建一对已联接的无名socket</td>
+<td align="left"> 创建一对已联接的无名socket</td>
 </tr>
 </tbody>
 </table>
@@ -776,81 +776,81 @@
 <thead>
 <tr>
 <th align="center">System Call   </th>
-<th align="center"> Description</th>
+<th align="left"> Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td align="center">getuid        </td>
-<td align="center"> 获取用户标识号</td>
+<td align="left"> 获取用户标识号</td>
 </tr>
 <tr>
 <td align="center">setuid        </td>
-<td align="center"> 设置用户标志号</td>
+<td align="left"> 设置用户标志号</td>
 </tr>
 <tr>
 <td align="center">getgid        </td>
-<td align="center"> 获取组标识号</td>
+<td align="left"> 获取组标识号</td>
 </tr>
 <tr>
 <td align="center">setgid        </td>
-<td align="center"> 设置组标志号</td>
+<td align="left"> 设置组标志号</td>
 </tr>
 <tr>
 <td align="center">getegid       </td>
-<td align="center"> 获取有效组标识号</td>
+<td align="left"> 获取有效组标识号</td>
 </tr>
 <tr>
 <td align="center">setegid       </td>
-<td align="center"> 设置有效组标识号</td>
+<td align="left"> 设置有效组标识号</td>
 </tr>
 <tr>
 <td align="center">geteuid       </td>
-<td align="center"> 获取有效用户标识号</td>
+<td align="left"> 获取有效用户标识号</td>
 </tr>
 <tr>
 <td align="center">seteuid       </td>
-<td align="center"> 设置有效用户标识号</td>
+<td align="left"> 设置有效用户标识号</td>
 </tr>
 <tr>
 <td align="center">setregid      </td>
-<td align="center"> 分别设置真实和有效的的组标识号</td>
+<td align="left"> 分别设置真实和有效的的组标识号</td>
 </tr>
 <tr>
 <td align="center">setreuid      </td>
-<td align="center"> 分别设置真实和有效的用户标识号</td>
+<td align="left"> 分别设置真实和有效的用户标识号</td>
 </tr>
 <tr>
 <td align="center">getresgid     </td>
-<td align="center"> 分别获取真实的,有效的和保存过的组标识号</td>
+<td align="left"> 分别获取真实的,有效的和保存过的组标识号</td>
 </tr>
 <tr>
 <td align="center">setresgid     </td>
-<td align="center"> 分别设置真实的,有效的和保存过的组标识号</td>
+<td align="left"> 分别设置真实的,有效的和保存过的组标识号</td>
 </tr>
 <tr>
 <td align="center">getresuid     </td>
-<td align="center"> 分别获取真实的,有效的和保存过的用户标识号</td>
+<td align="left"> 分别获取真实的,有效的和保存过的用户标识号</td>
 </tr>
 <tr>
 <td align="center">setresuid     </td>
-<td align="center"> 分别设置真实的,有效的和保存过的用户标识号</td>
+<td align="left"> 分别设置真实的,有效的和保存过的用户标识号</td>
 </tr>
 <tr>
 <td align="center">setfsgid      </td>
-<td align="center"> 设置文件系统检查时使用的组标识号</td>
+<td align="left"> 设置文件系统检查时使用的组标识号</td>
 </tr>
 <tr>
 <td align="center">setfsuid      </td>
-<td align="center"> 设置文件系统检查时使用的用户标识号</td>
+<td align="left"> 设置文件系统检查时使用的用户标识号</td>
 </tr>
 <tr>
 <td align="center">getgroups     </td>
-<td align="center"> 获取后补组标志清单</td>
+<td align="left"> 获取后补组标志清单</td>
 </tr>
 <tr>
 <td align="center">setgroups     </td>
-<td align="center"> 设置后补组标志清单</td>
+<td align="left"> 设置后补组标志清单</td>
 </tr>
 </tbody>
 </table>
@@ -864,61 +864,61 @@
 <thead>
 <tr>
 <th align="center">System Call   </th>
-<th align="center"> Description</th>
+<th align="left"> Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td align="center">sigaction     </td>
-<td align="center"> 设置对指定信号的处理方法</td>
+<td align="left"> 设置对指定信号的处理方法</td>
 </tr>
 <tr>
 <td align="center">sigprocmask   </td>
-<td align="center"> 根据参数对信号集中的信号执行阻塞/解除阻塞等操作</td>
+<td align="left"> 根据参数对信号集中的信号执行阻塞/解除阻塞等操作</td>
 </tr>
 <tr>
 <td align="center">sigpending    </td>
-<td align="center"> 为指定的被阻塞信号设置队列</td>
+<td align="left"> 为指定的被阻塞信号设置队列</td>
 </tr>
 <tr>
 <td align="center">sigsuspend    </td>
-<td align="center"> 挂起进程等待特定信号</td>
+<td align="left"> 挂起进程等待特定信号</td>
 </tr>
 <tr>
 <td align="center">signal        </td>
-<td align="center"> 参见signal</td>
+<td align="left"> 参见signal</td>
 </tr>
 <tr>
 <td align="center">kill          </td>
-<td align="center"> 向进程或进程组发信号</td>
+<td align="left"> 向进程或进程组发信号</td>
 </tr>
 <tr>
 <td align="center">*sigblock     </td>
-<td align="center"> 向被阻塞信号掩码中添加信号,已被sigprocmask代替</td>
+<td align="left"> 向被阻塞信号掩码中添加信号,已被sigprocmask代替</td>
 </tr>
 <tr>
 <td align="center">*siggetmask   </td>
-<td align="center"> 取得现有阻塞信号掩码,已被sigprocmask代替</td>
+<td align="left"> 取得现有阻塞信号掩码,已被sigprocmask代替</td>
 </tr>
 <tr>
 <td align="center">*sigsetmask   </td>
-<td align="center"> 用给定信号掩码替换现有阻塞信号掩码,已被sigprocmask代替</td>
+<td align="left"> 用给定信号掩码替换现有阻塞信号掩码,已被sigprocmask代替</td>
 </tr>
 <tr>
 <td align="center">*sigmask      </td>
-<td align="center"> 将给定的信号转化为掩码,已被sigprocmask代替</td>
+<td align="left"> 将给定的信号转化为掩码,已被sigprocmask代替</td>
 </tr>
 <tr>
 <td align="center">*sigpause     </td>
-<td align="center"> 作用同sigsuspend,已被sigsuspend代替</td>
+<td align="left"> 作用同sigsuspend,已被sigsuspend代替</td>
 </tr>
 <tr>
 <td align="center">sigvec        </td>
-<td align="center"> 为兼容BSD而设的信号处理函数,作用类似sigaction</td>
+<td align="left"> 为兼容BSD而设的信号处理函数,作用类似sigaction</td>
 </tr>
 <tr>
 <td align="center">ssetmask      </td>
-<td align="center"> ANSI C的信号处理函数,作用类似sigaction</td>
+<td align="left"> ANSI C的信号处理函数,作用类似sigaction</td>
 </tr>
 </tbody>
 </table>
@@ -930,25 +930,25 @@
 <thead>
 <tr>
 <th align="center">System Call   </th>
-<th align="center"> Description</th>
+<th align="left"> Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td align="center">msgctl        </td>
-<td align="center"> 消息控制操作</td>
+<td align="left"> 消息控制操作</td>
 </tr>
 <tr>
 <td align="center">msgget        </td>
-<td align="center"> 获取消息队列</td>
+<td align="left"> 获取消息队列</td>
 </tr>
 <tr>
 <td align="center">msgsnd        </td>
-<td align="center"> 发消息</td>
+<td align="left"> 发消息</td>
 </tr>
 <tr>
 <td align="center">msgrcv        </td>
-<td align="center"> 取消息</td>
+<td align="left"> 取消息</td>
 </tr>
 </tbody>
 </table>
@@ -960,13 +960,13 @@
 <thead>
 <tr>
 <th align="center">System Call   </th>
-<th align="center"> Description</th>
+<th align="left"> Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td align="center">pipe          </td>
-<td align="center"> 创建管道</td>
+<td align="left"> 创建管道</td>
 </tr>
 </tbody>
 </table>
@@ -978,21 +978,21 @@
 <thead>
 <tr>
 <th align="center">System Call   </th>
-<th align="center"> Description</th>
+<th align="left"> Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td align="center">semctl        </td>
-<td align="center"> 信号量控制</td>
+<td align="left"> 信号量控制</td>
 </tr>
 <tr>
 <td align="center">semget        </td>
-<td align="center"> 获取一组信号量</td>
+<td align="left"> 获取一组信号量</td>
 </tr>
 <tr>
 <td align="center">semop         </td>
-<td align="center"> 信号量操作</td>
+<td align="left"> 信号量操作</td>
 </tr>
 </tbody>
 </table>
@@ -1004,25 +1004,25 @@
 <thead>
 <tr>
 <th align="center">System Call   </th>
-<th align="center"> Description</th>
+<th align="left"> Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td align="center">shmctl        </td>
-<td align="center"> 控制共享内存</td>
+<td align="left"> 控制共享内存</td>
 </tr>
 <tr>
 <td align="center">shmget        </td>
-<td align="center"> 获取共享内存</td>
+<td align="left"> 获取共享内存</td>
 </tr>
 <tr>
 <td align="center">shmat         </td>
-<td align="center"> 连接共享内存</td>
+<td align="left"> 连接共享内存</td>
 </tr>
 <tr>
 <td align="center">shmdt         </td>
-<td align="center"> 拆卸共享内存</td>
+<td align="left"> 拆卸共享内存</td>
 </tr>
 </tbody>
 </table>
@@ -1150,25 +1150,25 @@
 <thead>
 <tr>
 <th align="center">pid         </th>
-<th align="center"> Description</th>
+<th align="left"> Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td align="center">pid == -1   </td>
-<td align="center"> 等待任一个子进程（与wait等效）；</td>
+<td align="left"> 等待任一个子进程（与wait等效）；</td>
 </tr>
 <tr>
 <td align="center">pid > 0     </td>
-<td align="center"> 则等待其进程ID与pid相等的子进程。</td>
+<td align="left"> 则等待其进程ID与pid相等的子进程。</td>
 </tr>
 <tr>
 <td align="center">pid == 0    </td>
-<td align="center"> 等待其组ID等于调用进程组ID的任一个子进程。</td>
+<td align="left"> 等待其组ID等于调用进程组ID的任一个子进程。</td>
 </tr>
 <tr>
 <td align="center">pid &lt; -1    </td>
-<td align="center"> 等待其组ID等于pid绝对值的任一子进程。</td>
+<td align="left"> 等待其组ID等于pid绝对值的任一子进程。</td>
 </tr>
 </tbody>
 </table>
@@ -1180,21 +1180,21 @@
 <thead>
 <tr>
 <th align="center">macro               </th>
-<th align="center"> Description</th>
+<th align="left"> Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td align="center">WIFEXITED(status)   </td>
-<td align="center"> 若子进程是正常退出的，则为真，此时可以调用WEXITSTATUS(status)获得退出值</td>
+<td align="left"> 若子进程是正常退出的，则为真，此时可以调用WEXITSTATUS(status)获得退出值</td>
 </tr>
 <tr>
 <td align="center">WEXITSTATUS(status) </td>
-<td align="center"> 若子进程是被异常终止的，则为真，此时可以调用WTERMSIG(status)获得使其终止的信号编号</td>
+<td align="left"> 若子进程是被异常终止的，则为真，此时可以调用WTERMSIG(status)获得使其终止的信号编号</td>
 </tr>
 <tr>
 <td align="center">WIFSTOPPED(status)  </td>
-<td align="center"> 若子进程是暂停状态，则为真，此时可以调用WTERMSIG(status)获得使其暂停的信号编号</td>
+<td align="left"> 若子进程是暂停状态，则为真，此时可以调用WTERMSIG(status)获得使其暂停的信号编号</td>
 </tr>
 </tbody>
 </table>
@@ -1206,17 +1206,17 @@
 <thead>
 <tr>
 <th align="center">option      </th>
-<th align="center"> Description</th>
+<th align="left"> Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td align="center">WNOHANG     </td>
-<td align="center"> waitpid在调用时发现没有已退出的子进程可收集，则返回0</td>
+<td align="left"> waitpid在调用时发现没有已退出的子进程可收集，则返回0</td>
 </tr>
 <tr>
 <td align="center">WUNTRACED   </td>
-<td align="center"> 在所有符合条件的pid中，如果其中有已经stopped的进程，则立即返回（而对于traced的进程，即使没有该选项，如果其stopped了，也会立即返回）</td>
+<td align="left"> 在所有符合条件的pid中，如果其中有已经stopped的进程，则立即返回（而对于traced的进程，即使没有该选项，如果其stopped了，也会立即返回）</td>
 </tr>
 </tbody>
 </table>
