@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Linux | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/linux/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-04-30T22:15:26+08:00</updated>
+  <updated>2013-04-30T22:30:23+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -112,7 +112,7 @@
 
 <p>先是waitpid，等待child调用execv，之后设置一系列参数（在这里是打开perf_event，并mmap一段内存区域），然后调用ptrace让child继续执行。</p>
 
-<p>其实到现在为止我也还不是很清楚ptrace的用法和waitpid那几个参数的意思，于是想好好学习下，在google上搜到了一篇翻译的<a href="http://www.kgdb.info/gdb/playing_with_ptrace_part_i/">玩转ptrace1</a>和<a href="http://www.kgdb.info/gdb/playing_with_ptrace_part_ii/">2</a>，这里归纳整理下，另外，在IBM的<a href="https://www.ibm.com/developerworks/cn/">developerWorks</a>上找到一篇介绍进程相关只是，以及waitpid的<a href="http://www.ibm.com/developerworks/cn/linux/kernel/syscall/part3/">博文</a>，也一起学习了。</p>
+<p>其实到现在为止我也还不是很清楚ptrace的用法和waitpid那几个参数的意思，于是想好好学习下，在google上搜到了一篇翻译的<a href="http://www.kgdb.info/gdb/playing_with_ptrace_part_i/">玩转ptrace1</a>和<a href="http://www.kgdb.info/gdb/playing_with_ptrace_part_ii/">2</a>，这里归纳整理下，另外，在IBM的<a href="https://www.ibm.com/developerworks/cn/">developerWorks</a>上找到一篇介绍进程相关，以及waitpid的<a href="http://www.ibm.com/developerworks/cn/linux/kernel/syscall/part3/">博文</a>，也一起学习了。</p>
 
 <hr />
 
@@ -143,25 +143,25 @@
 <table>
 <thead>
 <tr>
-<th align="center">pid         </th>
+<th align="left">pid         </th>
 <th align="left"> Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="center">pid == -1   </td>
+<td align="left">pid == -1   </td>
 <td align="left"> 等待任一个子进程（与wait等效）；</td>
 </tr>
 <tr>
-<td align="center">pid > 0     </td>
+<td align="left">pid > 0     </td>
 <td align="left"> 则等待其进程ID与pid相等的子进程。</td>
 </tr>
 <tr>
-<td align="center">pid == 0    </td>
+<td align="left">pid == 0    </td>
 <td align="left"> 等待其组ID等于调用进程组ID的任一个子进程。</td>
 </tr>
 <tr>
-<td align="center">pid &lt; -1    </td>
+<td align="left">pid &lt; -1    </td>
 <td align="left"> 等待其组ID等于pid绝对值的任一子进程。</td>
 </tr>
 </tbody>
@@ -173,43 +173,43 @@
 <table>
 <thead>
 <tr>
-<th align="center">macro               </th>
+<th align="left">macro               </th>
 <th align="left"> Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="center">WIFEXITED(status)   </td>
+<td align="left">WIFEXITED(status)   </td>
 <td align="left"> 若子进程是正常退出的，则为真，此时可以调用WEXITSTATUS(status)获得退出值</td>
 </tr>
 <tr>
-<td align="center">WEXITSTATUS(status) </td>
+<td align="left">WEXITSTATUS(status) </td>
 <td align="left"> 若子进程是被异常终止的，则为真，此时可以调用WTERMSIG(status)获得使其终止的信号编号</td>
 </tr>
 <tr>
-<td align="center">WIFSTOPPED(status)  </td>
+<td align="left">WIFSTOPPED(status)  </td>
 <td align="left"> 若子进程是暂停状态，则为真，此时可以调用WTERMSIG(status)获得使其暂停的信号编号</td>
 </tr>
 </tbody>
 </table>
 
 
-<p>到现在未知，还有一个参数叫option，它提供了一些额外的选项来控制waitpid，目前在Linux中只支持WNOHANG和WUNTRACED两个选项：</p>
+<p>到现在为止，还有一个参数叫option，它提供了一些额外的选项来控制waitpid，目前在Linux中只支持WNOHANG和WUNTRACED两个选项：</p>
 
 <table>
 <thead>
 <tr>
-<th align="center">Option      </th>
+<th align="left">Option      </th>
 <th align="left"> Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="center">WNOHANG     </td>
+<td align="left">WNOHANG     </td>
 <td align="left"> waitpid在调用时发现没有已退出的子进程可收集，则返回0</td>
 </tr>
 <tr>
-<td align="center">WUNTRACED   </td>
+<td align="left">WUNTRACED   </td>
 <td align="left"> 在所有符合条件的pid中，如果其中有已经stopped的进程，则立即返回（而对于traced的进程，即使没有该选项，如果其stopped了，也会立即返回）</td>
 </tr>
 </tbody>
@@ -229,13 +229,11 @@
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
-<span class='line-number'>6</span>
 </pre></td><td class='code'><pre><code class='c'><span class='line'><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
 </span><span class='line'>
 </span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">include</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="n">sys</span><span class="o">/</span><span class="n">ptrace</span><span class="p">.</span><span class="n">h</span><span class="o">&gt;&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
 </span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="kt">long</span> <span class="n">ptrace</span><span class="p">(</span><span class="k">enum</span> <span class="n">__ptrace_request</span> <span class="n">request</span><span class="p">,</span> <span class="n">pid_t</span> <span class="n">pid</span><span class="p">,</span> <span class="kt">void</span>
-</span><span class='line'><span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="n">addr</span><span class="p">,</span> <span class="kt">void</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span><span class="n">data</span><span class="p">);</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="kt">long</span> <span class="n">ptrace</span><span class="p">(</span><span class="k">enum</span> <span class="n">__ptrace_request</span> <span class="n">request</span><span class="p">,</span> <span class="n">pid_t</span> <span class="n">pid</span><span class="p">,</span> <span class="kt">void</span> <span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="n">addr</span><span class="p">,</span> <span class="kt">void</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span><span class="n">data</span><span class="p">);</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
 <p>第一个参数<code>request</code>决定了ptrace的行为与其它参数的使用方法，它可以有好多值，以下列出了几种比较常见的取值：</p>
@@ -243,80 +241,80 @@
 <table>
 <thead>
 <tr>
-<th align="center">request             </th>
+<th align="left">request             </th>
 <th align="left"> Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="center">PTRACE_TRACEME      </td>
+<td align="left">PTRACE_TRACEME      </td>
 <td align="left"> 由子进程调用，让父进程跟踪自己（pid, addr, and data are ignored）</td>
 </tr>
 <tr>
-<td align="center">PTRACE_PEEKTEXT     </td>
+<td align="left">PTRACE_PEEKTEXT     </td>
 <td align="left"> 读取内存地址addr的值（data is ignored）</td>
 </tr>
 <tr>
-<td align="center">PTRACE_PEEKDATA     </td>
+<td align="left">PTRACE_PEEKDATA     </td>
 <td align="left"> 同PTRACE_PEEKTEXT    </td>
 </tr>
 <tr>
-<td align="center">PTRACE_PEEKUSER     </td>
+<td align="left">PTRACE_PEEKUSER     </td>
 <td align="left"> 读取tracee's USER area的addr位移的数据（data is ignored）</td>
 </tr>
 <tr>
-<td align="center">PTRACE_POKETEXT     </td>
+<td align="left">PTRACE_POKETEXT     </td>
 <td align="left"> 将data中的值写入addr内存地址中</td>
 </tr>
 <tr>
-<td align="center">PTRACE_POKEDATA     </td>
+<td align="left">PTRACE_POKEDATA     </td>
 <td align="left"> 同PTRACE_POKETEXT</td>
 </tr>
 <tr>
-<td align="center">PTRACE_POKEUSER     </td>
+<td align="left">PTRACE_POKEUSER     </td>
 <td align="left"> 将data中的值写入tracee's USER area的addr位移地址中</td>
 </tr>
 <tr>
-<td align="center">PTRACE_GETREGS      </td>
+<td align="left">PTRACE_GETREGS      </td>
 <td align="left"> 将general-purpose寄存器写入data（addr is ignored）</td>
 </tr>
 <tr>
-<td align="center">PTRACE_GETFPREGS    </td>
+<td align="left">PTRACE_GETFPREGS    </td>
 <td align="left"> 将 floating-point寄存器写入data（addr is ignored）</td>
 </tr>
 <tr>
-<td align="center">PTRACE_SETREGS      </td>
+<td align="left">PTRACE_SETREGS      </td>
 <td align="left"> 修改tracee的general-purpose寄存器（addr is ignored)</td>
 </tr>
 <tr>
-<td align="center">PTRACE_SETFPREGS    </td>
+<td align="left">PTRACE_SETFPREGS    </td>
 <td align="left"> 修改tracee的floating-point寄存器（addr is ignored)</td>
 </tr>
 <tr>
-<td align="center">PTRACE_CONT         </td>
+<td align="left">PTRACE_CONT         </td>
 <td align="left"> 重启之前暂停的进程，如果data不为零，则代表发给进程的信号值（addr is ignored）</td>
 </tr>
 <tr>
-<td align="center">PTRACE_SYSCALL,     </td>
+<td align="left">PTRACE_SYSCALL,     </td>
 <td align="left"> 执行PTRACE_CONT，并且使进程进入syscall-enter-stop和syscall-exit-stop模式</td>
 </tr>
 <tr>
-<td align="center">PTRACE_SINGLESTEP   </td>
+<td align="left">PTRACE_SINGLESTEP   </td>
 <td align="left"> 执行PTRACE_CONT，并且进行单点跟踪</td>
 </tr>
 <tr>
-<td align="center">PTRACE_ATTACH       </td>
+<td align="left">PTRACE_ATTACH       </td>
 <td align="left"> 发送一个SIGSTOP信号到pid进程，并开始进行跟踪（addr and data are ignored）</td>
 </tr>
 <tr>
-<td align="center">PTRACE_DETACH       </td>
+<td align="left">PTRACE_DETACH       </td>
 <td align="left"> 先detach，然后执行PTRACE_CONT。</td>
 </tr>
 </tbody>
 </table>
 
 
-<p>除此之外，还有很多可用的取值，在linux的<a href="http://linux.die.net/man/2/ptrace">man page</a>里面有很详细的描述。</p>
+<p>除此之外，还有很多可用的取值，在linux的<a href="http://linux.die.net/man/2/ptrace">manpage</a>里面有很详细的描述。</p>
 
 <p>需要注意的是，这里所说的attach和之后的一系列操作都是针对<strong>thread</strong>而言的，对于多线程来说，每一个thread都可以单独地被attach到一个跟踪者（tracer）。</p>
 
@@ -661,7 +659,7 @@
 <p>之后，父进程在getdata函数中通过</p>
 
 <p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">ptrace</span><span class="p">(</span><span class="n">PTRACE_POKEDATA</span><span class="p">,</span> <span class="n">child</span><span class="p">,</span> <span class="n">addr</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">4</span><span class="p">,</span> <span class="n">data</span><span class="p">.</span><span class="n">val</span><span class="p">);</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">data</span><span class="p">.</span><span class="n">val</span> <span class="o">=</span> <span class="n">ptrace</span><span class="p">(</span><span class="n">PTRACE_PEEKDATA</span><span class="p">,</span> <span class="n">child</span><span class="p">,</span> <span class="n">addr</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">4</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
 <p>将文件名从ecx中获得，并在putdata函数中通过</p>
@@ -682,7 +680,7 @@
 
 <p>这里有一个问题，就是当子进程调用PTRACE_TRACEME或者父进程调用PTRACE_ATTACH之后，在什么情况下会将子进程stop（从而将控制权交给父进程）呢？</p>
 
-<p>要回答这个问题，首先要知道当我们使用ptrace的时候，内核中发生了什么？这里有一段简要的说明：当一个进程调用了 ptrace(PTRACE_TRACEME, …)之后，内核为该进程设置了一个标记，注明该进程将被跟踪。内核中的相关原代码（位于<code>arch/i386/kernel/ptrace.c</code>）：</p>
+<p>要回答这个问题，首先要知道当我们使用ptrace的时候，内核中发生了什么？这里有一段简要的说明：当一个进程调用了 ptrace(PTRACE_TRACEME, …)之后，内核为该进程设置了一个标记，注明该进程将被跟踪。内核中的相关原代码（位于<code>arch/i386/kernel/ptrace.c</code>）如下：</p>
 
 <p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -710,15 +708,15 @@
 </span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
-<p>一次系统调用完成之后，内核察看那个标记，然后执行trace系统调用（如果这个进程正处于被跟踪状态的话）。其汇编的细节可以在 arh/i386/kernel/entry.S中找到。</p>
+<p>一次系统调用完成之后，内核察看那个标记，然后执行trace系统调用（如果这个进程正处于被跟踪状态的话）。其汇编的细节可以在 <code>arch/i386/kernel/entry.S</code>中找到。</p>
 
-<p>现在让我们来看看这个sys_trace()函数（位于<code>arch/i386/kernel/ptrace.c</code>）。它停止子进程，然后发送一个信号给父进程，告诉它子进程已经停滞，这个信号会激活正处于等待状态的父进程，让父进程进行相关处理。父进程在完成相关操作以后就调用ptrace(PTRACE_CONT, …)或者 ptrace(PTRACE_SYSCALL, …), 这将唤醒子进程，内核此时所作的是调用一个叫<code>wake_up_process()</code>的进程调度函数。其他的一些系统架构可能会通过发送SIGCHLD给子进程来达到这个目的。</p>
+<p>现在让我们来看看这个sys_trace()函数（位于<code>arch/i386/kernel/ptrace.c</code>）。它停止子进程，然后发送一个信号给父进程，告诉它子进程已经停滞，这个信号会激活正处于等待状态的父进程，让父进程进行相关处理。父进程在完成相关操作以后就调用ptrace(PTRACE_CONT, …)或者 ptrace(PTRACE_SYSCALL, …)，这将唤醒子进程，内核此时所作的是调用一个叫<code>wake_up_process()</code>的进程调度函数。其他的一些系统架构可能会通过发送SIGCHLD给子进程来达到这个目的。</p>
 
 <hr />
 
-<p>由此可以看出，通过ptrace和wait(waitpid)等系统调用，可以使得父进程在系统调用的级别做子进程的跟踪和检查，可以由此做很多的事情，但是有一个问题是，由于ptrace并不能指定哪些系统调用被跟踪，因此所有系统调用都会被stop并且转移控制权，由此会产生比较大的overhead。</p>
+<p>由此可以看出，通过ptrace和wait(waitpid)等系统调用，可以使得父进程在系统调用的级别做子进程的跟踪和检查，由此来做很多的事情，但是有一个问题是，由于ptrace并不能指定哪些系统调用被跟踪，因此所有系统调用都会被stop并且转移控制权，由此会产生比较大的overhead。</p>
 
-<p>总的来说，ptrace是一个非常强大的系统调用，这里只是介绍了其中几个比较常用的参数，更多的信息可以参照ptrace的<a href="http://linux.die.net/man/2/ptrace">manpage</a></p>
+<p>总的来说，ptrace是一个非常强大的系统调用，这里只是介绍了其中几个比较常用的参数，更多的信息可以参照<a href="http://linux.die.net/man/2/ptrace">ptrace的manpage</a></p>
 ]]></content>
   </entry>
   
