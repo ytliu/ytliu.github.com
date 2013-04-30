@@ -9,7 +9,7 @@
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="这两天看Jiang团队对AnserverBot的一篇详细的分析中提到AnserverBot中对很多数据（比如C&amp;C server的url等）进行了Base64编码，于是，我对这种编码进行了了解，并根据他们实现的python解码脚本，写了一个ruby的解码脚本。 Base64 &hellip;">
+  <meta name="description" content="寒假回来就要开始执行新年的计划了~首先是每周的一篇blog。 今天看了阮一峰最新的一篇博客计算机是如何启动的，感觉写得很好，又清楚又简单。虽然自己关于计算机启动这个过程从大三OS课的时候就陆陆续续地一直有了解，但是都没有一个系统的了解，或者了解了又忘了， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -21,6 +21,7 @@
   <link rel="canonical" href="http://ytliu.github.com/blog/page/2/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
   <script src="/javascripts/modernizr-2.0.js"></script>
   <script src="/javascripts/ender.js"></script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
@@ -66,6 +67,382 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/02/17/%5B%28zhuan-%29%5D-ji-suan-ji-de-qi-dong/">【转】计算机的启动</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-02-17T14:24:00+08:00" pubdate data-updated="true">Feb 17<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>寒假回来就要开始执行新年的计划了~首先是每周的一篇blog。</p>
+
+<p>今天看了<a href="http://www.ruanyifeng.com/blog/">阮一峰</a>最新的一篇博客<a href="http://www.ruanyifeng.com/blog/2013/02/booting.html">计算机是如何启动的</a>，感觉写得很好，又清楚又简单。虽然自己关于计算机启动这个过程从大三OS课的时候就陆陆续续地一直有了解，但是都没有一个系统的了解，或者了解了又忘了，希望通过这次记录把这点彻底弄清楚来并且记在脑子里。另外在评论中有另外一个小哥<a href="http://www.dalei.org/">大磊</a>把他的<a href="http://www.dalei.org/linux-unix-boot-process/">博客</a>也贴出来了，写得很详细，作为阮一峰的补充吧。</p>
+
+<hr />
+
+<p>以下是转来的文章，中间加上了大磊的补充，也没有区分哪句话是谁说的，具体的还是看之前提到的两篇博客吧：</p>
+
+<h4>零、boot的含义</h4>
+
+<p>先问一个问题，&#8221;启动&#8221;用英语怎么说？</p>
+
+<p>回答是boot。可是，boot原来的意思是靴子，&#8221;启动&#8221;与靴子有什么关系呢？ 原来，这里的boot是bootstrap（鞋带）的缩写，它来自一句谚语：</p>
+
+<pre><code>"pull oneself up by one's bootstraps"
+</code></pre>
+
+<p>字面意思是&#8221;拽着鞋带把自己拉起来&#8221;，这当然是不可能的事情。最早的时候，工程师们用它来比喻，计算机启动是一个很矛盾的过程：必须先运行程序，然后计算机才能启动，但是计算机不启动就无法运行程序！</p>
+
+<p>早期真的是这样，必须想尽各种办法，把一小段程序装进内存，然后计算机才能正常运行。所以，工程师们把这个过程叫做&#8221;拉鞋带&#8221;，久而久之就简称为boot了。</p>
+
+<p>计算机的整个启动过程分成四个阶段。</p>
+
+<h4>一、第一阶段：BIOS</h4>
+
+<p>上个世纪70年代初，&#8221;只读内存&#8221;（read-only memory，缩写为ROM）发明，开机程序被刷入ROM芯片，计算机通电后，第一件事就是读取它。</p>
+
+<p><img src="http://ytliu.github.com/images/2013-02-17-1.png" title="BIOS" alt="BIOS" /></p>
+
+<p>这块芯片里的程序叫做&#8221;基本輸出輸入系統&#8221;（Basic Input/Output System），简称为BIOS。</p>
+
+<h5>1.1 硬件自检</h5>
+
+<p>BIOS中主要存放的程序包括：自诊断程序（通过读取CMOS RAM中的内容识别硬件配置，并对其进行自检和初始化）、CMOS设置程序（引导过程中，通过特殊热键启动，进行设置后，存入CMOS RAM中）、系统自动装载程序（在系统自检成功后，将磁盘相对0道0扇区上的引导程序装入内存使其运行）和主要I/O驱动程序和中断服务（BIOS和硬件直接打交道，需要加载I/O驱动程序）。</p>
+
+<p>BIOS程序首先检查，计算机硬件能否满足运行的基本条件，这叫做&#8221;硬件自检&#8221;（Power-On Self-Test），缩写为POST。</p>
+
+<p>如果硬件出现问题，主板会发出不同含义的蜂鸣，启动中止。如果没有问题，屏幕就会显示出CPU、内存、硬盘等信息。</p>
+
+<h5>1.2 启动顺序</h5>
+
+<p>硬件自检完成后，BIOS把控制权转交给下一阶段的启动程序。</p>
+
+<p>这时，BIOS需要知道，&#8221;下一阶段的启动程序&#8221;具体存放在哪一个设备。也就是说，BIOS需要有一个外部储存设备的排序，排在前面的设备就是优先转交控制权的设备。这种排序叫做&#8221;启动顺序&#8221;（Boot Sequence）。</p>
+
+<p>打开BIOS的操作界面，里面有一项就是&#8221;设定启动顺序&#8221;。</p>
+
+<p><img src="http://ytliu.github.com/images/2013-02-17-2.png" title="BIOS Sequence" alt="BIOS Sequence" /></p>
+
+<h4>二、第二阶段：主引导记录</h4>
+
+<p>BIOS按照&#8221;启动顺序&#8221;，把控制权转交给排在第一位的储存设备。即根据用户指定的引导顺序从软盘、硬盘或是可移动设备中读取启动设备的MBR，并放入指定的位置（0x7c000）内存中。</p>
+
+<p>这时，计算机读取该设备的第一个扇区，也就是读取最前面的512个字节。如果这512个字节的最后两个字节是0x55和0xAA，表明这个设备可以用于启动；如果不是，表明设备不能用于启动，控制权于是被转交给&#8221;启动顺序&#8221;中的下一个设备。</p>
+
+<p>这最前面的512个字节，就叫做&#8221;主引导记录&#8221;（Master boot record，缩写为MBR）。</p>
+
+<h5>2.1 主引导记录的结构</h5>
+
+<p>&#8220;主引导记录&#8221;只有512个字节，放不了太多东西。它的主要作用是，告诉计算机到硬盘的哪一个位置去找操作系统。</p>
+
+<p>主引导记录由三个部分组成：</p>
+
+<pre><code>（1） 第1-446字节：调用操作系统的机器码。
+（2） 第447-510字节：分区表（Partition table）。
+（3） 第511-512字节：主引导记录签名（0x55和0xAA）。
+</code></pre>
+
+<p>其中，第二部分&#8221;分区表&#8221;的作用，是将硬盘分成若干个区。</p>
+
+<h5>2.2 分区表</h5>
+
+<p>硬盘分区有很多好处。考虑到每个区可以安装不同的操作系统，&#8221;主引导记录&#8221;因此必须知道将控制权转交给哪个区。</p>
+
+<p>分区表的长度只有64个字节，里面又分成四项，每项16个字节。所以，一个硬盘最多只能分四个一级分区，又叫做&#8221;主分区&#8221;。</p>
+
+<p>每个主分区的16个字节，由6个部分组成：</p>
+
+<pre><code>（1） 第1个字节：如果为0x80，就表示该主分区是激活分区，控制权要转交给这个分区。四个主分区里面只能有一个是激活的。
+（2） 第2-4个字节：主分区第一个扇区的物理位置（柱面、磁头、扇区号等等）。
+（3） 第5个字节：主分区类型。
+（4） 第6-8个字节：主分区最后一个扇区的物理位置。
+（5） 第9-12字节：该主分区第一个扇区的逻辑地址。
+（6） 第13-16字节：主分区的扇区总数。
+</code></pre>
+
+<p>最后的四个字节（&#8221;主分区的扇区总数&#8221;），决定了这个主分区的长度。也就是说，一个主分区的扇区总数最多不超过2的32次方。</p>
+
+<p>如果每个扇区为512个字节，就意味着单个分区最大不超过2TB。再考虑到扇区的逻辑地址也是32位，所以单个硬盘可利用的空间最大也不超过2TB。如果想使用更大的硬盘，只有2个方法：一是提高每个扇区的字节数，二是增加扇区总数。</p>
+
+<h4>三、第三阶段：硬盘启动</h4>
+
+<p>这时，计算机的控制权就要转交给硬盘的某个分区了，这里又分成三种情况。</p>
+
+<h5>3.1 情况A：卷引导记录</h5>
+
+<p>上一节提到，四个主分区里面，只有一个是激活的。计算机会读取激活分区的第一个扇区，叫做&#8221;卷引导记录&#8221;（Volume boot record，缩写为VBR）。</p>
+
+<p>&#8220;卷引导记录&#8221;的主要作用是，告诉计算机，操作系统在这个分区里的位置。然后，计算机就会加载操作系统了。</p>
+
+<h5>3.2 情况B：扩展分区和逻辑分区</h5>
+
+<p>随着硬盘越来越大，四个主分区已经不够了，需要更多的分区。但是，分区表只有四项，因此规定有且仅有一个区可以被定义成&#8221;扩展分区&#8221;（Extended partition）。</p>
+
+<p>所谓&#8221;扩展分区&#8221;，就是指这个区里面又分成多个区。这种分区里面的分区，就叫做&#8221;逻辑分区&#8221;（logical partition）。</p>
+
+<p>计算机先读取扩展分区的第一个扇区，叫做&#8221;扩展引导记录&#8221;（Extended boot record，缩写为EBR）。它里面也包含一张64字节的分区表，但是最多只有两项（也就是两个逻辑分区）。</p>
+
+<p>计算机接着读取第二个逻辑分区的第一个扇区，再从里面的分区表中找到第三个逻辑分区的位置，以此类推，直到某个逻辑分区的分区表只包含它自身为止（即只有一个分区项）。因此，扩展分区可以包含无数个逻辑分区。</p>
+
+<p>但是，似乎很少通过这种方式启动操作系统。如果操作系统确实安装在扩展分区，一般采用下一种方式启动。</p>
+
+<h5>3.3 情况C：启动管理器</h5>
+
+<p>在这种情况下，计算机读取&#8221;主引导记录&#8221;前面446字节的机器码之后，不再把控制权转交给某一个分区，而是运行事先安装的&#8221;启动管理器&#8221;（boot loader），由用户选择启动哪一个操作系统。</p>
+
+<p>Linux环境中，目前最流行的启动管理器是Grub。</p>
+
+<p><img src="http://ytliu.github.com/images/2013-02-17-3.png" title="Grub" alt="Grub" /></p>
+
+<p>对于grub而言，在MBR中的446字节的引导程序属于GRUB的开始执行程序，通过这段程序，进一步执行stage1.5或是stage2的执行程序，将在下面详细介绍执行过程。</p>
+
+<p>其中stage1.5或是stage2便属于阶段2引导的过程了，stage2过程也是作为GRUB kernel的核心代码出现。Stage1.5过程（对于GRUB而言存在stage1.5，GRUB2则不存在）的功能很单一，主要就是为了引导stage2过程服务。由于stage2过程的代码存放在文件系统下的boot分区目录中，因此stage1.5过程就是需要提供一个文件系统的环境，而该文件系统环境需要保证系统可以找到stage2过程的文件，那么stage1.5阶段提供的文件系统需要是boot文件系统所对应的，这个在执行grub install过程中就已经确定了。stage2过程中，主要会把系统切换到保护模式，设置好C运行时环境，找到config文件（事实上就是menulist文件），如果没有找到就执行一个shell，等待用户的执行。然后的工作就变成了输入命令->解析命令->执行命令的循环中。当然该阶段引导的最终状态就是执行boot命令，将内核和initrd镜像加载进入内存中，进而将控制权转交给内核。</p>
+
+<h4>四、第四阶段：操作系统</h4>
+
+<p>控制权转交给操作系统后，操作系统的内核首先被载入内存。</p>
+
+<p>以Linux系统为例，先载入/boot目录下面的kernel。内核加载成功后，第一个运行的程序是/sbin/init。它根据配置文件（Debian系统是/etc/initab）产生init进程。这是Linux启动后的第一个进程，pid进程编号为1，其他进程都是它的后代。</p>
+
+<p>然后，init线程加载系统的各个模块，比如窗口程序和网络程序，直至执行/bin/login程序，跳出登录界面，等待用户输入用户名和密码。</p>
+
+<p>至此，全部启动过程完成。</p>
+
+<hr />
+
+<p>另外在大磊的<a href="http://www.dalei.org/linux-unix-boot-process/">博客</a>中还有许多细节部分：</p>
+
+<h4>BIOS启动细节：</h4>
+
+<p>a) 按下电源开关，电源就开始向主板和其它设备供电；当芯片组检测到电源已经开始稳定供电了(当然从不稳定到稳定的过程只是一瞬间的事情)，它便撤去RESET信号(如果是手工按下计算机面板上的Reset按钮来重启机器，那么松开该按钮时芯片组就会撤去RESET信号)；CPU马上就从地址FFFF:0000H 处开始执行指令，放在这里的只是一条跳转指令，跳到系统BIOS中真正的启动代码处。</p>
+
+<p>b) 系统BIOS的启动代码首先进行POST(Power－On Self Test，加电后自检)。POST的主要检测系统中一些关键设备是否存在和能否正常工作，例如内存和显卡等设备；由于POST是最早进行的检测过程，此时显卡还没有初始化，如果系统BIOS在进行POST的过程中发现了一些致命错误，例如没有找到内存或者内存有问题(此时只会检查640K常规内存)，那么系统BIOS就会直接控制喇叭发声来报告错误，声音的长短和次数代表了错误的类型；在正常情况下，POST过程进行得非常快，几乎无法感觉到它的存在。POST结束之后就会调用其它代码来进行更完整的硬件检测。</p>
+
+<p>c) 接下来系统BIOS将查找显卡的BIOS。前面说过，存放显卡BIOS的ROM芯片的起始地址通常设在C0000H处，系统BIOS在这个地方找到显卡BIOS之后就调用它的初始化代码，由显卡BIOS来初始化显卡。此时多数显卡都会在屏幕上显示出一些初始化信息，介绍生产厂商、图形芯片类型等内容，不过这个画面几乎是一闪而过。系统BIOS接着会查找其它设备的BIOS程序，找到之后同样要调用这些BIOS内部的初始化代码来初始化相关的设备。</p>
+
+<p>d) 查找完所有其它设备的BIOS之后，系统BIOS将显示出它自己的启动画面，其中包括有系统BIOS的类型、序列号和版本号等内容。</p>
+
+<p>e) 接着系统BIOS将检测和显示CPU的类型和工作频率，测试所有的RAM，并同时在屏幕上显示内存测试的进度。可以在CMOS设置中自行决定使用简单耗时少或者详细耗时多的测试方式。</p>
+
+<p>f) 内存测试通过之后，系统BIOS将开始检测系统中安装的一些标准硬件设备，包括硬盘、CD-ROM、串口、并口和软驱等设备，另外绝大多数较新版本的系统BIOS在这一过程中还要自动检测和设置内存的定时参数、硬盘参数和访问模式等。</p>
+
+<p>g) 标准设备检测完毕后，系统BIOS内部支持即插即用的代码将开始检测和配置系统中安装的即插即用设备。每找到一个设备之后，系统BIOS都会在屏幕上显示出设备的名称和型号等信息，同时为该设备分配中断、DMA通道和I/O端口等资源。</p>
+
+<p>h) 到这一步为止，所有硬件都已经检测配置完毕了，多数系统BIOS会重新清屏并在屏幕上方显示出一个表格，其中概略地列出了系统中安装的各种标准硬件设备，以及它们使用的资源和一些相关工作参数。</p>
+
+<p>i) 接下来系统BIOS将更新ESCD(Extended System Configuration Data，扩展系统配置数据)。ESCD是系统BIOS用来与操作系统交换硬件配置信息的一种手段，这些数据被存放在CMOS(一小块特殊的RAM，由主板上的电池来供电)之中。通常ESCD数据只在系统硬件配置发生改变后才会更新，所以不是每次启动机器时都能够看到“Update ESCD… Success”这样的信息。不过，某些主板的系统BIOS在保存ESCD数据时使用了与Windows 9x不相同的数据格式，于是Windows 9x在它自己的启动过程中会把ESCD数据修改成自己的格式。但在下一次启动机器时，即使硬件配置没有发生改变，系统BIOS也会把ESCD的数据格式改回来。如此循环，将会导致在每次启动机器时，系统BIOS都要更新一遍ESCD，这就是为什么有些机器在每次启动时都会显示出相关信息的原因。</p>
+
+<p>j) ESCD更新完毕后，系统BIOS的启动代码将进行它的最后一项工作：即根据用户指定的启动顺序从软盘、硬盘或光驱启动MBR。在这个过程中会按照启动顺序顺序比较其放置MBR的位置的结尾两位是否为0xAA55，通过这种方式判断从哪个引导设备进行引导。在确定之后，将该引导设备的MBR内容读入到0x7C00[1]的位置，并再次判断其最后两位，当检测正确之后，进行阶段1的引导。</p>
+
+<h4>EFI启动细节</h4>
+
+<p>与传统MBR相比，GPT采用了不同的分区方式。</p>
+
+<p>对于传统MBR，其结构主要如下：</p>
+
+<p><img src="http://ytliu.github.com/images/2013-02-17-4.png" title="BIOS Graph" alt="BIOS Graph" /></p>
+
+<p>上图即对上文中所述的很形象的说明，在图中看到MBR被分成三个部分，分别是：Bootloader、分别表以及Magic Number。其中Bootloader部分为stage1中被执行的起始部分。</p>
+
+<p>相反，对于EFI系统中所采用的GPT分区方式，则采用了不同于MBR分区方式的形式，从下图中可以发现：</p>
+
+<p><img src="http://ytliu.github.com/images/2013-02-17-5.png" title="EFI Graph" alt="EFI Graph" /></p>
+
+<p>如上图所示，GPT分区表主要包括：保护MBR、首要GPT头、首要GPT、备用GPT、备用GPT头和磁盘数据区。保护MBR与正常的MBR区别不大，主要是分区表上的不同，在保护MBR中只要一个表示为0xEE的分区，以此来表示这块硬盘使用GPT分区表。首要GPT头包含了众多信息，具体内容如下：</p>
+
+<p><img src="http://ytliu.github.com/images/2013-02-17-6.png" title="EFI Table" alt="EFI Table" /></p>
+
+<p>分区表头定义了硬盘的可用空间以及组成分区表的项的大小和数量。分区表头还记录了这块硬盘的GUID，记录了分区表头本身的位置和大小（位置总是在LBA1）以及备份分区表头和分区表的位置和大小（在硬盘的最后）。它还存储着它本身和分区表的CRC32校验。固件、引导程序和操作系统在启动时可以根据这个校验值来判断分区表是否有错误，如果出错了，可以使用软件从硬盘最后的备份GPT分区表恢复整个分区表，如果备份GPT也校验错误，那么磁盘将不可用，系统拒绝启动。</p>
+
+<p>接下来主要是128个分区表项，GPT分区表使用简单而直接的方式表示分区。一个分区表项的前16字节是分区类型GUID。例如，EFI系统分区的GUID类型是{C12A7328-F81F-11D2-BA4B-00A0C93EC93B} 。接下来的16字节是该分区的唯一的GUID（这个指的是该分区本身，而之前的GUID指的是该分区的类型）。在接下来是分区其实和末尾的64位LBA编号，以及分区的名字和属性。具体结构如下表：</p>
+
+<p><img src="http://ytliu.github.com/images/2013-02-17-7.png" title="EFI Table2" alt="EFI Table2" /></p>
+
+<h4>MBR引导</h4>
+
+<p>接下来开始真正的引导过程了，主要说明GRUP的引导。总体上GRUB更像是一个mini os，只不过这个mini os的作用只是加载其他的操作系统，在GRUB中包括stage1、stage1.5（可选）和stage2，其中stage1和stage1.5属于boot loader，stage2属于mini os的内核部分。GRUB中stage1过程主要位于MBR的前446字节中（对于支持GPT分区的磁盘，同样有最开始的512字节作为保护MBR，保护MBR与正常的MBR区别不大，主要是分区表上的不同，在保护MBR中只要一个表示为0xEE的分区，以此来表示这块硬盘使用GPT分区表，不能识别GPT硬盘的操作系统通常会识别出一个未知类型的分区，并且拒绝对硬盘进行操作），之后的64字节为硬盘的分区表，最后两个字节为MBR结束标志位（0xAA55）。</p>
+
+<p>stage1部分占用了446字节，其代码文件是源码目录下stage1/stage1.S文件，汇编后生成一个512字节的boot.img，被写在硬盘的0面0道1扇区中，作为硬盘的MBR。stage1的工作很简单，就是加载0面0道2扇区上的512字节到0×8000，然后跳转到0×8000执行。</p>
+
+<p>在0面0道2扇区上的512字节内容为<code>stage1/start.S</code>文件汇编后生成。该扇区上的内容的作用是加载stage1.5或是stage2过程，并将控制权转交。</p>
+
+<h4>Grub引导</h4>
+
+<p>在start过程将控制权转交后，接下来就是GRUB的核心过程了。该过程之所以区分stage1.5和stage2，主要原因是GRUB和GRUB2的区别。在GRUB2中，将stage1.5过程集成到了stage2的过程中，所以stage1.5过程仅仅是针对GRUB的。下面将会分别介绍两种GRUB版本的两种过程。</p>
+
+<p>4.1 GRUB中stage1.5过程</p>
+
+<p>Stage1.5过程很无辜，它的作用很单一，但是非常关键。它的主要功用就是构造一个boot分区系统对应的文件系统，这样可以通过文件系统的路径（/boot/grub/）寻找stage2过程需要的core.img，进而加载到内存中开始执行。</p>
+
+<p>Stage1.5存在于0面0道3扇区开始的地方，并一直延续十几k字节的区域，具体的大小与相应的文件系统的大小有关（文中涉及到了0面0道1-3+x扇区，这部分扇区为保留扇区，BIOS不会放置任何数据。正因为如此如果转换到GPT分区形式，系统将不能被正确引导，如上文所示，MBR后面的扇区都被其他内容所占据）。Stage1.5过程被构建成多种不同类型，但是功能类似，下面简单介绍一下基本的stage1.5过程的文件系统。e2fs_stage1_5（针对ext2fs，可引导ext2和ext3文件系统）、fat_stage1_5（针对fat文件系统，可引导fat32和fat16）、ffs_stage1_5、jfs_stage1_5、minix_stage1_5、reiserfs_stage1_5、vstafs_stage1_5和xfs_stage1_5，这些文件被称为stage1.5过程，这些文件每个至少都在11k以上。除此之外还有两个比较特殊的文件，分别为nbgrub和pxegrub，这两个文件主要是在网络引导时使用，只是格式不同而已，他们很类似与stage2，只是需要建立网络来获取配置文件。</p>
+
+<p>由于stage1.5过程中会涉及到多个文件系统对应的文件，因此本文中主要以ext2fs为例进行说明，其他文件系统与此类似，可以同样进行分析理解。</p>
+
+<p>对于ext2fs文件系统，用于生成该文件系统的stage1.5过程文件（e2fs_stage1_5）的代码为<code>stage2/fsys_ext2fs.c</code>文件。</p>
+
+<p>在<code>stage2/filesys.h</code>文件中定义了每个文件系统对外的接口，用于上层调用，作为stage2过程寻找核心代码使用，文件系统一般被定义的接口主要就是三个函数，分别是mount、read和dir函数。对应ext2fs，其定义的函数为：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#ifdef FSYS_EXT2FS</span>
+</span><span class='line'><span class="cp">#define FSYS_EXT2FS_NUM 1</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">ext2fs_mount</span> <span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">ext2fs_read</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">int</span> <span class="n">len</span><span class="p">);</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">ext2fs_dir</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">dirname</span><span class="p">);</span>
+</span><span class='line'><span class="cp">#else</span>
+</span><span class='line'><span class="cp">#define FSYS_EXT2FS_NUM 0</span>
+</span><span class='line'><span class="cp">#endif</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>针对ext2fs有如上的函数名称，每个函数将具体在<code>stage2/fsys_ext2fs.c</code>文件中被定义，这里面没有包含任何的写的过程，对于bootloader而言仅仅读就可以完成任务了，没必要对其系统进行写操作。其中ext2fs_mount函数用于检查文件系统类型，并将superblock读入到内存中；ext2fs_read函数和ext2fs_dir函数用于对文件系统具体的操作。在<code>stage2/fsys_ext2fs.c</code>文件中除了需要对这三个函数的定义之外，还需要文件系统的属性的数据结构（superblock、inode和group结构，这些结构最初被定义在<code>include/linux/ext2_fs.h</code>文件中），通过这些数据结构描述一个文件系统。</p>
+
+<p>如果读者有兴趣可以试着创建新的文件系统的支持，可以参照目前存在的一些文件系统的模板（实例）编写。</p>
+
+<p>4.2 GRUB中stage2过程</p>
+
+<p>GRUB中的核心过程也就是stage2过程了，该过程主要是在文件系统建立以后选择合适的操作系统进行加载并转交控制权，达到最后引导操作系统的目标。由于GRUB属于multi boot loader，因此在引导的时候要进行选择，选择哪种操作系统来运行。在GRUB内部主要包括两种方式，首先是从menu.list中读取显示到屏幕让用户选择，其次是通过grub-shell中定义的命令手动进行启动。本文将在后面介绍这两种方式如何运行，接下来先介绍一下stage2的具体的执行过程。</p>
+
+<p>在上面一节中介绍过，stage1.5过程中将boot分区的文件系统加载了，之后又做了一件事情，就是将控制权转交给stage2，而stage2入口的地方就是<code>stage2/asm.S</code>文件。<code>Stage2/asm.S</code>文件属于汇编代码，主要作用是初始化C语言的运行环境，为下面执行C语言的函数做好准备，在准备好之后，将执行init_bios_info(<code>stage2/common.c</code>)函数。init_bios_info函数的作用是执行一些底层的函数，然后跳转到cmain执行，cmain函数位于<code>stage2/stage2.c</code>文件中。cmain函数内部进行一个死循环，在循环内部首先加载配置文件，显示给用户，在这同时循环一个内层循环，在内层循环中，获取配置文件中的命令，并解析执行。过程中如果没有可用的配置文件，那么进入命令行模式（enter_cmdline函数），如果找到可用的menu，那么开始执行menu的对应的内容（run_menu函数）。</p>
+
+<p>对于enter_cmdline（<code>stage2/stage2.c</code>）函数，将调用find_command（<code>stage2/cmdline.c</code>），进而执行相应命令的函数。</p>
+
+<p>对于run_menu（<code>stage2/stage2.c</code>）函数，将调用<code>stage2/cmdline.c</code>文件中的run_script函数，进而调用find_command，执行相应命令的函数。</p>
+
+<p>这两种方式虽然经过了不同的过程，对用户输入的行为进行分析和处理，最终调用的函数为find_command，在该函数中顺序循环比较“输入”的命令是否与系统内部定义的相同，如果相同转到执行该函数。在这个比较的过程中包含了一个全局的数据结构为struct builtin（<code>stage2/shared.h</code>），由该数据结构组成了一个table类型（<code>stage2/builtins.c</code>），将命令与相对应的builtin结构对应一起并进行串联。下面描述一下builtin结构的定义：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">struct</span> <span class="n">builtin</span> <span class="p">{</span>
+</span><span class='line'>  <span class="cm">/* 命令名称，重要，是搜索命令时的依据*/</span>
+</span><span class='line'>  <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+</span><span class='line'>  <span class="cm">/* 命令函数，重要，是搜索匹配后调用的函数*/</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">func</span><span class="p">)</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>
+</span><span class='line'>  <span class="cm">/* 功能标示，一般未用到. */</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">flags</span><span class="p">;</span>
+</span><span class='line'>  <span class="cm">/* 简短帮助信息*/</span>
+</span><span class='line'>  <span class="kt">char</span> <span class="o">*</span><span class="n">short_doc</span><span class="p">;</span>
+</span><span class='line'>  <span class="cm">/* 完整帮助信息*/</span>
+</span><span class='line'>  <span class="kt">char</span> <span class="o">*</span><span class="n">long_doc</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">builtin</span> <span class="o">*</span><span class="n">builtin_table</span><span class="p">[]</span><span class="err">；</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>有兴趣的读者可以对上面的内容进行扩展，形成自己的命令，主要在<code>stage2/builtins.c</code>文件中按照预定的格式更新，并添加到builtin_table中即可。</p>
+
+<p>在上面打开配置文件的过程中，主要是通过一些文件操作函数（被定义在<code>stage2/disk_io.c</code>中）完成。这些文件操作函数主要包括：grub_open、grub_read、grub_seek和grub_close等，这些函数属于grub对外的上层接口，具体的函数内部将调用前文中提到的boot分区对应的文件系统的相应的函数完成，这个过程主要是通过回调函数来完成。该过程整体思路类似于面向对象过程，通过对象操作具体的函数。</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/01/12/qiao-bang-zhu-chuan-you-gan/">乔帮主传有感</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-01-12T20:34:00+08:00" pubdate data-updated="true">Jan 12<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>这几周花了晚上的时间把乔帮主的传记给看完了。在我的记忆中我已经很久很久（或许久到甚至都不记得）没有看过什么名人传记，或许我本身就没有资格评论别人，而且由于自己的孤陋寡闻，也从来没有什么自己所谓的偶像。从乔帮主的传记中我惊叹于原来一个人可以那么真实地出现在这个世界中，通过他的创造力改变这个世界；居然存在一个让人看起来那么“讨厌”的人却有着别人无法逃脱的魅力；通过自己的意志让真正强大的人做到自己从未想过做到原本也确实无法做到的事，用他那强大到无法抗拒的“现实扭曲力场“来改变别人甚至使自己相信原本不存在的现实；他是一个自私到不行的非主流痞子，从不会设身处地地为周围的人考虑全凭自己一厢情愿去判定事物的好坏，去赞扬别人，去不惜代价地辱骂对方，但当面对全世界时，却毫不吝啬地为她着想，甚至去赌博这个世界未来的样子；或许没有一个人能像他那样将艺术和科技如此无缝地结合，让这个社会的普通人类去感受一个由它个人，以及一个伟大的公司所创造的更高的品味，即使是在即将离开人世的时候还在专注于此。他尽自己全力经营并留下的那个公司，由他物色、培养并使之无比强大的那些富有激情和创造力的人们，必将继续为我们大众带来一件件跨时代的产品，而他的一生一世，所经历的、所遭受的、所创造的、所改变的，留给世人一个神话般的存在，所有的这些遗产，不仅伟大，而且永恒。</p>
+
+<p>当我看完上面这段文字，我都怀疑自己是否也进入的乔帮主的”现实扭曲力场“，被他的成就所折服，甚至忽略了他的一切令人厌恶的性格抑或缺点。在看书的过程中，他的太多做法使我无法理解，甚至强烈地抵抗，但却又有另一些让我毫无迹象地被其魅力和强大所折服，以至于甚至对他的偏激、阴暗面、对身边人的残酷、强大到无与伦比的控制欲、以及极其简单却让人无法理解的二元论，都带着一种幽默的嘲弄的态度，甚至会自发地将其归为其不可或缺的成功因子。当这种人出现，我又有什么资历，又怎么忍心去批判他，还带着无法忍受的态度去看待他呢？或许我的这些所想并非被逼迫，而是完全地心甘情愿吧？我敬重他、崇拜他、信任他、感激他，感动于他之所为，并发自内心地希望他一路走好。</p>
+
+<p>尽管如此，虽然还仅仅是作为一个挣扎在毕业路上的IT学生，一方面，我无比愉悦而满怀感激地使用乔帮主为我们带来的ipad/iphone/air/icloud&#8230;，享受着它强烈的控制欲下设计且实现的近乎完美的端到端一体化系统和服务，一方面，我又在内心深处弱弱地支持着黑客精神，支持着用户对自己所拥有的一切（包括软件）的所有权和完全自由控制权。我毫无保留地信奉着开放对这个世界带来的绝对远胜于封闭，我信奉黑客世界中的自由而不作恶，我崇尚google文化，崇尚Linux等所有开源社区文化，崇尚git等这些为开源、开放所做出贡献的软件和组织。</p>
+
+<p>我使用苹果的产品并热衷于此，但我却又无条件地支持开放与开源，而且我确信这样的人绝对不止我一个，而应该会是千千万万，那么这又是因为什么呢？</p>
+
+<p>就在刚才我突然冒出来一个想法，或许是一个很显然和一目了然的想法，但是我发现我却刚刚才发现它，而且为此兴奋了好一阵子就如同我发现了一个真理一般。我想尝试着解答为什么，而且我相信这是唯一合理的解释。</p>
+
+<h4>开放 &amp; 封闭</h4>
+
+<p>我支持开放，因为我是一个开发者，是这个计算机世界中本应该创建规则的人，当这个世界中存在的规则开放了，才能更快地让这个世界不停滞地前进，试想如果每一个希望改进某个系统的人还需要重新再实现一个这个系统的话，每时每分每秒又能有多少所谓的创新呢？当这个世界的所有规则都是封闭的，又有多少人能进入这个世界而为此奉献自身呢？或许你可以说我们有点自私，希望用自己的方便换来单纯用户的更差体验，或许你可以说开放只是为了我们这些所谓的开发者更方便而简单地进行抄袭。发自内心地说，这些并不是没有道理，而且大量存在于现实社会中，但是这种现象不会长久，甚至会很容易由于其匮乏的核心竞争力迅速埋没，而创新的力量则会比原来任何时候都强大，况且封闭并不意味着没有抄袭，只是增加了难度而已，并非杜绝；而难道你又能否认封闭的windows没有从开放的linux里面借鉴些什么东西吗？开放使得我们创新于我们自己的东西，而不是纠结于已经存在于世的技术，而封闭只能将更多的人无情地拒之门外，或是浪费大量毫无价值的时间。</p>
+
+<p>用户更喜欢苹果的产品（至少从目前的趋势来看），因为他们并不在意谁创造了苹果，并不在意这个世界的创新与前进出现在哪个公司，由那个hacker所推动。用户只在意于体验，在意于现在拿在我手中的产品是否满足于我的喜好，是否从品味上来看更优于其它。对于他们来说，封闭系统的创新总归可以由那些封闭系统的公司解决，因为不管是哪个封闭的系统总是由个人或公司开发的，只要最后结果符合需求，其它那些被封闭系统拒之门外或浪费大量时间的开发者又会有那个用户去care呢？苹果的优势在于他知道用户的心理，而由其强势控制的端到端一体化封闭系统是一个能够走在这条道路上的最可靠而又迅速的捷径。再加上苹果公司有着其它公司所缺乏的艺术与科技融合的本领以及其对未来电子产品的前瞻能力，于是他能在用户体验这个领域做出别人所无法比拟的成功，使得竞争对手甚至无法复制。而用户在乎的不就在于体验以及产品的品味吗？</p>
+
+<p>而对于我来说，尽管我是一个开发者，我支持开放，但我同时也是一个不择不扣的用户，从一个普通用户的心态去评判产品时，苹果总能以它无以伦比的核心竞争力打败其它公司而被我选中。我没有Cory Doctorow那样”为什么我不会买ipad“这样的决心和霸气，因为一方面苹果的产品是无害的，而我也没有对我的手机具有完全控制能力的需求，而另一方面，苹果的电脑对于开发者的友好有时甚至优于linux等其它系统，只要我没有对这个系统本身做出修改或者控制的需求。</p>
+
+<h4>我和计算机</h4>
+
+<p>还记得在”我的梦想“这篇博文中我提到自己以后不想做和计算机相关的事，但是渐渐地，随着看的书越来越多，我发现我却慢慢喜欢上了IT这个行业，并不是因为我发现我的技术水平提高了，而是因为我发现计算机带给我，以及我们的，不仅仅是掌握了编程能力以至于挣口饭吃不至于饿死那么简单，它带给我的，是使得我能从一个更不同的视角来看待这个世界，而从这个角度中看到的世界，是一群人们所谓的书呆子，所谓的不谙世事的geek在用自己的方式改变世界、创造世界。是啊，我之前也说过我觉得自己没有创新的能力，没有那么的雄心壮志，但是渐渐地我发现，仅仅是默默地站在旁边，关注于这些时而微小时而不可思议的改变，仰望于这些可爱的geek们为这个我所生活的世界所带来的改变时，竟也如此的让我着迷。世界在无数个不同的领域进步着，被创造着价值，而真正的价值创造者们，不是那些或许站在公司最顶端的董事们、CEO等管理者们（更确切地说他们仅仅再为他们自己以及公司创造价值），也不是那些有着诡辩的口才每天产生收入的销售者们，而是这些真正地在创造着什么的工程师，或是人们所说的杰出的程序猿们！我没有渴望说我能创造出多大的价值，但是单单想着这些竟然也能让我兴奋，难道这个不是一种不一样的感觉吗？</p>
+
+<p>我突然发现或许我该一直做下去，就算我像梦想中所说的从40岁开始开启一个新的生活，但是也不要放弃这项事业，或者更确切地说是这种生活，以一种程序员的角度来看待这个世界，感受它的变化，感受价值的创造和创造的过程，去亲手参与到这一系列从历史长河中必定会让人们不可思议的成就，哪怕只有一点点，哪怕连所谓的一点点都没有，或者我能为我自己创造出些什么东西，以及为我周围的人。</p>
+
+<hr />
+
+<p>真的很惊讶而又感动于乔帮主的一生，哪怕就是感受这么一个传奇的故事也能使得全身感到兴奋，或许这就是他的魅力吧，或者一个纯粹的创造者的利益吧，无与伦比，而又无可忘怀！没有人能知道乔布斯带给我了些什么或是改变了我什么，甚至你让我说，我也说不出，道不明吧。可是那又怎样呢，我确实感觉到了自己思想中的那么一些不一样，这就够了！</p>
+
+<p>The Journey is the Reward, 过程就是奖励，后来想想我还是蛮喜欢这句话的，比那句”那些疯狂到以为自己能够改变世界的人，才能真正改变世界“更喜欢，或许是因为它更符合我的性格吧？</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1084,570 +1461,6 @@ jmp _dl_runtime_resolve
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/11/12/android-partition-explaination/">Android Partition Explaination</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-11-12T21:16:00+08:00" pubdate data-updated="true">Nov 12<span>th</span>, 2012</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>这两天看了AndroidForums上的一个Thread，主要是介绍Android Partition的，感觉写的非常好，很有必要做个简单的笔记。</p>
-
-<p>具体的信息在以下两个链接地址中：</p>
-
-<p>http://androidforums.com/evo-4g-all-things-root/278898-android-partitions-kernels-explained.html</p>
-
-<p>http://androidforums.com/evo-4g-all-things-root/279261-more-information-about-android-partitions.html</p>
-
-<p>这个thread由两个人来写，<a href="http://androidforums.com/members/novox77.html">novox77</a>主要介绍了下android中partition的大概组织结构，<a href="http://androidforums.com/members/akazabam.html">akazabam</a>则详细地介绍了android partition的内部机制和原理，以及如何利用其来将application从RAM中移到sdcard上。</p>
-
-<p>以下做一些节选和注释吧：</p>
-
-<hr />
-
-<h4>Android partitions, kernels explained</h4>
-
-<pre><code>Here are the standard partitions on an Android phone:
-
-/misc     - not sure what this is for.
-/boot     - bootloader, kernel
-/recovery - holds the recovery program (either clockworkmod or RA recovery for a rooted Evo)
-/system   - operating system goes here: Android, Sense, boot animation, Sprint crapware, busybox, etc
-/cache    - cached data from OS usage
-/data     - user applications, data, settings, etc.
-
-The below partitions are not android-specific. They are tied to the hardware of the phone, but the kernel may have code allowing Android to interact with said hardware.
-
-/radio - the phone's radio firmware, controls cellular, data, GPS, bluetooth.
-/wimax - firmware for Sprint's flavor of 4G, WiMax.
-
-During the rooting process, a critical piece of the process is disabling a security system built into the bootloader that protects these partitions 
-from accidental (or intentional) modification. This is what's referred to as "unlocking NAND." 
-The security system can be set to active or inactive. S-ON means the security is in place (NAND locked). 
-S-OFF means the security is off (NAND unlocked). When S-OFF, you have the ability to modify all partitions. 
-With S-ON, you only have write access to /cache and /data. Everything else is read-only.
-</code></pre>
-
-<p>也就是说root的过程就是NAND unlock，使得partition可以被任意修改。否则你只能修改/cache和/data文件夹，而不能修改更为关键的/system</p>
-
-<pre><code>When you flash a custom ROM, that ROM typically includes a kernel and an OS. That means the /boot and /system partitions will be modified at a minimum.
-</code></pre>
-
-<p>在这里作者把kernel和OS区别开来，在我看来，它这里的kernel主要是一些boot的信息，而OS则指framework和传统意义上的kernel？</p>
-
-<pre><code>When you do a factory reset (AKA: wipe, hard reset, factory wipe, etc.), you are erasing the /data and /cache partitions. 
-Note that a factory reset does NOT put your phone back to its factory state from an OS standpoint. 
-If you've upgraded to froyo, you will stay on froyo, because the OS lives in /system, and that is not touched during a factory reset. 
-</code></pre>
-
-<p>所以所谓的&#8221;factory reset&#8221;并不是真正意义上的reset，而是&#8221;data reset&#8221;。只有root了才有可能做到真正的reset吧？</p>
-
-<pre><code>The SD card can also be partitioned to include a section dedicated to storing user apps. To create the partition, your SD card needs to be formatted. 
-</code></pre>
-
-<p>这个会在后来akazabam的文章中详细的描述。</p>
-
-<pre><code>Onto kernels....
-</code></pre>
-
-<p>之后novox77扯了点关于kernel的东西，这里就不讲了，具体的可以看原贴。</p>
-
-<hr />
-
-<h4>More information about Android partitions</h4>
-
-<h5>The Basics</h5>
-
-<pre><code>Linux/UNIX type systems have one top level file structure. The top level is called root, and is designated by /. 
-There are no drive letters, and the files and folders under / are not necessarily all stored in the same physical location. 
-
-From this point on, the root of the file system will just be referred to as /. There really isn't much under / by itself. 
-It's generally a small partition. In order to use other partitions, Android must make these partitions available under /. 
-There is a special directory called /dev. In order to use partitions found in /dev, the system must mount them under /. 
-</code></pre>
-
-<p>也就是说，不过我们mount哪一个设备，它都把mount point作为它自己文件系统的root，即&#8221;/&#8221;。</p>
-
-<h5>Mounting</h5>
-
-<pre><code>There are two very important conclusions:
-1) The system mounts and unmounts partitions at boot and shutdown. 
-If you pull the battery out while the system is running or use a poorly written app to reboot the phone, partitions are still mounted, 
-and if the system is writing to them, you could easily corrupt something. 
-Granted, sometimes this is necessary if the phone becomes unresponsive. It's more likely to be a problem if repeatedly done.
-2) Ever wonder why you cannot access the sdcard while the phone is connected to a computer as a disk drive? 
-It's because the computer is mounting the sdcard partition so that you can see it there. What does that mean? 
-It means Windows, Linux, etc. (whatever OS you have on your computer) has direct access to that physical media. 
-No two operating systems can have direct control over physical media at the same time. It would result in massive data corruption. 
-You may be wondering how it's possible to share drives or partitions in the networking world. 
-You can do so because the Computer that has the physical media is still the only host that can physically read and write to the media. 
-Sharing of the data is done at a much higher level and is controlled by the operating system.
-</code></pre>
-
-<p>第一点告诉我们，不能随便插拔电池，做多了会有问题的。第二点解释了为什么通常我们在把手机插到电脑上时在手机上就没办法访问sdcard上的数据了：因为这时候sdcard被mount在了电脑上，而一个设备不可能被同时mount在两个系统上。</p>
-
-<h5>Mount Options</h5>
-
-<pre><code>Linux based systems have a file called fstab. That file is a mapping of physical partitions and their mountpoints, 
-along with options it needs to know when mounting said partitions. It uses this file to mount partitions at boot time. 
-So, the fact that you don't have to mount /system, /boot, /data, etc. yourself is because the system does it for you. 
-</code></pre>
-
-<p>这段话解释了我们linux系统上的fstab，系统在启动的时候会自动在这个文件中查找需要mount的设备和mountpoint，并自动帮我们mount了该mount的东西。</p>
-
-<pre><code>The partition mounted as /data is mounted as rw. It has to be, otherwise the system would be all but unusable. 
-You wouldn't be able to install apps, change settings, etc. 
-Do not confuse this with file permissions. That is a different discussion for a different time, but at least understand this - 
-file and directories have certain permissions that allow the file owner, the group the file owner belongs to, 
-and everyone else specific access to said file. 
-The point is that a partition must be mounted as rw in order for write permissions to work. 
-If you have permission to write to a file on a partition, but it is mounted as ro, it will not work.
-</code></pre>
-
-<p>这个区分了mount option和file permission之间的关系。这是两种不同的限制方式，mount option是针对整个文件系统的，而file permission只针对一个文件或是文件夹。也就是说，即使你某个文件有write权限，如果整个文件系统的mount option是ro，那么文件也是不可写的。</p>
-
-<h5>The System Partition</h5>
-
-<pre><code>The partition mounted as /system is automatically mounted as read only. It's like this because, even with root 
-(the unlocked ability to make changes to the partition mounted as /system) it's dangerous to make changes there 
-if you do not know what you are doing. When you flash a ROM from recovery, it wipes that partition, and writes new contents to it. 
-Recovery scripts, however, are smart enough to mount this partition in rw mode. 
-If you are going to make changes to /system while booted up in Android, you must have /system mounted as rw. 
-Otherwise, you will just get permission errors even thought you have root level permissions.
-</code></pre>
-
-<p>所以说在android系统中，/system分区是默认mount为ro的，对于那种刷机的程序它可以通过某些tricky的手段将其设为rw模式，然后将里面的数据覆盖掉。</p>
-
-<pre><code>To do this, you must remount the partition under /system as rw. There are many ways of doing this. 
-All of them are system-wide. What that means is, if you use an app to remount /system as rw, 
-the entire system and any other app will see it such until you reboot the phone or remount it as ro. 
-Root explorer, for example, has an option in the top right corner to mount whatever file system you are currently browsing 
-as either rw or ro depending on what it's currently mounted as. Basically, it toggles between rw and ro. 
-There is also an app in the marketplace called "Mount /system (rw /ro)", which will do that as well if you don't have root explorer. 
-Let's look at it in a little more detail, though.
-</code></pre>
-
-<p>一般来说，如果你要将/system分区remount成rw的话，一般是要有root权限的，上文中说有一个app叫&#8221;Mount /system (rw /ro)&#8221;的不要root explorer，这个我没有搞太清楚。</p>
-
-<pre><code>Should you want to remount the partition mounted under /system as rw using the command line from a terminal emulator, you would run this:
-
-$ su mount -o remount,rw -t yaffs2 /dev/block/mtdblock4 /system
-</code></pre>
-
-<p>这里解释下几个参数：</p>
-
-<pre><code>-o is the option used to specify certain special mount options. 
-a comma separated list following -o are the options you want to specify for mounting.
-
-remount means that the file system you are mounting is already mounted, and you want to specify some other options. 
-
-rw means that you want /system to be mounted in read/write mode. 
-
--t yaffs2 is the filesystem type of the partition. 
-
-/dev/block/mtdblock4 is the logical location of the partition itself under /dev as previously explained. 
-
-/system is the location under / where the files belonging to the mtdblock4 partition will be made accessible. 
-</code></pre>
-
-<p>当用户可以用root权限的账户在模拟器上执行完以上操作，这/system分区就被remount了。这个root权限是指你前面的su，或者某个可以运行root用户的app。</p>
-
-<h5>Current Mounts</h5>
-
-<pre><code>To see how /system is currently mounted:
-
-$ mount | grep /system
-
-You will see something like:
-
-/dev/block/mtdblock4 /system yaffs2 ro 0 0
-
-Having an understanding of how this works will help you determine ways of saving space and making the most of your available storage. 
-The three major partitions are /data, /system, and /cache. A majority of your 1 GB of internal storage is used by these. 
-The partitions sizes are set when the partitions are created. By default, this is how they are partitioned:
-
-/system – 350 MB
-/data – 430 MB
-/cache – 160 MB
-
-As you can see, you only have 430 MB for apps and data. That’s less than half of the advertised space. 
-There are numerous apps on the market that will display the free space available on each partition, 
-but it can be done from the command line as well by typing this:
-
-$ df -h
-
-You will probably notice that both /system and /cache have a lot of free space. As it turns out, 
-most of that free space rarely gets used, and cannot be used by you for apps, at all. It’s wasted space. 
-Cache, of course, will show mostly free space, but it’s necessary for things like OTAs, which will download to that directory. 
-It does need to be somewhat large, but not that big. In any case, there are ways of having more space available than just 430 MB. 
-The best place to start is a2sd.
-</code></pre>
-
-<p>现在的系统中，如果我们有1G的内存，那么它会将大于一半的分给/system和/cache分区，而真正给应用程序使用的只有很少的一部分。而大部分时候我们是不需要那么多分区的。那么怎么办呢，接下来介绍的a2sd可以部分地解决这些个问题：</p>
-
-<h5>A2sd, Apps2sd, and File System Types</h5>
-
-<pre><code>With all of this knowledge in mind, you can probably get a better understanding of how something like a2sd works. 
-A2sd is a system devised to move all installed applications to the sdcard. This is by no means the same thing as the built-in froyo apps2sd.
-</code></pre>
-
-<p>说白了，a2sd就是将一些应用程序移到sdcard上，而不要占用少量的/data分区，但是它和froyo内置的apps2sd又有很大的区别：</p>
-
-<pre><code>With Froyo apps2sd:
-The developer of a certain app specify that it is allowed to be moved to the sdcard.
-Even when it is, if the app has widgets, those widgets will not be available once the app is on the sdcard. 
-Why? Because the sdcard is unmounted once the phone is connected to a computer as a disk drive. 
-If widgets belonging to such an app were on the homescreen at that time, they would stop working. 
-Google designed Android to avoid such a case by just making those widgets unavailable.
-</code></pre>
-
-<p>如果我们把一部分应用通过apps2sd移动到sdcard上，有时候是会有问题的，比如如果这个app有widgets，那么如果我们把手机连接到电脑上，这个时候sdcard就被mount到电脑上了，但那些widgets还在屏幕中，这样就会有问题。为了防止这些问题，google会直接将那些个widgets禁掉。</p>
-
-<pre><code>Only a part of the app is moved, not the entire thing. 
-If you've ever looked at at an app that has been moved to the sdcard in manage applications, 
-you will see that it still is taking up space on internal storage (in /data). 
-The reason this happens goes back to file system types.
-</code></pre>
-
-<p>另一个更关键的问题是用apps2sd只能将应用的一部分移到sdcard上，而很大一部分会留下来，这是有文件系统类型决定的：</p>
-
-<pre><code>Linux based systems have a certain number of file system types that it can use. 
-Windows has its own as well. The sdcard needs to be formatted in a file system that is basically universal. 
-This means that no matter what kind of computer you plug the phone into, plus the phone itself, 
-you need to be able to view/modify the contents of the card. That file system is fat32. 
-Both Linux and Windows can view/modify said contents. BUT, Linux (Android) can't execute anything off of a fat32 partition. 
-Its use of it is somewhat limited. That being said, Android cannot move an entire app to the sdcard in its stock condition, 
-as it would be moving it to a fat32 file system, where it would not be able to execute it.
-</code></pre>
-
-<p>因为一个手机上的sdcard可能会被mount在不同的系统中（比如windows, mac, linux），所以sdcard上的文件系统必须得足够universal。所以sdcard的文件系统一般是fat32，因为它可以被linux和windows都看到，但它有一个很大的限制就是不能再上面运行任何东西。也就是说应用程序运行的部分是不能被移到sdcard上的，否则它就无法被运行了。</p>
-
-<pre><code>A2sd has none of these issues, and gets around them in a fairly creative way. 
-The sdcard, in stock state, has one partition, which is this fat32 partition. 
-You still need a majority of the card to have this fat32 partition for the purpose of using it normally, 
-but a2sd must use a partition type that is native to Linux. 
-So, the first thing you must do to use a2sd is partition the card into two separate partitions. 
-This can be done in recovery. Once it is done partitioning, it formats the two partitions using a particular file system. 
-The bigger partition, which the user will continue to see as /sdcard and keep all of there data, remains fat32. 
-The smaller partition (usually made between 512 MB and 1 GB) is formatted in the ext3 file system. 
-This ext3 file system type is native to Linux. What does this mean? 
-It means that Android can use that partition on the sdcard the exact same way it could internal storage.
-</code></pre>
-
-<p>a2sd的原理是这样的，它将sdcard分成了两个区，一个比较大的继续当fat32用，存放正常数据，另一个将其格式化为ext3格式，就可以达到所谓的&#8221;native to linux&#8221;了。</p>
-
-<pre><code>Doesn't Android have to mount this new ext3 partition just like it does internal storage partitions and the normal fat32 sdcard partition? 
-Why, yes it does. It mounts the partition just like any other partition, but it makes the mount point /system/sd. 
-Once you've created the ext3 partition, you can browse /system/sd. It will look just like a directory in internal storage, 
-but since it's a mountpoint, when you view it, you're looking on the sdcard, just in the smaller, ext3 partition. 
-Having done this, you've basically fooled the system into thinking you have more internal storage. 
-The issue is that Android will look for apps in two main places - /data/app and /system/app. 
-if you just stuck an apk (Android application) in /system/sd, Android system would never find it, as it will never look there. 
-For those interested in seeing how the sdcard partitions are mounted, run these two commands:
-
-$ mount | grep /sdcard
-$ mount | grep /system/sd
-
-The output for /system/sd, for example, looks like:
-
-/dev/block/mmcblk0p2 on /system/sd type ext3 (rw,noatime,nodiratime,errors=continue,data=writeb ack)
-
-Both of those commands, though, will show how the fat32 sdcard partition is mounted (/mnt/sdcard) and 
-how the ext3 sdcard partition is mounted (/system/sd). As you can see, mmcblk0p2 is the ext partition, 
-while the majority of the card (the fat32 partition) is mmcblk0p1. 
-Another quick important point is that /system/sd is mounted as rw so that you can make changes. 
-Remember this - if a partition is mounted as ro (/system) but a directory under it is used as a mountpoint (/system/sd) 
-you will still be able to write to whatever is mounted under that second directory as long as the partition is mounted as rw. 
-That being said, you can leave /system mounted as ro, and still always make changes to /system/sd.
-</code></pre>
-
-<p>所以，sdcard被分出来的那个区被mount在了/system/sd上，虽然/system是ro模式的，但并不影响它下面的子目录是可写的。但是有一个问题，android一般是在/data/app和/system/app中查找有没有应用，我们将其mount到/system/sd上就算有应用也不能被发现啊？</p>
-
-<pre><code>The first thing a2sd does is move all applications from /data/app and /data/app-secure to /system/sd/app and /system/sd/app-secure. 
-Remember that with just this step, the system would not see apps anymore. At this point, a2sd makes use of something called a symlink. 
-a2sd removes the /data/app and /data/app-secure directories, then creates symlinks (shortcuts) called /data/app and /data/app-secure 
-that point to directories in /system/sd for apps. This means that the system will continue to look in /data/app and /data/app-secure for apps, 
-but will be directed to /system/sd. Basically, the system doesn't care where files actually are. 
-It only cares that it can find them where it knows to look.
-</code></pre>
-
-<p>这里就用了symbol link的方式将/data/app和/system/app链接到/system/sd/app和/system/sd/app-secure上，这样就解决了上面说的问题了。</p>
-
-<pre><code>A2sd can also be used to move dalvik cache to the sdcard. It does this in exactly the same manner as moving apps. 
-Dalvik cache is normally stored in /data/dalvik-cache. A2sd creates a directory in /system/sd for dalvik-cache, 
-then creates a /data/dalvik-cache symlink that points to the real location.
-</code></pre>
-
-<p>同样也可以用同样的方法将dalvik-cache移到sdcard上。</p>
-
-<pre><code>As dalvik cache is stored in /data by default, it takes up your usable storage, needlessly. 
-That is why it can be moved to the sdcard ext3 partition. If you choose to, though, it can also be moved to the /cache partition. 
-/cache is normally just unused space on internal storage that is way bigger than it needs to be. 
-Thus, dalvik cache can be moved there instead, too. The idea is the same, but it doesn't use symlinks. 
-It does some creative work with the mount command to make the system look there for it. 
-</code></pre>
-
-<p>dalvik-cache也可以被移到/cache里面，虽然cache需要留一些空间，但是当前系统留的大于它需要的。而且移到/cache里就不需要用symbolic-link了。</p>
-
-<h5>Other Space Saving Options</h5>
-
-<pre><code>Some people do not want to use a2sd, as they do not have good enough sdcards and are not interested in buying a new one. 
-A2sd will not work well with a slower card, such as the one that comes stock with the Evo. 
-However, it is possible to reclaim some of the unusable internal storage. 
-If you remember, /data, /system, and /cache make up a majority of your internal storage. They can be resized with this mod. 
-</code></pre>
-
-<p>很显然，将app移到sdcard上必然会减慢app的运行速度，特别是如果你的sdcard很弱的话。不过把一些程序从/data移到/system或/cache倒是一个可行的方法。</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/11/11/getsystemservice-in-android/">getSystemService() in Android</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-11-11T20:18:00+08:00" pubdate data-updated="true">Nov 11<span>th</span>, 2012</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>在之前研究了那么久的bindService()这个API，一直没搞清楚一个问题：</p>
-
-<p>为什么我看到的基本上都是和AMS相关的代码，而之前所学到说如果application要和service打交道都是需要通过ServiceManager获得某个service的binder才可以。那么AMS和ServiceManager到底是什么关系呢？如果AMS是通过ServiceManager获得的service binder，那么相关的代码又是在哪里呢？</p>
-
-<p>这个问题困扰了我很久，直到我看到一个<a href="http://blog.csdn.net/windskier/article/details/6625883" title="杜文涛的专栏">博客</a>，我才发现其实我把一个很重要的概念混起来了：</p>
-
-<p>Android中主要通过2种方法来获得service binder：</p>
-
-<ul>
-<li>通过一些API如bindService，来获得application service的binder。因为app service都是直接和AMS注册的，AMS运行在system_server进程；</li>
-<li>通过ServiceManager.getService(String Descriptor)来获得Service Manager管理的service的binder，ServiceManager运行在servicemanager进程。</li>
-</ul>
-
-
-<p>也就是说，尼玛bindService只是用来bind application level的service！！！</p>
-
-<p>而我们更在意的system service应该是由ServiceManager.getService()来获得的！！！</p>
-
-<p>发现这个问题之后我整个人都有些凌乱了。。。不过静下来想想其实自己从bindService这里入手也学到很多东西，也就不纠结了！</p>
-
-<p>那么现在的问题是，应用程序到底是如何获得system service的binder的？</p>
-
-<p>在这个问题的探索过程初期，我又一次惊奇地发现android.os.ServiceManager竟然是@hide的！！！！</p>
-
-<p>尼玛hide的啊！！！也就是如果不是和framework一起编译的话是找不到的啊！我在网上看到一个很无语的<a href="http://www.oschina.net/question/54100_32232?sort=time" title="隐藏类的使用">解决方案</a>，但是，我还是不知道应用程序到底是怎么调用system service的啊？总不可能每个人都懂得什么变态的“隐藏类的使用”吧？</p>
-
-<p>后来不知道是怎么回事，我突然发现在android里面竟然有一个API叫getSystemService()！我问了下乃正，他竟然和我说“你们干嘛不问我，这不是很显然的吗？应用里面就是调用这个获得system service的啊”！尼玛伤不起啊，一个没写过android应用程序的还要研究android framework的人伤不起啊！！</p>
-
-<hr />
-
-<h3>getSystemService()</h3>
-
-<p>好了，还是言归正传吧，到底getSystemService()是如何得到system service的呢？其实这个也没有想象的那么好理解。而且我查了下网上的资料，大部分还是讲ServiceManager.getService()是如何得到system service的，而基本上都没有涉及到getSystemService()是怎么和ServiceManager.getService()搭上关系的。</p>
-
-<p>于是经过一番研究，我终于搞清楚了这里面所涉及的种种“复杂而又充满基情”的关系，请听我娓娓道来：</p>
-
-<hr />
-
-<p>在一个月黑风高的夜晚，一个郁郁不得志的少年Activity调用了一个具有扭转乾坤概率的大API&#8212;getSystemService()。</p>
-
-<p>算了，没有写小说的潜质。。。还是老实点正常写着吧。。。早点写完早点洗洗睡吧。。。</p>
-
-<p>在调用Activity.getSystemService()之后，就进入ContextImpl.getSystemService()。</p>
-
-<p>至于是怎么进来的，其实也很简单，Activity继承ContextThemeWrapper，再继承ContextWrapper。里面会调用mBase.getSystemService()。这个mBase是一个ContextImpl实例变量，于是就调到了。</p>
-
-<p>于是在ContextImpl.getSystemService()是这样的：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
-</span><span class='line'><span class="kd">public</span> <span class="n">Object</span> <span class="nf">getSystemService</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">ServiceFetcher</span> <span class="n">fetcher</span> <span class="o">=</span> <span class="n">SYSTEM_SERVICE_MAP</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">name</span><span class="o">);</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">fetcher</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">?</span> <span class="kc">null</span> <span class="o">:</span> <span class="n">fetcher</span><span class="o">.</span><span class="na">getService</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>话说这个SYSTEM_SERVICE_MAP是怎么来的呢？这就要扯得远点了：</p>
-
-<p>在每个Activity启动的时候都要运行一大段的static的代码（在android.app.ContextImpl.java）里面：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">static</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">registerService</span><span class="o">(</span><span class="n">ACCESSIBILITY_SERVICE</span><span class="o">,</span> <span class="k">new</span> <span class="n">ServiceFetcher</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>      <span class="kd">public</span> <span class="n">Object</span> <span class="nf">getService</span><span class="o">(</span><span class="n">ContextImpl</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">return</span> <span class="n">AccessibilityManager</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">ctx</span><span class="o">);</span>
-</span><span class='line'>      <span class="o">}});</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">registerService</span><span class="o">(</span><span class="n">ACCOUNT_SERVICE</span><span class="o">,</span> <span class="k">new</span> <span class="n">ServiceFetcher</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>      <span class="kd">public</span> <span class="n">Object</span> <span class="nf">createService</span><span class="o">(</span><span class="n">ContextImpl</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">IBinder</span> <span class="n">b</span> <span class="o">=</span> <span class="n">ServiceManager</span><span class="o">.</span><span class="na">getService</span><span class="o">(</span><span class="n">ACCOUNT_SERVICE</span><span class="o">);</span>
-</span><span class='line'>      <span class="n">IAccountManager</span> <span class="n">service</span> <span class="o">=</span> <span class="n">IAccountManager</span><span class="o">.</span><span class="na">Stub</span><span class="o">.</span><span class="na">asInterface</span><span class="o">(</span><span class="n">b</span><span class="o">);</span>
-</span><span class='line'>      <span class="k">return</span> <span class="k">new</span> <span class="nf">AccountManager</span><span class="o">(</span><span class="n">ctx</span><span class="o">,</span> <span class="n">service</span><span class="o">);</span>
-</span><span class='line'>      <span class="o">}});</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">registerService</span><span class="o">(</span><span class="n">ACTIVITY_SERVICE</span><span class="o">,</span> <span class="k">new</span> <span class="n">ServiceFetcher</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>      <span class="kd">public</span> <span class="n">Object</span> <span class="nf">createService</span><span class="o">(</span><span class="n">ContextImpl</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">return</span> <span class="k">new</span> <span class="nf">ActivityManager</span><span class="o">(</span><span class="n">ctx</span><span class="o">.</span><span class="na">getOuterContext</span><span class="o">(),</span> <span class="n">ctx</span><span class="o">.</span><span class="na">mMainThread</span><span class="o">.</span><span class="na">getHandler</span><span class="o">());</span>
-</span><span class='line'>      <span class="o">}});</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="o">...</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>它会在自己的SYSTEM_SERVICE_MAP为每一个系统服务注册一个ServiceFetcher的类，在这个类中，大部分的服务为重写一个函数叫<em>createService(ContextImpl)</em>，这个方法之后会用到，现在只需要知道我们从SYSTEM_SERVICE_MAP获得了某个服务的ServiceFetcher对象fetcher，并通过fetcher.getService(this)获得了该服务的对象。</p>
-
-<p>fetcher.getService(ContextImpl):</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Object</span> <span class="nf">getService</span><span class="o">(</span><span class="n">ContextImpl</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">cache</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">mServiceCache</span><span class="o">;</span>
-</span><span class='line'>    <span class="n">Object</span> <span class="n">service</span><span class="o">;</span>
-</span><span class='line'>    <span class="kd">synchronized</span> <span class="o">(</span><span class="n">cache</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">cache</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="c1">// Initialize the cache vector on first access.</span>
-</span><span class='line'>      <span class="c1">// At this point sNextPerContextServiceCacheIndex</span>
-</span><span class='line'>      <span class="c1">// is the number of potential services that are</span>
-</span><span class='line'>      <span class="c1">// cached per-Context.</span>
-</span><span class='line'>      <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">sNextPerContextServiceCacheIndex</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">cache</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
-</span><span class='line'>      <span class="o">}</span>
-</span><span class='line'>  <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">service</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">mContextCacheIndex</span><span class="o">);</span>
-</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">service</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">return</span> <span class="n">service</span><span class="o">;</span>
-</span><span class='line'>      <span class="o">}</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>  <span class="n">service</span> <span class="o">=</span> <span class="n">createService</span><span class="o">(</span><span class="n">ctx</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">cache</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">mContextCacheIndex</span><span class="o">,</span> <span class="n">service</span><span class="o">);</span>
-</span><span class='line'>  <span class="k">return</span> <span class="n">service</span><span class="o">;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>也就是说每个Activity都有一个mServiceCache，它cache了所有用到的service的ServiceFetcher类。如果hit了，那么直接返回该对象，否则会调用这个fetcher的createService()方法，这也就是我们刚才提到的每一个ServiceFetcher在注册的时候会重写的那个方法。</p>
-
-<p>可以看到，大部分重写的方式都是类似于这样的：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Object</span> <span class="nf">createService</span><span class="o">(</span><span class="n">ContextImpl</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">IBinder</span> <span class="n">b</span> <span class="o">=</span> <span class="n">ServiceManager</span><span class="o">.</span><span class="na">getService</span><span class="o">(</span><span class="n">XXX_SERVICE</span><span class="o">);</span>
-</span><span class='line'>    <span class="n">IXXXManager</span> <span class="n">service</span> <span class="o">=</span> <span class="n">IXXXManager</span><span class="o">.</span><span class="na">Stub</span><span class="o">.</span><span class="na">asInterface</span><span class="o">(</span><span class="n">b</span><span class="o">);</span>
-</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nf">XXXManager</span><span class="o">(</span><span class="n">ctx</span><span class="o">,</span> <span class="n">service</span><span class="o">);</span>
-</span><span class='line'><span class="o">}});</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>于是乎，getSystemService()就在这里和ServiceManager.getService()无缝地结合在了一起！</p>
-
-<hr />
-
-<p>对于ServiceManager.getService()，在网上有很多关于它的说明和讨论，这里推荐其中两篇：</p>
-
-<p>在<a href="http://blog.csdn.net/Luoshengyang" title="老罗的android之旅">老罗</a>的博客中两篇，</p>
-
-<p>第一篇是<a href="http://blog.csdn.net/luoshengyang/article/details/6642463" title="java API">这篇文章</a>，主要介绍了怎么从java里面的ServiceManager.getService()开始的流程；</p>
-
-<p>还有一篇是<a href="http://blog.csdn.net/luoshengyang/article/details/6633311" title="getService">这篇文章</a>，深入介绍了在C++和driver层是如何调用getService的</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/3/">&larr; Older</a>
@@ -1665,6 +1478,14 @@ If you remember, /data, /system, and /cache make up a majority of your internal 
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/04/30/xi-tong-diao-yong-xue-xi-bi-ji-%28%5B%3F%5D-%29-linuxxi-tong-diao-yong-biao-%28zhuan-%29/">系统调用学习笔记（一） - Linux系统调用表（转）</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/04/30/xi-tong-diao-yong-xue-xi-bi-ji-ptrace/">系统调用学习笔记 - ptrace</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/04/14/tong-bu-yuan-yu-xue-xi-bi-ji-lock%2Crcuhe-transaction/">同步原语学习笔记 - Lock，RCU和Transaction Memory</a>
       </li>
     
@@ -1674,14 +1495,6 @@ If you remember, /data, /system, and /cache make up a majority of your internal 
     
       <li class="post">
         <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/">Netfilter学习笔记（二）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28yi-%29/">Netfilter学习笔记（一）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/24/cross-reference-graph-of-android-component/">Cross Reference Graph of Android Component</a>
       </li>
     
   </ul>

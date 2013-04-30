@@ -9,7 +9,7 @@
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="已经决定要学ruby和rails了，就从最实际的开始吧~ CSE要求TA每次recitation完了以后给小朋友们发邮件告知成绩，就尝试用ruby写了个脚本，其实这件事最简单的应该是直接用shell脚本来做的，既然在学ruby嘛~就逮着机会用咯~而且还和小Z学到很多东西呢。 其实要做的事情很简单， &hellip;">
+  <meta name="description" content="这两天看了两篇关于手机和云结合的文章，两篇的motivation不同，所以所用的方法也就自然不一样了。下面对这两篇进行分别的介绍： 第一篇叫《CloneCloud: Elastic Execution between Mobile Device and Cloud》 分开来说就是用了三种技术， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -21,6 +21,7 @@
   <link rel="canonical" href="http://ytliu.github.com/blog/page/4/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
   <script src="/javascripts/modernizr-2.0.js"></script>
   <script src="/javascripts/ender.js"></script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
@@ -66,6 +67,175 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/09/13/guan-yu-shou-ji-he-yun-de-xue-zhu-yan-jiu/">关于手机和云的学术研究</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-09-13T14:00:00+08:00" pubdate data-updated="true">Sep 13<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>这两天看了两篇关于手机和云结合的文章，两篇的motivation不同，所以所用的方法也就自然不一样了。下面对这两篇进行分别的介绍：</p>
+
+<p>第一篇叫《<em>CloneCloud: Elastic Execution between Mobile Device and Cloud</em>》</p>
+
+<p>分开来说就是用了三种技术，application partitioning, thread migration, remote execution，主要是前面两个：</p>
+
+<p><strong>application partitioning</strong>: 主要用了static和dynamic相结合的方式，先用static找出合法的可分割点，再用dynamic计算出cost model，然后得出最合适的分割方案，生成partition configuration，主要是要注意两点：</p>
+
+<p>1.这些都是在offline做的，在程序实际运行的时候直接获得configuration，然后在migrate point的时候进行migrate。</p>
+
+<p>2.按照作者的意思是不需要source code的，是通过分析二进制文件来得到合法的分割点，但需要重写二进制文件，加入一些annotation比如migrate point之类的。另外，合法的分割点作者提出了几个限制：</p>
+
+<pre><code>a.首先，它必须是method entry and exit point，不能是core-system library，当然在method里面调用的core 
+library是允许的;
+b.Methods that access specific features of a machine motivationust be pinned to the machine, 比如说
+location-based的调用或者camera这些没有被virtualized的服务都不能被分到远端，这也是我后面会详细说的；
+c.Methods that share native state must be collocated andt the same machine.也就是说那些调用native 
+code同时share了native state的方法也不能被migrate
+d.Prevent nested migration.
+</code></pre>
+
+<p><strong>thread migrate</strong>: 在Dalvik VM执行到migrate point的时候，会有一个migrator thread将thread suspend住，并将当前的thread state打包，把它所需要的信息通过网络发给cloud端的clone。这里的state主要包括execution stack frames and relevant data objects in the process heap, and register contents at the migration point. Virtualized stack frames…在cloud端的clone接收到这些信息后会有一个migrator thread来将这些信息装入VM的内存中，并继续执行，当遇到reintegration的时候用同样的方式将该thread的state打包发回去，mobile端的thread继续执行~这些看起来很容易，但是有一个问题，因为每一个object都是通过内存地址进行reference的，在不同的platform中这些reference可能会不一样，这里作者用了一种叫做object mapping table的方式，用一张图（Figure 7）就可以很方便的说明：</p>
+
+<p><img src="http://ytliu.github.com/images/2012-09-13.png" title="object mapping table example" alt="object mapping table example" /></p>
+
+<p>另外，clonecloud系统是实现在AOS和Android x86 virtual machine上的，修改了大约8000行的Dalvik代码，用JChord工具进行static analysis，用Monsoon power monitor [Mon]测量了energy consumption来计算cost model，通过hprof(HPR)进行thread state的capture。最后evaluation就不细说了，据说提速20X，降低了20X的能耗，当然这个是怎么测的我也没细看。</p>
+
+<p>最后来说说clonecloud的限制：</p>
+
+<p>首先是之前提到的platform-pinned的调用不能migrate到远程，其实从合法partition的限制来看就可以发现要partition不是那么容易的，其实作者也提出：We consider this alternative a complementary point in the design space, and plan to pursue it in conjunction with thread granularity migration in the future.从这个角度来看和我们的remote-binder的motivation还是很像的。除了这一点，两地之间不能内存共享也是一个限制partition很重要的方面。另外，作者提到的perfunctory concurrency其实应该不是一个太大的问题，本来这段code就是顺序执行的。</p>
+
+<p>其实关于application的partition问题并没有结束，作者的method力度的partition也没有证明就是最好的，这一块应该还有研究的余地</p>
+
+<hr />
+
+<p>另外一篇叫《<em>Paranoid Android: Versatile Protection for Smartphones</em>》</p>
+
+<p>这又是一篇mobile和cloud结合的paper，和clonecloud不同的是它强调的是security，所以它使用的方法也就不是thread migration，而是replica。按照作者的说法，cloud端的emulator中有一个mobile端系统的replica，而它的做法这是控制那些所谓的non-deterministic的因素，按照作者的说法，只有某些system call和来自OS的signal。为了达到mobile和cloud端的synchronization，主要分为两部分，mobile端的record和cloud端的replay。</p>
+
+<p><strong>Record</strong>：主要是在mobile端，为了减小trace数据的传输，这里有几个原则和方法来缩减trace的大小：</p>
+
+<ul>
+<li>1.Record only system calls that introduce non-layoutdeterminism. 对于比如创建socket，读文件，甚至是IPC的syscall都不需要记录，因为这些都是replica那里也可以直接做的；</li>
+<li>2.Use a network proxy so that inbound data are not logged in the trace. 这样可以避免网络数据传到mobile再从mobile传到replica，减小mobile端的负担和trace的大小；</li>
+<li>3.Compress data using three andlgorithms. 这个就没什么好说的，就是把trace进行加密，减小其大小。</li>
+</ul>
+
+
+<p>在mobile端，整个系统的启动过程是这样的：</p>
+
+<ul>
+<li>1.Android的init进程先启动一个tracer进程，打开一个FIFO，等待其它进程的连接;</li>
+<li>2.之后在init启动其它进程的时候，先启动一个exec stub，它会把该进程的pid写入tracer的FIFO中，表示需要被trace，然后pause；</li>
+<li>3.tracer对这个进程进行attach，然后恢复exec stub的运行，stub运行exec命令执行进程的binary。</li>
+</ul>
+
+
+<p>其实总的来说record还是一个比较好理解的过程，但是对于replay，我觉得这是这篇文章中完全忽略的一个部分，它只是说有很多之前的工作对record和replay进行了研究，但是竟然一点都没有说明在replica端是如何进行replay的，这也就使得我对它所说的synchronization的效果产生了极大的怀疑。</p>
+
+<p>另外，文中所说的record和replay只是对system call进行了记录和重放，但是对于一个这么复杂的系统，当当记录这些真的够吗？特别是对于手机这种特殊的设备来说，用户输入大部分是触控事件，而这些在文中（不管是paper还是technical report）都没有详细提到。而关于进程间的IPC通讯，作者只是在谈到ioctl的时候简单的提到了一下binder机制，并且在最后说这些进程间的通讯都是不需要被记录的，再加上在最后的evaluation部分，作者只是对trace的大小，已经performance的overhead进行了简单的测试，并没有对它所实现的原型的可行性的分析，这就让我对它们所说的mobile的replica产生了极大的怀疑。另外还有最后一个问题就是调用mobile特定的服务，比如location, camera的服务等，这些文中都没有合理的解释。仅仅是一个system call的record和replay移植到手机上其实并不是一个很有说服力的研究。</p>
+
+<p>不过在这篇paper中我学到一点，就是paranoid对trace的保护，这也是我一开始就有的一个疑问。既然attacker可以攻击你的手机，自然就可以伪造trace，而且它又可以知道存在你手机中的key，那么该如何对这个关键的trace进行保护呢？虽然我不知道tamper-evidency这个方法是否作者自己提出来的，但是确实很有意思：它用了一个secure storage，将trace和一个HMAC code存在这个storage中，而存的方法是：</p>
+
+<pre><code>STORE(message + HMAC(key,message)) 
+key′ = HASH(key) 
+key = key′
+</code></pre>
+
+<p>也就是说每一次的key都是上一次的key做hash得来的，由于attacker只能知道当前的key是什么，而无法知道之前的key，所以它就无法伪造entry，只能对其进行删除操作，那么在cloud端的replica就能通过计算发现trace的历史记录的修改。而做到这一点唯一需要保护的就是初始化的时候key在mobile和replica中的安全传递，这可以在整个系统启动的时候就做好了。</p>
+
+<p>除此之外我也想过用append-only memory的方法，这样也能防止attacker对trace的修改，不过由于自己没有实际做个这个方面的研究，也不清楚它在手机中是否有实现。</p>
+
+<p>总的来说，这是一篇提出概念的文章，通过cloud来对mobile进行安全检测，作者说实现的prototype可能真的是一个prototype，我都不确定是否真的实现了replica，是否真的运行起来了。加上作者对replica端基本没有做出什么介绍，所以感觉还是比较不靠谱的。</p>
+
+<hr />
+
+<p>现在cloud和mobile相结合的概念提出的越来越多了，但真正运用到世纪生活中的还很少很少，一方面是很多东西还停留在research阶段，没有比较稳定的工程实现，另一方面就是关于流量的考虑，mobile和cloud的结合离不开稳定的网络给予保障，而这些在现在的实际生活中还不能很完美的实现。不过我相信在不久之后，这两个当前及其流行的设备一定能非常好的结合在一起，方便大家的生活，并为mobile提供非常强有力的能源，性能和安全保障的。</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/09/04/quan-xin-de-kai-shi/">全新的开始</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-09-04T09:35:00+08:00" pubdate data-updated="true">Sep 4<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>坐在火车上，静静地想着一个新的生活的开始。</p>
+
+<p>一个暑假，2个星期的生活就这样迷迷糊糊的结束了，待在家里确实很舒适，不需要考虑着如何照顾自己，天天享受着父母无微不至的照料，吃着在学校怎么也吃不到的好料，每天有好多人请客，吃大餐、喝酒&#8230;但是每当安静下来突然想到4年的本科生涯已经结束，想到还有未来一个如此未知的五年等待着自己，就会有那么一些的伤感，兴奋，还有迷茫和害怕。</p>
+
+<p>可以说这两周基本没有什么学术，回学校明天的开会都不知道要说些什么，半年前选择了5年直博这条路，现在想起来似乎却有那么些后悔，或许5年真的太长了，5年的时间可能可以做很多事，但对于我来说待在学校真的是最合适的吗？很早之前我就纠结过这个问题，即使快要开始了也还在纠结。开学前两天看了斌哥推荐的那篇《The Ph.D&#8217;s Grind》，突然似乎释然了很多&#8230;</p>
+
+<p>仔细想来，我的纠结，在于不自信自己博士5年能不能毕业，在于5年是否对于现在这个不那么想走faculty道路的我来说太长了，在于纠结这五年是否值得&#8230;可是5年又如何呢，我在这五年的学生生涯里同样可以养活自己，可以大体上经济独立，我在这五年时间里同样可以结婚，可以有自己的情感生活，或许这五年我没有当年选择工作攒钱攒的多，可能这五年我会比当年选择硕士辛苦很多，甚至有可能像Guo前几年一样一直找不到合适自己的方向，paper被拒了又拒，整天担心着毕业。但是我得到的又是什么呢？五年的时间，二十分之一个世纪，我可以非常长远地做一个安排，选择一个适合自己并且不会讨厌的目标，花五年的时间去追寻，而不需要在中途游离和彷徨；五年的青春，我可以相对自由地去做自己想做的事，能更随意地安排时间把有些青春还没有完成的事情去做完；我可以花五年的时间去修炼自己，除了争取毕业，除了提高专业素养，还有更多需要我去进步的地方，比如我的表达能力，比如和人交往的能力，比如更成熟的思想，比如更淡然的心态&#8230;真的很多东西我相信读博可以让我做到，就像Guo说的那样：</p>
+
+<blockquote><p>my six years of Ph.D. training have made me wiser, savvier, grittier, and more steely, focused, creative, eloquent, perceptive, and professionally effective than I was as a fresh college graduate.</p></blockquote>
+
+
+<p>或许并不一定是读博能让人做到这些，也许去社会中尝试同样可以做到甚至可能更好，但5年单纯的学术生涯，可以让一个人在平静中寻找自我，不需要太多的波澜壮阔，心平气和地对自己进行修炼，可能会更适合我。当然了，很大部分读博的人都会考虑往faculty方向发展，我也曾经这么想过，但目前来看或许并不适合我，或者说我没有从内心里喜欢这种生活，可是那又如何呢？5年并不会白费，或许这更能纯然地让我进行修炼，又何必要带上那么多冠冕弹簧的目的性呢？</p>
+
+<hr />
+
+<p>那天在深圳火车站和小呆的谈话让我发现或许我理想中的生活并非不可能实现，只是太多理想的生活取决于底层的经济建筑。所有的道理我都明白，所以我会努力地去争取自己想要的生活，但不会去勉强它，或许顺其自然是最好的，未来那么长，又有谁能真正安排好一辈子的生活呢？这两天有断断续续地看《北京青年》，里面他们的很多思想都和我的很像，我也向往那种不顾一切的青春和激情，只是对于我理性更占上风，何况我还在乎我的亲人，还有小呆&#8230;或许其它的一切无法实现，但是对得起自己，相信还是能做到的。</p>
+
+<hr />
+
+<p>暑假终于迎来了我的air，纠结了很久最终还是选择了它，反正到现在为止我完全不后悔，也坚信今后不会后悔，因为air实在是太赞了！我也会遵守自己的诺言，从现在开始继续我的年会计划。未来的五年还有太多要学习和提高的地方，但无论如何，要脚踏实地，定了计划就要努力地去完成，“君子先行其言而后从之”，一直都是我最信奉的《论语》中的话，或许我还不能做到，但怎么也要做到“言其行而从之”吧，不然什么事都无法成功的。</p>
+
+<p>一个全新的开始，作为一个博士的修炼之路&#8230;</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -851,200 +1021,6 @@ cd /pentest/sniffers/xspy/
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/01/03/paper-reading-x86-interrupt-and-sr-iov-interrupts-avoidance/">Paper Reading - X86 Interrupt and SR-IOV Interrupts Avoidance</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-01-03T21:37:00+08:00" pubdate data-updated="true">Jan 3<span>rd</span>, 2012</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>元旦去奉化享受了，玩得超爽，吃的也超爽！感谢zbd和他爸妈的热情招呼，让我们享受了如此惬意的三天~</p>
-
-<p>好了，言归正传吧，讲讲这篇paper：</p>
-
-<pre><code>    "ELI: Bare-Metal Performance for I/O virtualization"
-</code></pre>
-
-<p>是由IBM和Technion的学者做的，发表在ASPLOS&#8217;12上，按照海波的说法是Muli教授推荐的一篇他们写的paper，现在还没公布出来，拿到的是DRAFT版本，所以不会讲太多的细节，主要是谈谈自己学到的东西吧。</p>
-
-<p>由于这篇paper是自己读的，所以也就看的比较仔细，说实话，看完整篇之后收获真的挺大的，加上之后Muli教授和他的同事对邮件的详细回答让我更加清楚了x86对interrupt的处理，特别是虚拟化环境下的一些细节，加上它最后做出来效果很好，对SR-IOV的优化（特别是万兆网络下小包的效率）提高很大，所以从总体来说我觉得这是一个很有趣而且有用的工作。</p>
-
-<p>先简要介绍下这篇paper的motivation吧：在现在虚拟化的环境中，SR-IOV（single root I/O virtualization）可以说使得整个I/O的效率相对于传统的PV也好，用qemu模拟的HVM也好，提高了一个层次，由于可以将一个特定的device（比如网卡）或者virtual function直接赋予一个domain虚拟机，从而从本质上减少了host（比如xen）在整个I/O路径上的介入时间，同时也减少了相当一部分的内存拷贝操作，使得I/O的performance、latency都得到了提高。但是不管是不是用SR-IOV技术，由于x86体系结构的限制，在由物理设备产生的interrupt发生时还是会陷入host，由host来对interrupt进行第一步的处理，或是直接调用自己的interrupt handler，或是向虚拟机插入软件中断，再调度回虚拟机由虚拟机的interrupt handler处理，在处理完成之后由于对EOI寄存器的写操作还会再一次陷入host；由于这两次的context切换造成的overhead，包括context switch、cache pollution&#8230;也就造成了作者在做evaluation时测出的40%的overhead。（其实刚开始看到这个40%我还觉得挺不可思议的，我们实验室之前也对SR-IOV进行过评估，当时得出的结论是SR-IOV的性能很好，和native的环境几乎没有差别。不过后来发现是因为我们的测试环境是千兆，而作者的环境是万兆，而且是小包~~~看来测试环境的优劣还是很重要啊:-)）。</p>
-
-<p><img src="http://ytliu.github.com/images/2012-01-04-1.png" title="guest/host context switch in interrupt handling" alt="baseline interrupt handle" /></p>
-
-<p>于是乎，这篇paper的作者就提出了ELI（ExitLess Interrupt），其目的就是最大程度地减少由这些interrupt造成的context切换，从而达到性能的最大化。</p>
-
-<p>简单来说，这个问题最大的障碍是以下两点：</p>
-
-<pre><code>    1.x86本身的架构不支持有虚拟机处理特定的硬件中断，也就是说，要不就让所有中断产生时
-    直接陷入host，要不就让所有中断都由当前正在运行的虚拟机来处理；
-    2.安全问题，如果让虚拟机能够随意直接处理硬件中断，那么会造成很多不可知的安全问题。
-</code></pre>
-
-<p>对于第一个问题，是由x86的specification定义的，除非改变整个x86架构，否则不会有本质的解决方案。那么，作者又是如何解决这个问题的呢？在这里，就像在virtual memory里的shadow page table一样，作者提出一个shadow IDT的概念。在解释这个shadow IDT之前，我想先介绍下x86虚拟化环境下的中断处理机制：</p>
-
-<p><img src="http://ytliu.github.com/images/2012-01-04-2.png" title="interrupt handle in x86 virtualization" alt="x86 virtualization interrupt handling" /></p>
-
-<pre><code>    由xen的机制举例，在整个系统中有两个IDT（Interrupt Descriptor Table），一个IDT由xen
-    维护，一个由客户虚拟机维护，在一个硬件中断产生时，不管当前是xen在执行还是虚拟机在执
-    行，都会先进入xen的IDT，由中断的vector相对应的handler进行处理，如果发现是由分配给虚
-    拟机的硬件产生的中断，则有xen向虚拟机手动插入一个软件中断（software interrupt），当
-    之后重新调度回虚拟机时会首先判断中断的flag是否有被置上，如果有某个vector的位被置上
-    则先跳入相关的handler进行处理，处理完之后会向LAPIC（之前）或是x2APIC（现在）的相对应
-    的EOI寄存器写入处理完成的标志，在写这个寄存器的同时，控制权会再次跳到xen，由xen对此
-    进行模拟，告诉真实的硬件这个中断处理完成了。这是一个最简单的硬件处理过程，如果遇到当
-    虚拟机在处理一个中断的时候又来了一个硬件中断，则会根据中断的优先级，或者这个中断是不
-    是NMI等进行更加复杂的判断，这又是后话了。
-</code></pre>
-
-<p>那么shadow IDT又是怎么一回事呢？既然x86只支持两种模式的中断处理模式，那么ELI又是如何将特定的硬件中断交给客户虚拟机处理，而将其余的重新让xen进行处理的呢？整个流程简单来说是这样的：</p>
-
-<pre><code>    ELI用的是第二种模式：当有硬件中断产生时，并不是直接陷入xen，而是跳到客户虚拟机的"IDT"，
-    当然这个IDT不是客户虚拟机本身的IDT，而是由host在客户虚拟机启动时为其配置的shadow IDT，
-    在这个IDT中，只有赋予客户虚拟机的设备（比如网卡）对应的中断处理函数是由意义的，而其它
-    的entry则是被置上了一个NP（Non-present）位，也就是说，如果这个中断是由正确的中断产生的，
-    则直接由客户虚拟机的handler处理，否则会向原来一样陷入xen，只是这次的陷入原因是NP，而不
-    是像原来一样的中断原因。而在xen的NP处理时会判断这次的NP是不是由shadow IDT引起的，如果是
-    则重新注入软中断，否则则按一般的NP（如page fault）进行处理。而对于EOI的写操作，ELI只支
-    持x2APIC机制，因为在这个机制中可以设置相对应的bitmap来指定哪些寄存器的写需要陷入xen，由
-    于这是可配置的，所以也就可以控制特定的硬件EOI直接由客户虚拟机处理而不需要陷入xen。这样
-    就使得只有特定硬件产生的中断才会直接由客户虚拟机处理，其余的由host处理。但是这样并没有
-    解决第二个问题：安全隐患。
-</code></pre>
-
-<p>对于第二个安全问题，有以下几点：</p>
-
-<pre><code>    1.既然shadow IDT是存在客户虚拟机的地址空间的，那么用户就有能力去篡改里面的值，比如修改
-    IDT的virtual-to-physical映射，将自己的恶意IDT映射上去从而实现某些攻击，比如将时间中断
-    截获从而让虚拟机不能调度。对于这种攻击，一种方法是shadow所有的virtual-to-physical映射，
-    但是这样会造成很大的性能损失，其他的方法是作者提出的preemption timer（在某个可配置的时
-    间内强制陷入xen），或者是NMI和IDT limiting的结合（详见paper）；
-    2.用户可以故意不写EOI寄存器，这个造成的危害是因为x86会自动屏蔽那些优先级小于正在被处理
-    的中断的中断，所以它会影响host的interruptibility。对于这个问题，ELI会在每次陷入xen的时
-    候，不过客户虚拟机有没有写EOI，就会自动模拟EOI的写操作，如果发现客户虚拟机确实还没有完
-    成相对应的中断处理，则会进入injection mode，直到客户虚拟机进行了EOI的写。
-</code></pre>
-
-<hr />
-
-<p>总的来说，这篇paper给我最大的收获是熟悉了x86及其虚拟化环境下的interrupt机制，它们用纯软件的方式实现了ExitLess Interrupt，而且得到了很好的评测结果，确实是一篇很有实力的paper。同时还要感谢Muli Ben-Yehuda教授和Nadav Amit学者的热心解答。</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2011/12/26/paper-reading-tcp-re-and-incremental-mr/">Paper Reading: TCP RE and Incremental MR</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-12-26T20:57:00+08:00" pubdate data-updated="true">Dec 26<span>th</span>, 2011</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>今天组会两篇paper，Naruil讲的第一篇听了蛮有收获的，DX讲的第二篇感觉是自己英文太差而且领域不熟最后听的不是很懂，就大致记录下吧。</p>
-
-<p>第一篇是一个做数据中心之间数据传递重复消除的系统，叫End-to-end RE(redundancy elimination)，是发在NSDI&#8217;11上的，题目叫&#8221;EndRE: An End-System Redundancy Elimination Service for Enterprises&#8221;，主要由微软的人做的。简单来说它的motivation就是现在在网络中传递的数据有很大一部分是重复的，比如两个包有大量的重复数据，而这些重复数据占用了大量的带宽，而这篇paper的工作就是如何在减少重复数据的同时也不减少太多的性能。</p>
-
-<p>现在在用的关于这种重复数据消除的技术主要是&#8221;Middlebox-based&#8221;，它有几个缺点：  <br/>
-*       关于安全方面的问题，网络数据在middlebox里面是明文，这样才能更好地判断重复性，这样就势必减弱了网络数据的安全级别；    <br/>
-*       对于一些终端的手机设备，它需要和PC终端传递数据，在这过程中同样有数据的重复，而这种情况就不适宜用Middlebox技术了；      <br/>
-*       代价比较大，现在用的middlebox都是很强大的服务器，配备巨大的内存来存储内容的cache。</p>
-
-<p>于是作者就提出一种end-to-end的RE技术。通篇听下来最大的收获是对传统的fingerprint算法和作者提出的一种新的SAMPLEBYTE fingerprint算法的理解。</p>
-
-<p>这篇paper里面提到了两种传统的fingerprint算法：</p>
-
-<pre><code>    ModP fingerprint：
-            这是一种content-based的fingerprint算法，用一种特殊的hash算法
-            （每一个window的hash值 = 上一个window的hash值+上一个window的第一个byte+下一个byte）
-            这样可以快速地得出每个window的hash值，之后将该hash值mod一个P，
-            如果结果为0，则将该hash值作为一个sample的fingerprint。             
-    Fixed fingerprint：
-            这是一个position-based的fingerprint算法，即每隔P个byte算一个hash
-            （window size大小的byte），之后将其作为一个sample的fingerprint。
-</code></pre>
-
-<p>从这两个fingerprint算法可以很容易地看出对于ModP，由于它是一个content-based的算法，所以不管是不是有偏移都可以比较完整地得出内容上的重复性，但是它的效率太低了，因为它要算每一个byte的hash；而对于Fixed，它的效率远远大于ModP，但消除重复性的能力也相应地变小很多。</p>
-
-<p>于是作者提出提出的一种新的算法，叫SAMPLEBYTE fingerprint：</p>
-
-<pre><code>    提供一个256bit的数组A，遍历要发送的包的每一个字节，比如第一个字节是0x23，那么查找
-    数组A的第23个bit看它是否为1，如果为0则表示miss，继续查看后一个字节，如果为1则代表hit，
-    即将这个字节以及后window size个大小算一个hash作为fingerprint，然后跳过（p/2）个字节
-    （为了防止计算重复的hit）。
-</code></pre>
-
-<p>也就是说SAMPLEBYTE也是一个content-based的算法，而且跳过了每个byte都要检查的低效率从而达到更合理而又大粒度的sample机制。</p>
-
-<p>这是这篇paper的核心算法，至于最后如何利用得出的fingerprint，则可以通过下张图看出：</p>
-
-<p><img src="http://ytliu.github.com/images/2011-12-26-1.png" title="the overview of EndRE" alt="RE Overview" />
-<img src="http://ytliu.github.com/images/2011-12-26-2.png" title="Look up in fingerprint hash table" alt="Look up in fingerprint hash table" /></p>
-
-<p>在服务器端和客户端都要维护一个同步的cache，同时在服务器端有一个hash table，里面的key即为之前算出来的fingerprint，指向的是cache中的offset，当要传递一个包时，将算出的fingerprint在hash table里面查找，如果hit了，则从该fingerprint的第一个byte开始找出最大匹配的字符长度，从而省去了该重复内容的传递。而在客户端也只需要将接收到的内容按时间顺序写入cache中，保持和服务器的cache的同步性就好了。</p>
-
-<p>另外，这个数据重复性消除的问题还需要考虑的很重要的一点就是：在客户端不该有很复杂的计算，否则直接将包压缩传递岂不更高效？</p>
-
-<p>还有关于fingerprint算法和差抄袭算法的关系，问了下Naruil，他之前写的差抄袭算法也是用了fingerprint，不过用的是一个更健壮性的fingerprint算法，是基于一篇Sigmod&#8217;03的paper：<a href="http://dl.acm.org/citation.cfm?id=872770">Winnowing</a>。有机会可以去瞻仰下，据说效果相当好，反正我们这里的抄袭都是这么被检查出来的~</p>
-
-<hr />
-
-<p>另外一篇的题目是&#8221;Incoop: MapReduce for Incremental Computation&#8221;，发表在Socc&#8217;11上，做的是MapReduce上的Incremental computation。也就是说现在的MR架构对于两个输入，即使是有许多重复的输入也是从头开始重新计算一遍，而作者希望的是对于两个输入，对于不变的输入可以不再重复计算，而仅仅是变化的数据。因为DX是用英文说的，很多内容不是搞得太懂，只知道它用了&#8221;content-base chunking&#8221;和&#8221;reduce combiners&#8221;来分别解决stability和granularity的问题。至于具体的细节就搞不来了。</p>
-
-<hr />
-
-<p>The End.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/5/">&larr; Older</a>
@@ -1062,6 +1038,14 @@ cd /pentest/sniffers/xspy/
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/04/30/xi-tong-diao-yong-xue-xi-bi-ji-%28%5B%3F%5D-%29-linuxxi-tong-diao-yong-biao-%28zhuan-%29/">系统调用学习笔记（一） - Linux系统调用表（转）</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/04/30/xi-tong-diao-yong-xue-xi-bi-ji-ptrace/">系统调用学习笔记 - ptrace</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/04/14/tong-bu-yuan-yu-xue-xi-bi-ji-lock%2Crcuhe-transaction/">同步原语学习笔记 - Lock，RCU和Transaction Memory</a>
       </li>
     
@@ -1071,14 +1055,6 @@ cd /pentest/sniffers/xspy/
     
       <li class="post">
         <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/">Netfilter学习笔记（二）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28yi-%29/">Netfilter学习笔记（一）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/24/cross-reference-graph-of-android-component/">Cross Reference Graph of Android Component</a>
       </li>
     
   </ul>
