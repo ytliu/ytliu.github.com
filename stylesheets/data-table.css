@@ -1,14 +1,14 @@
 * + table {
   border-style:solid;
   border-width:2px;
-  border-color:#2425d;
-  font-size: 1.0em
+  border-color:#e7e3e7;
+  font-size: 0.75em
 }
 
 * + table th, * + table td {
   border-style:dashed;
   border-width:2px;
-  border-color:#2425d;
+  border-color:#e7e3e7;
   padding-left: 3px;
   padding-right: 3px;
 }
