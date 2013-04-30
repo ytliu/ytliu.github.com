@@ -4,7 +4,7 @@
   <title><![CDATA[Category: OCaml | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/ocaml/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-04-30T22:30:23+08:00</updated>
+  <updated>2013-04-30T22:58:19+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -23,6 +23,9 @@
 <p>redexer主要原理就是将<code>.dex</code>文件按照<a href="http://source.android.com/tech/dalvik/dex-format.html">Dalvik Executable Format</a>映射到内存中的数据结构，然后根据这些数据结果进行分析，可以达到比较高的性能。</p>
 
 <p>这里主要想要说说<a href="http://en.wikipedia.org/wiki/OCaml">OCaml</a>这个语言。</p>
+
+<!-- more -->
+
 
 <p>OCaml的全称是Object Caml，是一个有OO扩展的函数式语言（Functional Language），看了看它的语法，和我们程序语言理论里面的那个simPL非常的像，也和当时学FP的时候讲的Haskell很像。</p>
 

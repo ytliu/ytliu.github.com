@@ -18,14 +18,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://ytliu.github.com/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/">
+  <link rel="canonical" href="http://ytliu.github.com/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
-  <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="/javascripts/ender.js"></script>
-  <script src="/javascripts/octopress.js" type="text/javascript"></script>
   <link href="/atom.xml" rel="alternate" title="Mctrain's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
@@ -38,7 +38,7 @@
   <header role="banner"><hgroup>
   <h1><a href="/">Mctrain's Blog</a></h1>
   
-    <h2>Security, Virtualization, Network, as well as life moments</h2>
+    <h2>Android, Security, System, Network, as well as life moments</h2>
   
 </hgroup>
 
@@ -108,6 +108,9 @@
 <p>上传apk -> 服务器对apk进行”清洗“ -> 返回”清洗“过后的apk并安装 -> 在apk运行过程中进行动态权限控制</p>
 
 <p>当然还有一种模式就是”直接下载洗大师market提供的应用“。</p>
+
+<!-- more -->
+
 
 <p>咋一看，这真的是一个非常牛逼的应用，在没有root的情况下可以对每个应用进行细粒度动态权限控制，这样用户就再也不用担心恶意程序利用过渡申请的权限做坏事了！</p>
 
@@ -185,8 +188,6 @@
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ytliu.github.com/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/" data-via="microtrain016" data-counturl="http://ytliu.github.com/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/" >Tweet</a>
-  
   
   <div class="g-plusone" data-size="medium"></div>
   
@@ -236,36 +237,6 @@
   </ul>
 </section>
 
-
-<section>
-  <h1>Latest Tweets</h1>
-  <ul id="tweets">
-    <li class="loading">Status updating...</li>
-  </ul>
-  <script type="text/javascript">
-    $.domReady(function(){
-      getTwitterFeed("microtrain016", 4, false);
-    });
-  </script>
-  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
-  
-    <a href="http://twitter.com/microtrain016" class="twitter-follow-button" data-show-count="false">Follow @microtrain016</a>
-  
-</section>
-
-
-
-<section class="googleplus">
-  <h1>
-    <a href="https://plus.google.com/mctrain016@gmail.com?rel=author">
-      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
-      Google+
-    </a>
-  </h1>
-</section>
-
-
-
   
 </aside>
 
@@ -293,16 +264,6 @@
   </script>
 
 
-
-  <script type="text/javascript">
-    (function(){
-      var twitterWidgets = document.createElement('script');
-      twitterWidgets.type = 'text/javascript';
-      twitterWidgets.async = true;
-      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
-      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
-    })();
-  </script>
 
 
 

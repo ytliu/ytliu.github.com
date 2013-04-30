@@ -31,14 +31,14 @@ int child(char **arg) { /* * force the task to stop before executing &hellip;">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://ytliu.github.com/blog/2013/04/30/xi-tong-diao-yong-xue-xi-bi-ji-ptrace/">
+  <link rel="canonical" href="http://ytliu.github.com/blog/2013/04/30/xi-tong-diao-yong-xue-xi-bi-ji-ptrace">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
-  <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="/javascripts/ender.js"></script>
-  <script src="/javascripts/octopress.js" type="text/javascript"></script>
   <link href="/atom.xml" rel="alternate" title="Mctrain's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
@@ -51,7 +51,7 @@ int child(char **arg) { /* * force the task to stop before executing &hellip;">
   <header role="banner"><hgroup>
   <h1><a href="/">Mctrain's Blog</a></h1>
   
-    <h2>Security, Virtualization, Network, as well as life moments</h2>
+    <h2>Android, Security, System, Network, as well as life moments</h2>
   
 </hgroup>
 
@@ -187,6 +187,9 @@ int child(char **arg) { /* * force the task to stop before executing &hellip;">
 <p>先是waitpid，等待child调用execv，之后设置一系列参数（在这里是打开perf_event，并mmap一段内存区域），然后调用ptrace让child继续执行。</p>
 
 <p>其实到现在为止我也还不是很清楚ptrace的用法和waitpid那几个参数的意思，于是想好好学习下，在google上搜到了一篇翻译的<a href="http://www.kgdb.info/gdb/playing_with_ptrace_part_i/">玩转ptrace1</a>和<a href="http://www.kgdb.info/gdb/playing_with_ptrace_part_ii/">2</a>，这里归纳整理下，另外，在IBM的<a href="https://www.ibm.com/developerworks/cn/">developerWorks</a>上找到一篇介绍进程相关，以及waitpid的<a href="http://www.ibm.com/developerworks/cn/linux/kernel/syscall/part3/">博文</a>，也一起学习了。</p>
+
+<!-- more -->
+
 
 <hr />
 
@@ -762,8 +765,6 @@ int child(char **arg) { /* * force the task to stop before executing &hellip;">
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ytliu.github.com/blog/2013/04/30/xi-tong-diao-yong-xue-xi-bi-ji-ptrace/" data-via="microtrain016" data-counturl="http://ytliu.github.com/blog/2013/04/30/xi-tong-diao-yong-xue-xi-bi-ji-ptrace/" >Tweet</a>
-  
   
   <div class="g-plusone" data-size="medium"></div>
   
@@ -811,36 +812,6 @@ int child(char **arg) { /* * force the task to stop before executing &hellip;">
   </ul>
 </section>
 
-
-<section>
-  <h1>Latest Tweets</h1>
-  <ul id="tweets">
-    <li class="loading">Status updating...</li>
-  </ul>
-  <script type="text/javascript">
-    $.domReady(function(){
-      getTwitterFeed("microtrain016", 4, false);
-    });
-  </script>
-  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
-  
-    <a href="http://twitter.com/microtrain016" class="twitter-follow-button" data-show-count="false">Follow @microtrain016</a>
-  
-</section>
-
-
-
-<section class="googleplus">
-  <h1>
-    <a href="https://plus.google.com/mctrain016@gmail.com?rel=author">
-      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
-      Google+
-    </a>
-  </h1>
-</section>
-
-
-
   
 </aside>
 
@@ -868,16 +839,6 @@ int child(char **arg) { /* * force the task to stop before executing &hellip;">
   </script>
 
 
-
-  <script type="text/javascript">
-    (function(){
-      var twitterWidgets = document.createElement('script');
-      twitterWidgets.type = 'text/javascript';
-      twitterWidgets.async = true;
-      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
-      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
-    })();
-  </script>
 
 
 

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Network | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/network/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-04-30T22:30:23+08:00</updated>
+  <updated>2013-04-30T22:58:19+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -25,6 +25,9 @@
 <p>这里简单说下如何采用nfqueue对其进行控制：</p>
 
 <p>首先说下一个很简单的场景：我们需要将从手机端发到192.168.1.2服务器的所有TCP包都拦截下来，将包的信息打印出来，并将其发送出去。</p>
+
+<!-- more -->
+
 
 <p>具体的步骤如下：</p>
 
@@ -593,6 +596,9 @@
 
 <p>这里介绍两种方法，一种是C语言中使用的<code>libipq</code>，一种是python中使用的<code>nfqueue</code>。</p>
 
+<!-- more -->
+
+
 <h3>libipq</h3>
 
 <p><code>libipq</code>是一个对开发者提供的用于读取iptables queue的C库，具体的用法可以参看<a href="http://linux.die.net/man/3/libipq">linux man page</a>和<a href="http://www.imchris.org/projects/libipq.html">这里</a>的用法，需要注意的是在我的机器中必须得再加三个头文件：</p>
@@ -825,6 +831,9 @@ $ mv scapy-latest.zip /usr/local/bin/scapy
 <h3>netfilter</h3>
 
 <p>简单地说，netfilter是一套在计算机网络栈中过滤和修改封包的框架，它的做法是在Linux Kernel中插入了一系列的hook，并允许kernel在不同层的网络栈中注册回调函数，这些回调函数会在封包进入相应的hook的时候被调用到。</p>
+
+<!-- more -->
+
 
 <p>网络栈中对netfilter的支持如图所示：</p>
 

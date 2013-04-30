@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Android | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/android/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-04-30T22:30:23+08:00</updated>
+  <updated>2013-04-30T22:58:19+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -25,6 +25,9 @@
 <p>这里简单说下如何采用nfqueue对其进行控制：</p>
 
 <p>首先说下一个很简单的场景：我们需要将从手机端发到192.168.1.2服务器的所有TCP包都拦截下来，将包的信息打印出来，并将其发送出去。</p>
+
+<!-- more -->
+
 
 <p>具体的步骤如下：</p>
 
@@ -595,6 +598,9 @@
 
 <p>这其实是一个很简单的功能，但我不知道为什么一直找不到工具可以满足我的需求，直到找到了spark的一个<a href="http://appsrv.cse.cuhk.edu.hk/~mzheng/DroidTrace.pdf">slide</a>，里面提到一个cross reference graph。其实就是一个对smali文件的DFS算法。</p>
 
+<!-- more -->
+
+
 <p>于是我把<a href="">smali-cfg</a>和<a href="">redexer</a>结合了一下，写了这个ruby project，具体做法就是：</p>
 
 <ul>
@@ -734,6 +740,9 @@
 
 <p>这里主要想要说说<a href="http://en.wikipedia.org/wiki/OCaml">OCaml</a>这个语言。</p>
 
+<!-- more -->
+
+
 <p>OCaml的全称是Object Caml，是一个有OO扩展的函数式语言（Functional Language），看了看它的语法，和我们程序语言理论里面的那个simPL非常的像，也和当时学FP的时候讲的Haskell很像。</p>
 
 <p>查了查functional language和imperative language有什么不同，在wiki上似乎有一个最大的区别在于：</p>
@@ -772,6 +781,9 @@ state and I/O.
 <p>上传apk -> 服务器对apk进行”清洗“ -> 返回”清洗“过后的apk并安装 -> 在apk运行过程中进行动态权限控制</p>
 
 <p>当然还有一种模式就是”直接下载洗大师market提供的应用“。</p>
+
+<!-- more -->
+
 
 <p>咋一看，这真的是一个非常牛逼的应用，在没有root的情况下可以对每个应用进行细粒度动态权限控制，这样用户就再也不用担心恶意程序利用过渡申请的权限做坏事了！</p>
 
@@ -824,6 +836,9 @@ state and I/O.
     <content type="html"><![CDATA[<p>这两天尝试了下用Android自带的<a href="http://developer.android.com/tools/debugging/debugging-tracing.html">Traceview</a>进行profile，感觉蛮有意思的，而且发现它的文档上对数据格式的说明和我实现时候碰到的情况有出入，于是在google code上发了封<a href="https://code.google.com/p/android/issues/detail?id=51286">帖</a>（<a href="https://code.google.com/p/android/issues/detail?id=50930#makechanges">前一封</a>被华丽丽地无视掉了），但是到最后还是不明白到底是什么问题，维护文档的人好不热情啊...</p>
 
 <p>反正这里还是按照我的实验情况来解释吧:-)</p>
+
+<!-- more -->
+
 
 <p>首先得解释下什么是Traceview。最简单而且最普遍的Traceview的流程是这样子的：</p>
 

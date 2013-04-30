@@ -18,14 +18,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://ytliu.github.com/blog/2013/02/23/traceview-in-android/">
+  <link rel="canonical" href="http://ytliu.github.com/blog/2013/02/23/traceview-in-android">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
-  <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="/javascripts/ender.js"></script>
-  <script src="/javascripts/octopress.js" type="text/javascript"></script>
   <link href="/atom.xml" rel="alternate" title="Mctrain's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
@@ -38,7 +38,7 @@
   <header role="banner"><hgroup>
   <h1><a href="/">Mctrain's Blog</a></h1>
   
-    <h2>Security, Virtualization, Network, as well as life moments</h2>
+    <h2>Android, Security, System, Network, as well as life moments</h2>
   
 </hgroup>
 
@@ -96,6 +96,9 @@
 <div class="entry-content"><p>这两天尝试了下用Android自带的<a href="http://developer.android.com/tools/debugging/debugging-tracing.html">Traceview</a>进行profile，感觉蛮有意思的，而且发现它的文档上对数据格式的说明和我实现时候碰到的情况有出入，于是在google code上发了封<a href="https://code.google.com/p/android/issues/detail?id=51286">帖</a>（<a href="https://code.google.com/p/android/issues/detail?id=50930#makechanges">前一封</a>被华丽丽地无视掉了），但是到最后还是不明白到底是什么问题，维护文档的人好不热情啊&#8230;</p>
 
 <p>反正这里还是按照我的实验情况来解释吧:-)</p>
+
+<!-- more -->
+
 
 <p>首先得解释下什么是Traceview。最简单而且最普遍的Traceview的流程是这样子的：</p>
 
@@ -618,8 +621,6 @@
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ytliu.github.com/blog/2013/02/23/traceview-in-android/" data-via="microtrain016" data-counturl="http://ytliu.github.com/blog/2013/02/23/traceview-in-android/" >Tweet</a>
-  
   
   <div class="g-plusone" data-size="medium"></div>
   
@@ -669,36 +670,6 @@
   </ul>
 </section>
 
-
-<section>
-  <h1>Latest Tweets</h1>
-  <ul id="tweets">
-    <li class="loading">Status updating...</li>
-  </ul>
-  <script type="text/javascript">
-    $.domReady(function(){
-      getTwitterFeed("microtrain016", 4, false);
-    });
-  </script>
-  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
-  
-    <a href="http://twitter.com/microtrain016" class="twitter-follow-button" data-show-count="false">Follow @microtrain016</a>
-  
-</section>
-
-
-
-<section class="googleplus">
-  <h1>
-    <a href="https://plus.google.com/mctrain016@gmail.com?rel=author">
-      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
-      Google+
-    </a>
-  </h1>
-</section>
-
-
-
   
 </aside>
 
@@ -726,16 +697,6 @@
   </script>
 
 
-
-  <script type="text/javascript">
-    (function(){
-      var twitterWidgets = document.createElement('script');
-      twitterWidgets.type = 'text/javascript';
-      twitterWidgets.async = true;
-      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
-      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
-    })();
-  </script>
 
 
 

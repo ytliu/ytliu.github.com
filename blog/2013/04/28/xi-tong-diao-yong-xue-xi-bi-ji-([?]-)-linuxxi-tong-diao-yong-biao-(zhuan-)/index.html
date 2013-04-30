@@ -18,14 +18,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://ytliu.github.com/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-%28%5B%3F%5D-%29-linuxxi-tong-diao-yong-biao-%28zhuan-%29/">
+  <link rel="canonical" href="http://ytliu.github.com/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-%28%5B%3F%5D-%29-linuxxi-tong-diao-yong-biao-%28zhuan-%29">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
-  <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="/javascripts/ender.js"></script>
-  <script src="/javascripts/octopress.js" type="text/javascript"></script>
   <link href="/atom.xml" rel="alternate" title="Mctrain's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
@@ -38,7 +38,7 @@
   <header role="banner"><hgroup>
   <h1><a href="/">Mctrain's Blog</a></h1>
   
-    <h2>Security, Virtualization, Network, as well as life moments</h2>
+    <h2>Android, Security, System, Network, as well as life moments</h2>
   
 </hgroup>
 
@@ -96,6 +96,9 @@
 <div class="entry-content"><p>最近发现自己对Linux里面很多的系统调用都不清楚具体是在怎么回事儿，想要好好学习一下。</p>
 
 <p>在IBM的<a href="https://www.ibm.com/developerworks/cn/">developerWorks</a>中发现一份它们整理的<a href="http://www.ibm.com/developerworks/cn/linux/kernel/syscall/part1/appendix.html">Linux系统调用列表</a>，从进程控制，文件系统控制等八个方面列举了大部分常见的Linux系统调用：</p>
+
+<!-- more -->
+
 
 <h2>进程控制</h2>
 
@@ -1140,8 +1143,6 @@
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ytliu.github.com/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-%28%5B%3F%5D-%29-linuxxi-tong-diao-yong-biao-%28zhuan-%29/" data-via="microtrain016" data-counturl="http://ytliu.github.com/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-%28%5B%3F%5D-%29-linuxxi-tong-diao-yong-biao-%28zhuan-%29/" >Tweet</a>
-  
   
   <div class="g-plusone" data-size="medium"></div>
   
@@ -1191,36 +1192,6 @@
   </ul>
 </section>
 
-
-<section>
-  <h1>Latest Tweets</h1>
-  <ul id="tweets">
-    <li class="loading">Status updating...</li>
-  </ul>
-  <script type="text/javascript">
-    $.domReady(function(){
-      getTwitterFeed("microtrain016", 4, false);
-    });
-  </script>
-  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
-  
-    <a href="http://twitter.com/microtrain016" class="twitter-follow-button" data-show-count="false">Follow @microtrain016</a>
-  
-</section>
-
-
-
-<section class="googleplus">
-  <h1>
-    <a href="https://plus.google.com/mctrain016@gmail.com?rel=author">
-      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
-      Google+
-    </a>
-  </h1>
-</section>
-
-
-
   
 </aside>
 
@@ -1248,16 +1219,6 @@
   </script>
 
 
-
-  <script type="text/javascript">
-    (function(){
-      var twitterWidgets = document.createElement('script');
-      twitterWidgets.type = 'text/javascript';
-      twitterWidgets.async = true;
-      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
-      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
-    })();
-  </script>
 
 
 

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Linux | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/linux/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-04-30T22:30:23+08:00</updated>
+  <updated>2013-04-30T22:58:19+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -113,6 +113,9 @@
 <p>先是waitpid，等待child调用execv，之后设置一系列参数（在这里是打开perf_event，并mmap一段内存区域），然后调用ptrace让child继续执行。</p>
 
 <p>其实到现在为止我也还不是很清楚ptrace的用法和waitpid那几个参数的意思，于是想好好学习下，在google上搜到了一篇翻译的<a href="http://www.kgdb.info/gdb/playing_with_ptrace_part_i/">玩转ptrace1</a>和<a href="http://www.kgdb.info/gdb/playing_with_ptrace_part_ii/">2</a>，这里归纳整理下，另外，在IBM的<a href="https://www.ibm.com/developerworks/cn/">developerWorks</a>上找到一篇介绍进程相关，以及waitpid的<a href="http://www.ibm.com/developerworks/cn/linux/kernel/syscall/part3/">博文</a>，也一起学习了。</p>
+
+<!-- more -->
+
 
 <hr />
 
@@ -728,6 +731,9 @@
     <content type="html"><![CDATA[<p>最近发现自己对Linux里面很多的系统调用都不清楚具体是在怎么回事儿，想要好好学习一下。</p>
 
 <p>在IBM的<a href="https://www.ibm.com/developerworks/cn/">developerWorks</a>中发现一份它们整理的<a href="http://www.ibm.com/developerworks/cn/linux/kernel/syscall/part1/appendix.html">Linux系统调用列表</a>，从进程控制，文件系统控制等八个方面列举了大部分常见的Linux系统调用：</p>
+
+<!-- more -->
+
 
 <h2>进程控制</h2>
 
@@ -1747,6 +1753,9 @@
     <content type="html"><![CDATA[<p>寒假回来就要开始执行新年的计划了~首先是每周的一篇blog。</p>
 
 <p>今天看了<a href="http://www.ruanyifeng.com/blog/">阮一峰</a>最新的一篇博客<a href="http://www.ruanyifeng.com/blog/2013/02/booting.html">计算机是如何启动的</a>，感觉写得很好，又清楚又简单。虽然自己关于计算机启动这个过程从大三OS课的时候就陆陆续续地一直有了解，但是都没有一个系统的了解，或者了解了又忘了，希望通过这次记录把这点彻底弄清楚来并且记在脑子里。另外在评论中有另外一个小哥<a href="http://www.dalei.org/">大磊</a>把他的<a href="http://www.dalei.org/linux-unix-boot-process/">博客</a>也贴出来了，写得很详细，作为阮一峰的补充吧。</p>
+
+<!-- more -->
+
 
 <hr />
 
