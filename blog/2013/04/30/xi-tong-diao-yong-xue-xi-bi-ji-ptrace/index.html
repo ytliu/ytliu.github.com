@@ -5,12 +5,24 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>系统调用学习笔记 - ptrace - Mctrain's Blog</title>
+  <title>系统调用学习笔记 - ptrace和wait - Mctrain's Blog</title>
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="
-">
+  <meta name="description" content="在系统安全这门课上讲到ptrace这个系统调用，我马上想到当年做CFIMon里面用到的ptrace: 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+int child(char **arg) { /* * force the task to stop before executing &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -71,7 +83,7 @@
   
   <header>
     
-      <h1 class="entry-title">系统调用学习笔记 - Ptrace</h1>
+      <h1 class="entry-title">系统调用学习笔记 - Ptrace和wait</h1>
     
     
       <p class="meta">
@@ -94,7 +106,194 @@
   </header>
 
 
-<div class="entry-content">
+<div class="entry-content"><p>在系统安全这门课上讲到ptrace这个系统调用，我马上想到当年做CFIMon里面用到的ptrace:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">int</span> <span class="nf">child</span><span class="p">(</span><span class="kt">char</span> <span class="o">**</span><span class="n">arg</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="cm">/*</span>
+</span><span class='line'><span class="cm">     * force the task to stop before executing the first</span>
+</span><span class='line'><span class="cm">     * user level instruction</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>    <span class="n">ptrace</span><span class="p">(</span><span class="n">PTRACE_TRACEME</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">......</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">execvp</span><span class="p">(</span><span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">arg</span><span class="p">);</span>
+</span><span class='line'>    <span class="cm">/* not reached */</span>
+</span><span class='line'>    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>然后在parent的代码里面：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'>    <span class="cm">/*</span>
+</span><span class='line'><span class="cm">     * wait for the child to exec</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>    <span class="n">ret</span> <span class="o">=</span> <span class="n">waitpid</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">status</span><span class="p">,</span> <span class="n">WUNTRACED</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">WIFEXITED</span><span class="p">(</span><span class="n">status</span><span class="p">))</span>
+</span><span class='line'>        <span class="n">errx</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&quot;task %s [%d] exited already status %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pid</span><span class="p">,</span> <span class="n">WEXITSTATUS</span><span class="p">(</span><span class="n">status</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">......</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">fds</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">fd</span> <span class="o">=</span> <span class="n">perf_event_open</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fds</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">hw</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">fds</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">buf</span> <span class="o">=</span> <span class="n">mmap</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">map_size</span><span class="p">,</span> <span class="n">PROT_READ</span><span class="o">|</span><span class="n">PROT_WRITE</span><span class="p">,</span> <span class="n">MAP_SHARED</span><span class="p">,</span> <span class="n">fds</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">fd</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">......</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="cm">/*</span>
+</span><span class='line'><span class="cm">     * effectively activate monitoring</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>    <span class="n">ptrace</span><span class="p">(</span><span class="n">PTRACE_CONT</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">......</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>先是waitpid，等待child调用execv，之后设置一系列参数（在这里是打开perf_event，并mmap一段内存区域），然后调用ptrace让child继续执行。</p>
+
+<p>其实到现在为止我也还不是很清楚ptrace的用法和waitpid那几个参数的意思，于是想好好学习下，在google上搜到了一篇翻译的<a href="http://www.kgdb.info/gdb/playing_with_ptrace_part_i/">玩转ptrace1</a>和<a href="http://www.kgdb.info/gdb/playing_with_ptrace_part_ii/">2</a>，这里归纳整理下，另外，在IBM的<a href="https://www.ibm.com/developerworks/cn/">developerWorks</a>上找到一篇介绍进程相关只是，以及waitpid的<a href="http://www.ibm.com/developerworks/cn/linux/kernel/syscall/part3/">博文</a>，也一起学习了。</p>
+
+<hr />
+
+<h3>僵尸进程和wait</h3>
+
+<p>在linux中，当一个进程退出（如调用exit等）后，并不是马上完全消失掉了，它还会留下一些踪迹，成为一个僵尸进程（Zombie）。作为一个僵尸进程来说，它已经放弃了几乎所有内存空间，没有任何可执行代码，也不能被调度，仅仅在进程列表中保留一个位置，记载该进程的退出状态等信息供其他进程收集，除此之外，僵尸进程不再占有任何内存空间。在僵尸进程记录了这个进程是怎么死亡的（是正常退出呢，还是出现了错误，还是被其它进程强迫退出的？），以及它占用的总系统CPU时间和总用户CPU时间分别是多少？还有发生页错误的数目和收到信号的数目等。</p>
+
+<p>而wait和waitpid这两个系统调用就是用来收集这些信息，并使得这个僵尸进程永远消失的。</p>
+
+<p>这两个系统调用的原型是这样子的：</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'>  <span class="cp">#include &lt;sys/wait.h&gt;  </span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">pid_t</span> <span class="n">wait</span><span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="n">status</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">pit_t</span> <span class="n">wait</span><span class="p">(</span><span class="n">pid_t</span> <span class="n">pid</span><span class="p">,</span><span class="kt">int</span> <span class="o">*</span><span class="n">status</span><span class="p">,</span><span class="kt">int</span> <span class="n">options</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>对于wait来说，它是等待所有的子进程的退出， 而对比来看，waitpid增加了两个参数<code>pid</code>和<code>option</code>。</p>
+
+<p>对于pid来说，有四种情况：</p>
+
+<table>
+<thead>
+<tr>
+<th align="center">pid         </th>
+<th align="center"> Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">pid == -1   </td>
+<td align="center"> 等待任一个子进程（与wait等效）；</td>
+</tr>
+<tr>
+<td align="center">pid > 0     </td>
+<td align="center"> 则等待其进程ID与pid相等的子进程。</td>
+</tr>
+<tr>
+<td align="center">pid == 0    </td>
+<td align="center"> 等待其组ID等于调用进程组ID的任一个子进程。</td>
+</tr>
+<tr>
+<td align="center">pid &lt; -1    </td>
+<td align="center"> 等待其组ID等于pid绝对值的任一子进程。</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>另外，如果参数status的值不是NULL，wait就会把子进程退出时的状态取出并存入其中，这是一个整数值，指出了子进程是正常退出还是被非正常结束的，以及正常结束时的返回值，或被哪一个信号结束的等信息。有一套专门的宏（macro）来对其进行操作：</p>
+
+<table>
+<thead>
+<tr>
+<th align="center">macro               </th>
+<th align="center"> Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">WIFEXITED(status)   </td>
+<td align="center"> 若子进程是正常退出的，则为真，此时可以调用WEXITSTATUS(status)获得退出值</td>
+</tr>
+<tr>
+<td align="center">WEXITSTATUS(status) </td>
+<td align="center"> 若子进程是被异常终止的，则为真，此时可以调用WTERMSIG(status)获得使其终止的信号编号</td>
+</tr>
+<tr>
+<td align="center">WIFSTOPPED(status)  </td>
+<td align="center"> 若子进程是暂停状态，则为真，此时可以调用WTERMSIG(status)获得使其暂停的信号编号</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>到现在未知，还有一个参数叫option，它提供了一些额外的选项来控制waitpid，目前在Linux中只支持WNOHANG和WUNTRACED两个选项：</p>
+
+<table>
+<thead>
+<tr>
+<th align="center">option      </th>
+<th align="center"> Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">WNOHANG     </td>
+<td align="center"> waitpid在调用时发现没有已退出的子进程可收集，则返回0</td>
+</tr>
+<tr>
+<td align="center">WUNTRACED   </td>
+<td align="center"> 在所有符合条件的pid中，如果其中有已经stopped的进程，则立即返回（而对于traced的进程，即使没有该选项，如果其stopped了，也会立即返回）</td>
+</tr>
+</tbody>
+</table>
+
+
+<hr />
+
+<h3>ptrace笔记</h3>
 </div>
 
 
@@ -164,7 +363,7 @@
       </li>
     
       <li class="post">
-        <a href="/blog/2013/04/30/xi-tong-diao-yong-xue-xi-bi-ji-ptrace/">系统调用学习笔记 - ptrace</a>
+        <a href="/blog/2013/04/30/xi-tong-diao-yong-xue-xi-bi-ji-ptrace/">系统调用学习笔记 - ptrace和wait</a>
       </li>
     
       <li class="post">
