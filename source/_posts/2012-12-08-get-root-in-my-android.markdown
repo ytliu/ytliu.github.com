@@ -6,7 +6,7 @@ comments: true
 categories: Android
 ---
 
-首先申明，这其实并不是一篇android root教程，因为我并没有用什么exploit的方法，也没有用CWM等这些第三方ROM，而是该了ASOP，然后把它刷到机子上，然后对其进行所谓的root，装了一个dSploit和busybox。
+首先申明，这其实并不是一篇android root教程，因为我并没有用什么exploit的方法，也没有用CWM等这些第三方ROM，而是改了ASOP，然后把它刷到机子上，然后对其进行所谓的root，装了一个dSploit和busybox。
 
 具体的做法是这样的：
 
@@ -25,6 +25,29 @@ categories: Android
 但是发现失败了，我怀疑是su这个文件不兼容，于是，我想了一个更贱的方法：
 
 * 把ASOP代码中的/system/extras/su/su.c该掉，把检查的部分全部去掉
+
+在这里，我把
+
+{% codeblock lang:c %}
+if (myuid != AID_ROOT && myuid != AID_SHELL) {
+	fprintf(stderr,"su: uid %d not allowed to su\n", myuid);
+	return 1;
+}
+{% endcodeblock %}
+
+注释掉，另外，把
+
+
+{% codeblock lang:c %}
+if(setgid(gid) || setuid(uid)) {
+{% endcodeblock %}
+
+换成了
+
+{% codeblock lang:c %}
+if(setgid(0) || setuid(0)) {
+{% endcodeblock %}
+
 * 然后刷机
 
 这样就直接root了！不过这只能用于我的测试机啦，正常的手机千万不敢那么做，太危险了！

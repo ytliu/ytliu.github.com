@@ -72,19 +72,3 @@ Awesome code snippet
 var arr1 = new Array(arrayLength);
 var arr2 = new Array(element0, element1, ..., elementN);
 {% endcodeblock %}
-
-中文测试
-这个测试中有很多很多很多字符
-{% blockquote %}
-"C"是系统默认的locale，"POSIX"是"C"的别名。所以当我们新安装完一个系统时，默认的locale就是C或POSIX。
-
-在Debian中安装locales的方法如下：
-
-· 通过apt-get install locales命令安装locales包
-· 安装完成locales包后，系统会自动进行locale配置，你只要选择所需的locale，可以多选。最后指定一个系统默认的locale。这样系统就会帮你自动生成相应的locale和配置好系统的locale。
-
-· 增加新的locale也很简单，用dpkg-reconfigure locales重新配置locale即可。
-
-· 我们也可手动增加locale，只要把新的locale增加到/etc/locale.gen文件中，再运行locale-gen命令即可生成新的locale。再通过设置上面介绍的LC_*变量就可设置系统的locale了。下是一个locale.gen文件的样例。
-
-{% endblockquote %}
