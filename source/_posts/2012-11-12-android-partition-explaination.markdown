@@ -16,6 +16,8 @@ http://androidforums.com/evo-4g-all-things-root/279261-more-information-about-an
 
 这个thread由两个人来写，[novox77](http://androidforums.com/members/novox77.html)主要介绍了下android中partition的大概组织结构，[akazabam](http://androidforums.com/members/akazabam.html)则详细地介绍了android partition的内部机制和原理，以及如何利用其来将application从RAM中移到sdcard上。
 
+<!-- more -->
+
 以下做一些节选和注释吧：
 
 ------

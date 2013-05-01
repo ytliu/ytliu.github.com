@@ -29,6 +29,8 @@ Since JTAG access gives the hardware equivalent of a software debugger, attacker
 
 还有关于Software-centric attack, 小Z讲了一个例子，比如说对iOS的pdf漏洞的良性利用，至于用来干嘛的，大家都懂得，jailbreak，不过其实我完全不知道这个是怎么样就得到root权限的，这几天研究下。
 
+<!-- more -->
+
 最后还有一点比较感兴趣的是小Z提到android的process isolation，我挺感兴趣的，它说android里面是用到context的概念进行进程间通讯，在kernel里面有一个binder进行管理，如果把kernel作为TPM那应该就没有什么安全问题了吧，不过其实还是存疑的，我不知道有没有一份关于android的安全机制的survey，上网搜了下，找到一篇宾大的"understand android security"，抽空看下。
 
 其实这篇是一个完完全全的survey，小Z讲的也比较简单，不过其实手机的安全问题还是蛮多的，比如有提到的一个隐私的保护，有很多这方面的研究，比如通过限制控制流，比如TaintDroid，我想还有没有更强的机制呢？比如把Nicholai的histar用在手机上？

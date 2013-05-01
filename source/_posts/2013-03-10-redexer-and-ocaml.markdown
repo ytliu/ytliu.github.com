@@ -12,6 +12,8 @@ redexer主要原理就是将`.dex`文件按照[Dalvik Executable Format](http://
 
 这里主要想要说说[OCaml](http://en.wikipedia.org/wiki/OCaml)这个语言。
 
+<!-- more -->
+
 OCaml的全称是Object Caml，是一个有OO扩展的函数式语言（Functional Language），看了看它的语法，和我们程序语言理论里面的那个simPL非常的像，也和当时学FP的时候讲的Haskell很像。
 
 查了查functional language和imperative language有什么不同，在wiki上似乎有一个最大的区别在于：

@@ -14,6 +14,8 @@ categories: Network
 
 简单地说，netfilter是一套在计算机网络栈中过滤和修改封包的框架，它的做法是在Linux Kernel中插入了一系列的hook，并允许kernel在不同层的网络栈中注册回调函数，这些回调函数会在封包进入相应的hook的时候被调用到。
 
+<!-- more -->
+
 网络栈中对netfilter的支持如图所示：
 
 ![netfilter](http://ytliu.github.com/images/2013-03-29-1.png "package flow in netfiter and general networking")

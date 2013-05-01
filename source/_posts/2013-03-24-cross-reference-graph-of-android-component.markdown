@@ -14,6 +14,8 @@ categories: Android
 
 这其实是一个很简单的功能，但我不知道为什么一直找不到工具可以满足我的需求，直到找到了spark的一个[slide](http://appsrv.cse.cuhk.edu.hk/~mzheng/DroidTrace.pdf)，里面提到一个cross reference graph。其实就是一个对smali文件的DFS算法。
 
+<!-- more -->
+
 于是我把[smali-cfg]()和[redexer]()结合了一下，写了这个ruby project，具体做法就是：
 
 * 用apktool unpack apk：

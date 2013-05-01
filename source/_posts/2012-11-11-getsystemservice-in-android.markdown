@@ -19,6 +19,8 @@ Android中主要通过2种方法来获得service binder：
 
 也就是说，尼玛bindService只是用来bind application level的service！！！
 
+<!-- more -->
+
 而我们更在意的system service应该是由ServiceManager.getService()来获得的！！！
 
 发现这个问题之后我整个人都有些凌乱了。。。不过静下来想想其实自己从bindService这里入手也学到很多东西，也就不纠结了！

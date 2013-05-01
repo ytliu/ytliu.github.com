@@ -27,6 +27,8 @@ porcelain是瓷器的意思，在这里是指git中比较user-friendly的命令�
 
 这些是在*git init*的时候初始化就默认产生的，其中description现在还不需要考虑，config主要用来配置一些program-specific的参数选项，info是一个目录，包含了一些需要被ignore的文件模式，而hooks定义了一些client或server端用于用户进行脚本定制的功能，这会在接下来详细介绍。而在这一节中主要描述了以下四个对象：**HEAD**，**index**，**objects**，**refs**。这是git最internal的部分。
 
+<!-- more -->
+
 ##git objects
 object主要由两种组成：*tree object*和*commit object*，在介绍这两个object之前首先要说明下git的文件系统，git是一个content-addressable文件系统，换句话来说，对于git的核心存储来说仅仅是一个key-value数据库，你能向里面插入任何数据，并得到一个相对应的hash值用于之后的访问。这里有两个plumbing命令*hash-object*和*cat-file*，比如在新建的git仓库中输入以下命令；
     $ echo 'test content' | git hash-object -w --stdin

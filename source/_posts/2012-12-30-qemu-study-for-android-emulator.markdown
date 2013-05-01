@@ -16,6 +16,8 @@ categories: Android Qemu
 
 你可以对源码进行修改，然后重新编译、使用，而这里主要要讲的是qemu的运行原理，资料来源是[Qemu detailed study](http://lists.gnu.org/archive/html/qemu-devel/2011-04/pdfhC5rVdz7U8.pdf)。要说明的一点是，android emulator原理基本上是和qemu一样的，只是加了一些android specific的东西在里面。
 
+<!-- more -->
+
 首先是qemu整体流程：
 
 ![qemu process](http://ytliu.github.com/images/2012-12-30-1.png "qemu process")

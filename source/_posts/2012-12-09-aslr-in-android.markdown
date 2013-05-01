@@ -12,6 +12,8 @@ categories: Android
 
 首先介绍下linux中的ASLR，ASLR可以对任意内存进行随机化：
 
+<!-- more -->
+
 * stack：The userspace stack mapping set up by the kernel during exec(2) should be sufficiently randomized. Stack randomization is performed by the randomize\_stack\_top() function.
 * Heap：The heap location returned by the brk(2) system call when a program is first exec’ed should be randomized. Heap randomization is performed by the arch\_randomize\_brk() function.
 * Libs and mmap：After NX was introduced, static library mapping led to the popularity of ret-to-libc and more generic ret-to-lib attacks. The location of libraries and other mmap’ed regions should be randomized.

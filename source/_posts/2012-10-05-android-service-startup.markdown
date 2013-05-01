@@ -30,6 +30,8 @@ try {
 
 之后NewService就会开机启动，但是这样有一个问题，就是这个NewService的pid也就是SystemServer的pid，它们是处于同一个进程中的。于是由于种种原因我不希望启动一个系统服务，而是一个application level的service，这样就遇到一个问题：如果是一个单纯的没有activity的service应用，在通过*adb install*进系统后并不会自动启动，而是需要其它进程通过*startService()*或者*bindService()*启动，那么有没有什么其它方法让一个service在每次install之后启动呢？
 
+<!-- more -->
+
 #### App Level Service Startup upon Installe
 
 这里有两种方案：

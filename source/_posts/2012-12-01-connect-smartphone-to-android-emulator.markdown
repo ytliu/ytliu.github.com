@@ -14,6 +14,8 @@ categories: Android
 
 在[stackoverflow](http://stackoverflow.com, stackoverflow)上查了好久，有一个说[如何连接两个emulator的](http://stackoverflow.com/questions/7108326/how-can-we-change-the-ip-of-android-emulator)，还有一个[介绍了一个非常复杂但经过我的测试有效的方法](http://stackoverflow.com/questions/7108326/how-can-we-change-the-ip-of-android-emulator)。这里简单介绍一下：
 
+<!-- more -->
+
 ### 两个emulator相连
 
 为了两个emulator能进行网络相连，首先必须满足一下三个条件：

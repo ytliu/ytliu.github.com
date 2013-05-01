@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "系统调用学习笔记（一） - Linux系统调用表（转）"
+title: "系统调用学习笔记 - Linux系统调用表（转）"
 date: 2013-04-28 20:56
 comments: true
 categories: Linux
@@ -9,6 +9,8 @@ categories: Linux
 最近发现自己对Linux里面很多的系统调用都不清楚具体是在怎么回事儿，想要好好学习一下。
 
 在IBM的[developerWorks](https://www.ibm.com/developerworks/cn/)中发现一份它们整理的[Linux系统调用列表](http://www.ibm.com/developerworks/cn/linux/kernel/syscall/part1/appendix.html)，从进程控制，文件系统控制等八个方面列举了大部分常见的Linux系统调用：
+
+<!-- more -->
 
 ## 进程控制
 System Call   			| Description

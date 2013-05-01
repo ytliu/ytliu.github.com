@@ -10,6 +10,8 @@ categories: Linux
 
 今天看了[阮一峰](http://www.ruanyifeng.com/blog/)最新的一篇博客[计算机是如何启动的](http://www.ruanyifeng.com/blog/2013/02/booting.html)，感觉写得很好，又清楚又简单。虽然自己关于计算机启动这个过程从大三OS课的时候就陆陆续续地一直有了解，但是都没有一个系统的了解，或者了解了又忘了，希望通过这次记录把这点彻底弄清楚来并且记在脑子里。另外在评论中有另外一个小哥[大磊](http://www.dalei.org/)把他的[博客](http://www.dalei.org/linux-unix-boot-process/)也贴出来了，写得很详细，作为阮一峰的补充吧。
 
+<!-- more -->
+
 ------
 
 以下是转来的文章，中间加上了大磊的补充，也没有区分哪句话是谁说的，具体的还是看之前提到的两篇博客吧：

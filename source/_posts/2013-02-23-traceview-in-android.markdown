@@ -10,6 +10,8 @@ categories: Android
 
 反正这里还是按照我的实验情况来解释吧:-)
 
+<!-- more -->
+
 首先得解释下什么是Traceview。最简单而且最普遍的Traceview的流程是这样子的：
 
 * 用户首先要对源代码进行一些instrumentation，如下所示：

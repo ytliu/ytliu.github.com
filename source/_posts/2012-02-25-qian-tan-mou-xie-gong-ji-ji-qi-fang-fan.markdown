@@ -21,6 +21,8 @@ categories: Security Paper
 ####**前言**
 对于一个成功的攻击，有很大一部分是需要用到*buffer overflow*技术的，而*bf*分为很多，主要看你要覆盖什么内容，之后如何使得控制流变成你想要执行的代码，对于之后的这些攻击技术，也就出现了相应的防范策略和机制。但不管怎么说，这里所提到的所有攻击都源自于*bf*，没有它的攻击属于另外的范畴，这篇暂且不谈。
 
+<!-- more -->
+
 ####**stack cookies(canaries) & variable reordering**
 *bf*最简单的攻击就是修改函数调用的return address，canaries即是在进入函数栈时在压入的return address之后再加入一个4位的随机数（canaries），如果攻击者改了return address那么canaries也会被改，那么系统在返回时将会报错。但是也有可能在函数返回之前调用一些函数变量，variable reordering则是将变量的顺序进行调整使得攻击者无法对本地变量进行overwrite，这两个技术都是靠编译器支持的，如果开启了这两种保护，栈上的结构将会变成这样：
 

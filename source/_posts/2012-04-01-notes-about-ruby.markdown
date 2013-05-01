@@ -16,6 +16,8 @@ CSE要求TA每次recitation完了以后给小朋友们发邮件告知成绩，�
     
 其它也没什么好多说的，先贴代码吧：
 
+<!-- more -->
+
 {% codeblock lang:ruby %}
 require 'gmail'
 

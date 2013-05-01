@@ -19,6 +19,8 @@ On Host (kvm):
     $ onehost create host01 --im im_kvm --vm vmm_kvm --net dummy 
     $ onecluster addhost cluster01 host01
 
+<!-- more -->
+
 System Datastore (for running VM, not needed in front end):
     
     mount a NFS directory to /var/lib/one/datastores/0 for each host, if you would like to perform live migration.

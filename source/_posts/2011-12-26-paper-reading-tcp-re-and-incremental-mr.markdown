@@ -28,6 +28,8 @@ categories: Paper
                 （window size大小的byte），之后将其作为一个sample的fingerprint。
 从这两个fingerprint算法可以很容易地看出对于ModP，由于它是一个content-based的算法，所以不管是不是有偏移都可以比较完整地得出内容上的重复性，但是它的效率太低了，因为它要算每一个byte的hash；而对于Fixed，它的效率远远大于ModP，但消除重复性的能力也相应地变小很多。
 
+<!-- more -->
+
 于是作者提出提出的一种新的算法，叫SAMPLEBYTE fingerprint：
         提供一个256bit的数组A，遍历要发送的包的每一个字节，比如第一个字节是0x23，那么查找
         数组A的第23个bit看它是否为1，如果为0则表示miss，继续查看后一个字节，如果为1则代表hit，

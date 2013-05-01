@@ -28,6 +28,8 @@ categories:
     datastores/vm3.img2        15960062    16775167      407553    5  Extended
     datastores/vm3.img5        15960064    16775167      407552   82  Linux swap / Solaris
 
+<!-- more -->
+
 注意里面的一个数2048，然后执行下面一条指令：
 
     $ mount -o offset=$((2048*512)),loop vm.img /mnt

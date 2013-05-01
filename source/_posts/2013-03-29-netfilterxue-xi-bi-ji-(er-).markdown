@@ -12,6 +12,8 @@ categories: Network
 
 这里介绍两种方法，一种是C语言中使用的`libipq`，一种是python中使用的`nfqueue`。
 
+<!-- more -->
+
 ### libipq
 
 `libipq`是一个对开发者提供的用于读取iptables queue的C库，具体的用法可以参看[linux man page](http://linux.die.net/man/3/libipq)和[这里](http://www.imchris.org/projects/libipq.html)的用法，需要注意的是在我的机器中必须得再加三个头文件：

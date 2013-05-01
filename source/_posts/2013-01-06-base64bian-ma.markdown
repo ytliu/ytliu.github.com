@@ -8,6 +8,8 @@ categories: Security
 
 这两天看[Jiang](http://www.csc.ncsu.edu/faculty/jiang/ "Xuxian Jiang")团队对[AnserverBot](http://www.csc.ncsu.edu/faculty/jiang/AnserverBot/ "AnserverBot Malware")的一篇详细的[分析](http://www.csc.ncsu.edu/faculty/jiang/pubs/AnserverBot_Analysis.pdf "AnserverBot Analysis")中提到AnserverBot中对很多数据（比如C&C server的url等）进行了Base64编码，于是，我对这种编码进行了了解，并根据他们实现的python解码脚本，写了一个ruby的解码脚本。
 
+<!-- more -->
+
 #### Base64
 
 以下资料基本上来自于[wiki](http://en.wikipedia.org/wiki/Base64 "Base64")

@@ -30,6 +30,8 @@ public java.lang.String sayHello(java.lang.String message) throws android.os.Rem
 }
 {% endcodeblock %}
 
+<!-- more -->
+
 这是一段用的最多的code，我们在android中的BinderProxy对象中调用一个sayHello()方法，它会首先封装一个Parcel对象，并将其作为参数调用transact()函数，通过android的Binder机制传到另一个进程的BBinder的onTransact()函数中：
 
 {% codeblock lang:java %}

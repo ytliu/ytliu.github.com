@@ -16,6 +16,8 @@ categories: Android
 * 把手机连到电脑上，通过adb shell上去，进入su模式
 * 通过[这里](http://www.cypherpunk.at/2011/10/08/manual-rooting-android-on-linux-2/ "manual rooting")的方法进行root
 
+<!-- more -->
+
 即：
 
 * mount -o remount,rw /dev/block/.../system /system

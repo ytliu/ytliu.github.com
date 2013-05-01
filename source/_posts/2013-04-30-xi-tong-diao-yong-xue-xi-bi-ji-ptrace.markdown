@@ -55,6 +55,7 @@ int child(char **arg) {
 
 其实到现在为止我也还不是很清楚ptrace的用法和waitpid那几个参数的意思，于是想好好学习下，在google上搜到了一篇翻译的[玩转ptrace1](http://www.kgdb.info/gdb/playing_with_ptrace_part_i/)和[2](http://www.kgdb.info/gdb/playing_with_ptrace_part_ii/)，这里归纳整理下，另外，在IBM的[developerWorks](https://www.ibm.com/developerworks/cn/)上找到一篇介绍进程相关，以及waitpid的[博文](http://www.ibm.com/developerworks/cn/linux/kernel/syscall/part3/)，也一起学习了。
 
+<!-- more -->
 ------
 
 ### 僵尸进程和wait

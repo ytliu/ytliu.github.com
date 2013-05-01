@@ -12,6 +12,8 @@ categories: System
 
 这次主要想记的是Naruil关于一些同步原语的讲解。之前一直对Read-Write Lock, RCU，Transaction Memory等都只是一知半解，这几周由于海波和大爷的课，以及组会对这些都提到了好多，因此希望能把它们记下来做个笔记，省的自己又很快就忘记了。
 
+<!-- more -->
+
 slides在[这里](http://ipads.se.sjtu.edu.cn/courses/ads/slides/lec7-lock.pdf)。
 
 刚开始有个印象很深的提法，他说在计算机中不同核（或者在分布式系统中不同机器）之间的交流一般只有两种方式：**message passing**和**shared memory**，而对于第二种shared memory的方式，其本质上也是一种message passing（比如在多核之间的SM其实就是inter-processor间cache的message passing）。
