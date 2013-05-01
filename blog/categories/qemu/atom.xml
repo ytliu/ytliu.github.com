@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Qemu | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/qemu/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-04-30T22:58:19+08:00</updated>
+  <updated>2013-05-01T09:37:10+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -29,6 +29,9 @@ $ emulator-arm @4.2
 </code></pre>
 
 <p>你可以对源码进行修改，然后重新编译、使用，而这里主要要讲的是qemu的运行原理，资料来源是<a href="http://lists.gnu.org/archive/html/qemu-devel/2011-04/pdfhC5rVdz7U8.pdf">Qemu detailed study</a>。要说明的一点是，android emulator原理基本上是和qemu一样的，只是加了一些android specific的东西在里面。</p>
+
+<!-- more -->
+
 
 <p>首先是qemu整体流程：</p>
 

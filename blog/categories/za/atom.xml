@@ -4,7 +4,7 @@
   <title><![CDATA[Category: 杂 | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/za/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-04-30T22:58:19+08:00</updated>
+  <updated>2013-05-01T09:37:10+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -30,6 +30,9 @@
 <p>如果当时能记下来这次就能省去好多时间了。这就是为什么今年"记笔记"是我一个很大的计划的原因了。真的越来越感觉到自己记忆的易失和笔头的重要性了。</p>
 
 <p>还有这周印象很深的是在讨论CFIMon处理signal的问题的时候，斌哥问我关于linux中对signal处理的问题，说来惭愧，当时在写这篇paper的时候我对这个还是一知半解的，甚至到现在还把signal的处理和interrupt的处理混起来了。希望能在这里把这东西说清楚:</p>
+
+<!-- more -->
+
 
 <p>当一个进程需要向另一个进程发送一个signal时，它是通知kernel产生这个signal，并将接受方进程的某个flag(ULK中说的是TIF_SIGPEDING)置好，当然这个时候并不是能马上告诉接受进程有signal需要处理，而是像ULK上说的：</p>
 

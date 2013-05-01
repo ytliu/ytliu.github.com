@@ -38,7 +38,7 @@
   <header role="banner"><hgroup>
   <h1><a href="/">Mctrain's Blog</a></h1>
   
-    <h2>Android, Security, System, Network, as well as life moments</h2>
+    <h2>What I learned in IT, as well as what I thought about life</h2>
   
 </hgroup>
 
@@ -113,6 +113,9 @@ c.Methods that share native state must be collocated andt the same machine.也�
 code同时share了native state的方法也不能被migrate
 d.Prevent nested migration.
 </code></pre>
+
+<!-- more -->
+
 
 <p><strong>thread migrate</strong>: 在Dalvik VM执行到migrate point的时候，会有一个migrator thread将thread suspend住，并将当前的thread state打包，把它所需要的信息通过网络发给cloud端的clone。这里的state主要包括execution stack frames and relevant data objects in the process heap, and register contents at the migration point. Virtualized stack frames…在cloud端的clone接收到这些信息后会有一个migrator thread来将这些信息装入VM的内存中，并继续执行，当遇到reintegration的时候用同样的方式将该thread的state打包发回去，mobile端的thread继续执行~这些看起来很容易，但是有一个问题，因为每一个object都是通过内存地址进行reference的，在不同的platform中这些reference可能会不一样，这里作者用了一种叫做object mapping table的方式，用一张图（Figure 7）就可以很方便的说明：</p>
 
@@ -237,7 +240,7 @@ key = key′
       </li>
     
       <li class="post">
-        <a href="/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-%28%5B%3F%5D-%29-linuxxi-tong-diao-yong-biao-%28zhuan-%29/">系统调用学习笔记（一） - Linux系统调用表（转）</a>
+        <a href="/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-linuxxi-tong-diao-yong-biao-%28zhuan-%29/">系统调用学习笔记 - Linux系统调用表（转）</a>
       </li>
     
       <li class="post">
@@ -252,9 +255,13 @@ key = key′
         <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/">Netfilter学习笔记（二）</a>
       </li>
     
+      <li class="post">
+        <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28yi-%29/">Netfilter学习笔记（一）</a>
+      </li>
+    
   </ul>
 </section>
-
+Included file 'asides/weibo.html' not found in _includes directory
   
 </aside>
 

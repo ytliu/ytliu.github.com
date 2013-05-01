@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Attack | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/attack/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-04-30T22:58:19+08:00</updated>
+  <updated>2013-05-01T09:37:10+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -19,6 +19,9 @@
     <updated>2012-03-17T15:35:00+08:00</updated>
     <id>http://ytliu.github.com/blog/2012/03/17/exploitation-learning-outset</id>
     <content type="html"><![CDATA[<p>这周开始看和学《Metasploit》，真是一个神器啊！原来这种工具还有一种比较学术的、很有正义感的名字叫"Peneration Test Tool"啊，不过也确实很有道理就是了，毕竟攻击与防范真是因人而异，其实我觉得如果要实现一个相对安全的系统就先拿所有这些所谓的Penetration tools测试一遍，虽然说从来就是先有矛再有盾，但毕竟如果能对抗所有已有的矛，那这个盾也足够强大了，至于那些新发明的矛，可以通过一些特征标识检测机制来减少，如果想彻底防范所有的攻击那是不可能的！当然啦，要通过现有的所有Penetration Tests困难还是挺大的，而且并不是所有人都有这么高的安全意识，这也就造成现在攻击泛滥、隐私无处藏身的危险境地。做安全的人必需地先懂得攻击，这是我自己理解的，懂得攻击的方式很多，可以从最底层开始，比较理论而深入地去学习每一种攻击的原理，也可以从一些现有的工具下手，来分析它们的漏洞查找手法和所找到的系统漏洞的特点，在我看来，太过于强调前者不是那么地贴近实际，而太过于依赖后者最多也就只能算是个名不见经传的小黑客，所以，我希望能联系两者，即能通过一些paper来比较深入地理解大部分攻击的原理和概念，又能熟练掌握一些或是开源或是收费的工具，更现实而直观地探测它们的可行性。经过了一段时间的survey，我发现了很多超级强大的工具，从各种角度来进行各种攻击，比如进行网络抓包的Wireshark，强调于局域网中间人攻击的Ettercap，简单而又强大的nmap，牛逼的密码破解和ARP攻击的windows下面的Cain，还有寻找漏洞的NeXpose和Nessus...最后我打算从Metasploit这个"神器"入手进行扩展，一个是因为这是一个开源而且被广泛应用的Framework，功能确实无比强大，整合了很多的module和plugin，而且《Metasploit》这本文档也写得很不错，不仅仅是介绍攻击方法，而且框架很清晰，从攻击的流程来进行说明，很有往下看下去的欲望。</p>
+
+<!-- more -->
+
 
 <p>在Metasploit这个Framework里面内置了很多plugin，比如前面提到的nmap，NeXpose，Nessus等等，而且它还提供了特别多information gathering和vulnerability scanning的模块你可以直接使用，并用<em>show options</em>来直观地查看它们的用法，当发现了某个漏洞，还可以用它内置的数不尽的payload进行exploit，更重要的是在exploit成功之后还有一个amazing的meterpreter来处理post-exploit的事物，全面控制target。当然啦，到目前为止我只看到这里，后面还有许多方面的介绍，实在是值得一读。而且，它还提供了一个ubuntu系统和一个window XP系统让你进行实验，毕竟攻击真实环境中的机器是不合法的。</p>
 

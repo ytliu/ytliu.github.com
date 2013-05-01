@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Git | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/git/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-04-30T22:58:19+08:00</updated>
+  <updated>2013-05-01T09:37:10+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -41,6 +41,9 @@
 
 <pre><code>$ git checkout -- &lt;file&gt;
 </code></pre>
+
+<!-- more -->
+
 
 <p><strong>git diff</strong></p>
 
@@ -410,6 +413,9 @@ refs/
 </code></pre>
 
 <p>这些是在<em>git init</em>的时候初始化就默认产生的，其中description现在还不需要考虑，config主要用来配置一些program-specific的参数选项，info是一个目录，包含了一些需要被ignore的文件模式，而hooks定义了一些client或server端用于用户进行脚本定制的功能，这会在接下来详细介绍。而在这一节中主要描述了以下四个对象：<strong>HEAD</strong>，<strong>index</strong>，<strong>objects</strong>，<strong>refs</strong>。这是git最internal的部分。</p>
+
+<!-- more -->
+
 
 <h2>git objects</h2>
 

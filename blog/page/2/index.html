@@ -38,7 +38,7 @@
   <header role="banner"><hgroup>
   <h1><a href="/">Mctrain's Blog</a></h1>
   
-    <h2>Android, Security, System, Network, as well as life moments</h2>
+    <h2>What I learned in IT, as well as what I thought about life</h2>
   
 </hgroup>
 
@@ -233,67 +233,12 @@ $ emulator-arm @4.2
 
 <p>你可以对源码进行修改，然后重新编译、使用，而这里主要要讲的是qemu的运行原理，资料来源是<a href="http://lists.gnu.org/archive/html/qemu-devel/2011-04/pdfhC5rVdz7U8.pdf">Qemu detailed study</a>。要说明的一点是，android emulator原理基本上是和qemu一样的，只是加了一些android specific的东西在里面。</p>
 
-<p>首先是qemu整体流程：</p>
-
-<p><img src="http://ytliu.github.com/images/2012-12-30-1.png" title="qemu process" alt="qemu process" /></p>
-
-<p>首先将guest code（这里即为arm code）被TCG（Tiny Code Generator)转换成一个中间表达，然后再转换成host code（这里即为x86 code），具体来说分为两步：</p>
-
-<ul>
-<li>一个TB（Translation Block）被翻译成TCG ops</li>
-<li>TCG ops被翻译成host code</li>
-</ul>
-
-
-<p>我们先来看下qemu的code base：</p>
-
-<p><img src="http://ytliu.github.com/images/2012-12-30-2.png" title="qemu code base" alt="qemu code base" /></p>
-
-<ul>
-<li><code>vl.c/vl-android.c</code>: 这个是整个qemu的入口函数，主要是初始化qemu环境，然后进入<code>main_loop</code>；</li>
-<li><code>target-xyz/translate.c</code>: 将guest code翻译成TCG ops；</li>
-<li><code>tcg/*/tcg-target.c</code>: 将TCG ops翻译成host code；</li>
-<li><code>tcg/tcg.c</code>: TCG的主函数；</li>
-<li><code>cpu-exec.c</code>: 寻找下一个TB（如果没找到则调用tcg.c生成TB），然后执行。</li>
-</ul>
-
-
-<p>在qemu中也很好地利用了locality，即没产生一段code（TCG ops或host code），就将其存在一个code cache中，然后用LRU进行替换。</p>
-
-<h4>运行流程（code perspective）</h4>
-
-<p>主要分为两部分： <em>代码生成</em>和<em>代码运行</em></p>
-
-<h5>代码生成</h5>
-
-<p>这是主要部分，流程是这样的：</p>
-
-<p><img src="http://ytliu.github.com/images/2012-12-30-3.png" title="qemu process from code perspective" alt="qemu process from code perspective" /></p>
-
-<p>其中函数<code>cpu_exec()</code>相当于主要的执行循环函数，它将TB第一次初始化，在两个嵌套无限for循环中通过<code>tb_find_fast()</code>来获得host code TB，然后通过<code>tcg_qemu_tb_exec()</code>来执行相应代码。</p>
-
-<p><code>tb_find_fast</code>会首先查看code cache中是否有TB存在了，有则直接执行<code>tcg_qemu_tb_exec()</code>，否则通过<code>tb_find_slow()</code>来查找或者生成TB，后者通过一系列调用，最后到达<code>disas_insn()</code>，该函数执行了实际的guest code到TCG ops的翻译，并将其加入TCG ops的code buffer，最后调用<code>tcg_gen_code()</code>来生成host code。</p>
-
-<h5>代码运行</h5>
-
-<p>代码运行就是通过<code>tcg_qem_tb_exec()</code>来实现的，可以看到，其实这是一个宏，定义在<code>tcg/tcg.h</code>里面：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#define tcg_qemu_tb_exec(tb_ptr) \</span>
-</span><span class='line'><span class="cp"> ((long REGPARM __attribute__ ((longcall)) (*)(void *))code_gen_prologue)(tb_ptr)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>这是一个感觉非常复杂的调用，我们知道， <code>((long REGPARM (*)(void *))</code> 是一个指向函数的指针，<code>void *</code>是它的参数，返回值为<code>long</code>；而在这里 <code>REGPARAM(*)</code>是一个GCC选项，表示函数是通过寄存器传参而不是通过栈传参的。</p>
-
-<p>而一个数组的名字表示的是指向这个数组的基地址，于是，<code>(function_pointer) array_name</code>则会将这个基地址cast成一个函数地址。</p>
-
-<p>另外，一个函数可以通过<code>(*pointer_to_func)(args)</code>被调用，所以<code>((long REGPARM (*)(void *))code_gen_prologue)(tc_ptr)</code>进行了一次函数调用，似乎在这里少了一个<code>*</code>号，不过其实只要测试下可以发现 <code>(*pointer_to_func)(args)</code>和<code>(pointer_to_func)(args)</code>是一样的。</p>
-
-<p>所以上面<code>tcg_qemu_tb_exec(tb_ptr)</code>翻译的宏可以表示为一个数组<code>code_gen_prologue</code>被cast成一个函数指针，参数为<code>tc_ptr</code>，返回值为<code>long</code>（指向下一个TB），并且被调用。其实，被<code>code_gen_prologue</code>指向的函数就是<code>Function Prologue</code>，将控制流转到<code>tc_ptr</code>指向的host code开头部分。</p>
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/12/30/qemu-study-for-android-emulator/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -333,19 +278,12 @@ $ emulator-arm @4.2
 
 <p>如果明天真的是世界末日的话，那这个就算我的遗嘱了吧&#8230;</p>
 
-<p>算了，虽然懒，但是还是再加几句吧：</p>
-
-<blockquote><p>很高兴认识你们（你们懂的），如果还有下辈子（我还是比较相信投胎一说的），我还是希望在另外一个星球遇到你们，然后和你们一起傻一起疯，一起度过最二逼的青春岁月。<br/>然后，我还要在初中遇到小呆，经过一段暧昧的光年，传递那么几封可以用来回忆当年青涩傻逼岁月的信，然后再来上那个霸气的短信“刘宇涛先生，要不我们不谈了，直接结婚吧”，再然后，度过一段充满思念的异地恋，最终在一起，每周都能见个面，开启个“相亲相爱”模式，或者偶尔听你哭一哭，安静地看着你流泪，然后来个强有力的男人的拥抱&#8230;<br/>至于读书嘛~就不读那么认真啦，多享受享受生活，把自己想做的事不管有钱没钱有时间没时间都一股脑儿挤出时间来做掉，省的又来个世界末日啥的。<br/>世界太危险，读博要谨慎啊&#8230;</p></blockquote>
-
-
-<p>好了，就这些吧，让暴风雨来的更猛烈些，把这一切都冲毁吧，包括我以上那些无聊的YY&#8230;</p>
-
-<p>还是回去早点洗洗睡了吧》》》</p>
-
-<blockquote><p>就算世界没了，那又关我鸟事呢啦啦啦》》》</p></blockquote>
-
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/12/20/ru-guo-ming-tian-shi-shi-jie-mo-ri/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -391,184 +329,12 @@ $ emulator-arm @4.2
 
 <p>以下的内容很多来自于该文档和俞甲子的《程序员的自我修养》一书第七章。</p>
 
-<p>问题的产生是这样子的：当我们使用一段shared library的时候，它并没有指定说一定要把相应的代码放在哪个内存地址，而是由dynamic linker根据当前内存情况选择一段最合适的内存区域用于放置相应的code和data。那么dynamic linker是怎么做的呢？我们举一个很简单的例子来说明；</p>
-
-<p>首先，我们编写并编译一段动态链接库lib.c, lib.h：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &quot;lib.h&quot;;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">void</span> <span class="nf">test</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;in dynamic lib, i is %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">Char</span> <span class="o">*</span><span class="n">dylib</span> <span class="o">=</span> <span class="s">&quot;Test Dynamic Linker String&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="kt">void</span> <span class="n">test</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>然后将其编译为动态连接库libtest.so</p>
-
-<pre><code>$ gcc -fPIC -shared -o libtest.so lib.c
-</code></pre>
-
-<p>这里 &#8220;-shared&#8221;表示产生共享对象，&#8221;-fPIC&#8221;表示地址无关代码，这在后面会说。</p>
-
-<p>然后我们编写一段程序dytest.c来利用libtest.so:</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &quot;lib.h&quot;;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">extern</span> <span class="kt">char</span> <span class="o">*</span><span class="n">dylib</span><span class="p">;</span>
-</span><span class='line'><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Hello, %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">dylib</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">test</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>然后对其进行编译：</p>
-
-<pre><code>$ gcc -o dytest dytest.c ./libtest.so
-$ ./dytest
-Hello, Test Dynamic Linker String
-in dynamic lib, i is 5
-</code></pre>
-
-<p>就这么一段简单的测试代码中，动态链接是怎么完成的呢？它和静态链接有什么不同呢？</p>
-
-<p>在静态链接中，整个程序只有一个可执行文件，在这个可执行文件中，所有变量和函数的地址都已经固定好了（这是由linker在链接时从静态链接的文件中读出来并进行地址重定位），而在动态链接中，这些地址并不会进行地址重定位。那么，链接器怎么知道一个地址是静态符号还是动态符号呢？其实在我们编译dytest的时候也将libtest.so加进去进行编译了，而在libtest.so中保存了完整的符号信息，从而linker可以知道该符号是一个动态符号。</p>
-
-<p>既然动态链接库主要用于共享，那么有一个问题：共享对象在编译时不应该假设自己在进程虚拟地址空间中的位置。一种解决的方法是采用“装载时重定位”，但是这样有一个缺点，因为它要在程序装载时对指令部分进行修改，所以就无法使得指令部分在多个进程中共享，这样就失去了共享库的优势，另一种就是地址无关代码，它的基本想法就是把指令中那些需要修改的部分分离出来，和数据放在一起。</p>
-
-<p>我们把地址引用分为4个部分</p>
-
-<ul>
-<li>模块内部函数调用</li>
-<li>模块内部数据访问</li>
-<li>模块外部数据访问</li>
-<li>模块外部函数调用</li>
-</ul>
-
-
-<p>第一种情况应该是最简单的，因为在模块内部函数与调用者的位置是相对的，可以采取相对地址调用。</p>
-
-<p>第二种情况同样采用相对地址的访问，这里有一个trick，就是如何得到数据地址和当前地址的相对值，俞子甲的书中介绍了一种方法(7.3节)。另外，在处理共享库的全局变量的时候，编译器都把它当作定义在其它模块的全局变量，相当于后面讲的类型三，使用GOT表。</p>
-
-<p>第三种情况就复杂一点了，因为它要等到装载时才能决定。这里就要用到GOT（Global Offset Table）表了，ELF在数据段中建立一个指向相关地址的指针数组。对于数据变量a，在GOT表中有一个4bytes的地址项与之对应，在程序装载时，链接器会找到这个变量的地址，并将该项进行修改。</p>
-
-<p>第四种情况和第三种类似，只是地址为函数地址。</p>
-
-<p>其实还有第五中情况，就是模块间的全局变量，比如下面这个例子：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">extern</span> <span class="kt">int</span> <span class="n">global</span><span class="p">;</span>
-</span><span class='line'><span class="kt">int</span> <span class="nf">foo</span><span class="p">()</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">global</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>如果一个定义在共享模块内部的全局变量，编译器并不知道它是否会被其它模块使用，所以当前编译器在遇到这种全局变量的时候都会把其当做定义在其它模块中的全局变量，即上面的第三种情况，使用GOT表进行访问。</p>
-
-<p>这里还要注意一点的是，在产生地址无关代码的时候参数-fpic和-fPIC的区别，-fpic产生的代码相对较小，而且较快，但是对于一些硬件平台有一些限制。另外，它也可以被用在可执行代码上，这时，就被称为PIE（using -fPIE or -fpie）。</p>
-
-<p>这里需要澄清的一点是，对于一个共享库lib.so来说，它在不同的进程中都有自己独立的副本，而在同个进程不同线程中则是共享的。而对于多进程共享全局变量使用的是“共享数据段”，而多线程访问不同全局变量则被称为“线程私有存储”。</p>
-
-<p>还有，对于数据段的绝对地址引用，可以用到装载时重定位的方法来解决，即对于共享对象来说，如果数据段中有绝对地址引用，如static int *p = &amp;a，编译器和链接器会产生一个重定位表，当动态链接器装载共享对象时若发现有重定位入口，则对其进行重定位。</p>
-
-<h4>延迟绑定（PLT）</h4>
-
-<p>在动态链接的程序开始运行的时候都会通过动态链接器寻找并装载共享对象，但是有些函数其实可能并不会被调用。为了增加性能，会采用一种被称为PLT（Procedure Linkage Table）的方式，它的基本思想就是当函数第一次被用到时才进行绑定。它采用了一些很精巧的指令来完成:</p>
-
-<p>每个外部函数都有一个在PLT对应的项（bar@plt)</p>
-
-<pre><code>bar@plt:
-jmp *(bar@GOT)
-push n
-push moduleID
-jmp _dl_runtime_resolve
-</code></pre>
-
-<p>在这里第一条指令跳转到bar在GOT中的项，该项中的初始地址即为这里第二条指令（push n）的地址，相当于没有效果，然后将bar的信息和其所在模块的信息压入栈，最后调用_dl_runtim_resolve将bar真正对的地址填入到bar@GOT中，当下次真正调用bar的时候就会跳转到真正的函数地址，并返回到调用者，而不会回到<em>push n</em>的地址了。</p>
-
-<p>ELF将GOT分成了两个表“.got&#8221;和&#8221;.got.plt&#8221;, &#8220;.got&#8221;用来保存全局变量引用地址，&#8221;.got.plt&#8221;用来保存函数引用的地址，在&#8221;.got.plt&#8221;中前三项是有特殊意义的：</p>
-
-<ul>
-<li>第一项保存&#8221;.dynamic&#8221;段的地址，这个段描述了本模块动态链接相关的信息；</li>
-<li>第二项保存的是本模块的ID；</li>
-<li>第三项保存的是_dl_runtime_resolve()的地址。</li>
-</ul>
-
-
-<p>而&#8221;.got.plt&#8221;的其余项分别对应每个外部函数的引用。</p>
-
-<h4>动态链接相关结构</h4>
-
-<p>在动态链接的情况下，在装载完可执行文件之后，操作系统会将控制权转交给动态链接器，动态链接器的路径在&#8221;.interp&#8221;下指定。</p>
-
-<p>和动态链接相关的段比如说：</p>
-
-<h5>.dynamic</h5>
-
-<p>动态链接器中最重要的结构就是&#8221;.dynamic&#8221;段，它就像动态链接下ELF文件的”文件头“。</p>
-
-<h5>.dynsym</h5>
-
-<p>&#8220;.dynsym&#8221;段是为了表示模块间动态链接相关符号的导入导出关系的，当然，和&#8221;.symtab&#8221;段类似，它也需要一些辅助的表，如&#8221;.dynstr&#8221;动态符号字符串表，&#8221;.hash&#8221;符号哈希表。</p>
-
-<h5>动态链接重定位表</h5>
-
-<p>&#8220;rel.dyn&#8221;和&#8221;rel.plt&#8221;相当于静态链接中的&#8221;rel.data&#8221;和&#8221;rel.text&#8221;。&#8221;rel.dyn&#8221;是对数据引用的修正，它所修正的位置即&#8221;.got&#8221;以及数据段，而&#8221;.rel.plt&#8221;则是对函数引用的修正，即&#8221;.got.plt&#8221;段。</p>
-
-<h4>动态链接的步骤和实现</h4>
-
-<p>主要分为三步：</p>
-
-<h5>动态链接器自举</h5>
-
-<p>这里有两个条件：</p>
-
-<ul>
-<li>本身不可以依赖于其它任何共享对象</li>
-<li>本身所需要的全局和静态变量的重定位工作由其本身完成——即“自举”</li>
-</ul>
-
-
-<h5>装载共享变量</h5>
-
-<p>从全局符号表中开始寻找其所依赖的共享变量，即&#8221;.dynamic&#8221;段中一个DT_NEEDED类型，将里面提到的所有共享对象的名字放入一个装载集合中，然后从集合中一个个读取共享变量名字，找到相对应的文件，读取里面的ELF文件头和&#8221;.dynamic&#8221;段，然后将相应的代码段和数据段映射到其地址空间中，并递归地做这件事。所以当所有共享变量都被装载进来后，全局符号表里面将包含所有动态链接所需要的符号。</p>
-
-<h4>重定向和初始化</h4>
-
-<p>装载完成后，链接器开始重新遍历可执行文件和每个共享对象的重定向表，将其GOT/PLT中需要重定向的进行修正，然后就将控制权转交给程序的入口了。由此，动态链接也就完成了。</p>
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/12/15/dynamic-linker/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -608,140 +374,12 @@ jmp _dl_runtime_resolve
 
 <p>首先介绍下linux中的ASLR，ASLR可以对任意内存进行随机化：</p>
 
-<ul>
-<li>stack：The userspace stack mapping set up by the kernel during exec(2) should be sufficiently randomized. Stack randomization is performed by the randomize_stack_top() function.</li>
-<li>Heap：The heap location returned by the brk(2) system call when a program is first exec’ed should be randomized. Heap randomization is performed by the arch_randomize_brk() function.</li>
-<li>Libs and mmap：After NX was introduced, static library mapping led to the popularity of ret-to-libc and more generic ret-to-lib attacks. The location of libraries and other mmap’ed regions should be randomized.</li>
-<li>Exec：Even if you’re randomized the mapping of all the shared libaries that an executable uses, you still need to randomize the location of the executable itself when it is mapped into the address space. Otherwise, the executable mapping can be used as a source for ROP gadgets.</li>
-<li>Linker：On most Linux systems, the ld.so dynamic linker provided by glibc can self-relocate itself, so its mapping is randomized. However, as we’ll see, this isn’t the case for all linkers.</li>
-<li>VDSO(Virtual Dynamically-linked Shared Object)：an executable mapping of a virtual shared library provided by the kernel for syscall transitions. However, most Android devices run on the ARM architecture, which doesn’t use a VDSO.</li>
-</ul>
-
-
-<h3>ASLR in Android 2.x</h3>
-
-<p>在Android 2.x开始，唯一对ASLR支持的是stack（这可以通过多次查看/proc/pid/maps来发现），其通过load_elf_binary()函数调用randomize_stack_top()来实现：</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#ifndef STACK\_RND\_MASK</span>
-</span><span class='line'><span class="cp">#define STACK\_RND\_MASK (0x7ff &gt;&gt; (PAGE\_SHIFT - 12)) </span><span class="cm">/* 8MB of VA */</span><span class="cp"></span>
-</span><span class='line'><span class="cp">#endif</span>
-</span><span class='line'><span class="k">static</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">randomize</span><span class="err">\</span><span class="n">_stack</span><span class="err">\</span><span class="n">_top</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack</span><span class="err">\</span><span class="n">_top</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">random_variable</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">((</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">PF_RANDOMIZE</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
-</span><span class='line'>              <span class="o">!</span><span class="p">(</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">personality</span> <span class="o">&amp;</span> <span class="n">ADDR_NO_RANDOMIZE</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>            <span class="n">random_variable</span> <span class="o">=</span> <span class="n">get_random_int</span><span class="p">()</span> <span class="o">&amp;</span> <span class="n">STACK_RND_MASK</span><span class="p">;</span>
-</span><span class='line'>            <span class="n">random_variable</span> <span class="o">&lt;&lt;=</span> <span class="n">PAGE_SHIFT</span><span class="p">;</span>
-</span><span class='line'>          <span class="p">}</span>
-</span><span class='line'><span class="cp">#ifdef CONFIG\_STACK\_GROWSUP</span>
-</span><span class='line'>        <span class="k">return</span> <span class="n">PAGE_ALIGN</span><span class="p">(</span><span class="n">stack</span><span class="err">\</span><span class="n">_top</span><span class="p">)</span> <span class="o">+</span> <span class="n">random_variable</span><span class="p">;</span>
-</span><span class='line'><span class="cp">#else</span>
-</span><span class='line'>      <span class="k">return</span> <span class="n">PAGE_ALIGN</span><span class="p">(</span><span class="n">stack</span><span class="err">\</span><span class="n">_top</span><span class="p">)</span> <span class="o">-</span> <span class="n">random_variable</span><span class="p">;</span>
-</span><span class='line'><span class="cp">#endif</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>ASLR in Android 4.0</h3>
-
-<p>而在4.0，即其所谓的支持ASLR的版本上，其实ASLR也仅仅增加了对libc等一些shared libraries进行了随机化，而对于heap, executable和linker还是static的。</p>
-
-<p>对于heap的随机化来说，可以通过</p>
-
-<pre><code>echo 2 &gt; /proc/sys/kernel/randomize_va_space
-</code></pre>
-
-<p>来开启。</p>
-
-<p>而对于executable的随机化，由于大部分的binary没有加GCC的-pie -fPIE选项，所以编译出来的是EXEC，而不是DYN这种shared object file，因此不是PIE（Position Independent Executable），所以没有办法随机化；</p>
-
-<p>同样的linker也没有做到ASLR。</p>
-
-<h3>ASLR in Android 4.1</h3>
-
-<p>终于，在4.1 Jelly Bean中，Android终于支持了所有内存的ASLR。在第二个对4.1ASLR介绍中，作者列出了从Android 1.5开始用到的安全加强机制：</p>
-
-<h5>Android 1.5+</h5>
-
-<ul>
-<li>ProPolice to prevent stack buffer overruns (-fstack-protector)</li>
-<li>safe_iop to reduce integer overflows</li>
-<li>Extensions to OpenBSD dlmalloc to prevent double free() vulnerabilities and to prevent chunk consolidation attacks. Chunk consolidation attacks are a common way to exploit heap corruption.</li>
-<li>OpenBSD calloc to prevent integer overflows during memory allocation</li>
-</ul>
-
-
-<h5>Android 2.3+</h5>
-
-<ul>
-<li>Format string vulnerability protections (-Wformat-security -Werror=format-security)</li>
-<li>Hardware-based No eXecute (NX) to prevent code execution on the stack and heap</li>
-<li>Linux mmap_min_addr to mitigate null pointer dereference privilege escalation (further enhanced in Android 4.1)</li>
-</ul>
-
-
-<h5>Android 4.0+</h5>
-
-<ul>
-<li>Address Space Layout Randomization (ASLR) to randomize key locations in memory</li>
-</ul>
-
-
-<h5>Android 4.1+</h5>
-
-<ul>
-<li>PIE (Position Independent Executable) support</li>
-<li>Read-only relocations / immediate binding (-Wl,-z,relro -Wl,-z,now)</li>
-<li>dmesg_restrict enabled (avoid leaking kernel addresses)</li>
-<li>kptr_restrict enabled (avoid leaking kernel addresses)</li>
-</ul>
-
-
-<p>在Android 4.1中，基本上所有binary都被编译和连接成了PIE模式（可以通过readelf查看其Type）。所以，相比于4.0，4.1对Heap，executable和linker都提供了ASLR的支持。</p>
-
-<p>另外，4.1还增加了几个小的安全加强机制：</p>
-
-<ul>
-<li>大部分系统binary都添加了RELRO和BIND_NOW的编译flag，起作用主要是将GOT表设置成只读，防止之前出现过的<a href="http://jon.oberheide.org/files/bsides11-dontrootrobots.pdf" title="don't root robot">Gingerbreak</a>攻击。</li>
-<li>另外，对dmesg_restrict / kptr_restrict的sysctl的利用，有效防止了一些低权限的用户从dmesg/klogctl中读取一些敏感信息，或者读取一些kernel内存中的敏感数据（比如很多/proc下的接口）。</li>
-</ul>
-
-
-<h3>What&#8217;s next</h3>
-
-<p>之后作者还提到一些还需要继续努力的事：</p>
-
-<ul>
-<li>ASLR的弱点 - 32-bit，容易破解</li>
-<li>一些安全的libc调用，比如FORTIFY_SOURCE</li>
-<li>PaX Hardening，虽然很多不适合手机，但是也可以cherry pick一些啦</li>
-<li>MAC/RBAC，其实这个现在也已经有了，比如SEAndroid&#8230;</li>
-<li>Mandatory Code Signing，向IPhone学习吧</li>
-</ul>
-
-
-<p>另外，作者还提到一个Zygote的问题，为了性能问题，现在Android上所有的进程都是Zygote fork出来的，也就是说很多的地址空间在fork出来后是固定不变的，这样也就出现了一种可能性：a malicious app on a victim’s device leaks address mappings from its own process off to an attacker to assist in exploiting another process (eg. the browser) that might have higher privilege or valuable data.</p>
-
-<p>当然，作者认为这种场景可能性比较小，所以还不算一个大问题。</p>
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/12/09/aslr-in-android/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -788,61 +426,12 @@ jmp _dl_runtime_resolve
 </ul>
 
 
-<p>即：</p>
-
-<ul>
-<li>mount -o remount,rw /dev/block/&#8230;/system /system</li>
-<li>mv path/to/modified/su /system/xbin/su</li>
-<li>mount -o remount,ro /dev/block/&#8230;/system /system</li>
-</ul>
-
-
-<p>但是发现失败了，我怀疑是su这个文件不兼容，于是，我想了一个更贱的方法：</p>
-
-<ul>
-<li>把ASOP代码中的/system/extras/su/su.c该掉，把检查的部分全部去掉</li>
-</ul>
-
-
-<p>在这里，我把</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">if</span> <span class="p">(</span><span class="n">myuid</span> <span class="o">!=</span> <span class="n">AID_ROOT</span> <span class="o">&amp;&amp;</span> <span class="n">myuid</span> <span class="o">!=</span> <span class="n">AID_SHELL</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="s">&quot;su: uid %d not allowed to su</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">myuid</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>注释掉，另外，把</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">if</span><span class="p">(</span><span class="n">setgid</span><span class="p">(</span><span class="n">gid</span><span class="p">)</span> <span class="o">||</span> <span class="n">setuid</span><span class="p">(</span><span class="n">uid</span><span class="p">))</span> <span class="p">{</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>换成了</p>
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">if</span><span class="p">(</span><span class="n">setgid</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">||</span> <span class="n">setuid</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span> <span class="p">{</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>然后刷机</li>
-</ul>
-
-
-<p>这样就直接root了！不过这只能用于我的测试机啦，正常的手机千万不敢那么做，太危险了！</p>
-
-<hr />
-
-<p>另外，我用了两款软件，<a href="https://github.com/evilsocket/dsploit" title="dsploit">dSploit</a>和<a href="github.com/mwrlabs/mercury" title="mercury">Mercury</a>，而且都有源码，准备之后两周研究下，学习下android编程和如何进行penetration</p>
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/12/08/get-root-in-my-android/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -884,73 +473,12 @@ jmp _dl_runtime_resolve
 
 <p>在<a href="http://stackoverflow.com,%20stackoverflow">stackoverflow</a>上查了好久，有一个说<a href="http://stackoverflow.com/questions/7108326/how-can-we-change-the-ip-of-android-emulator">如何连接两个emulator的</a>，还有一个<a href="http://stackoverflow.com/questions/7108326/how-can-we-change-the-ip-of-android-emulator">介绍了一个非常复杂但经过我的测试有效的方法</a>。这里简单介绍一下：</p>
 
-<h3>两个emulator相连</h3>
-
-<p>为了两个emulator能进行网络相连，首先必须满足一下三个条件：</p>
-
-<ul>
-<li>A为PC</li>
-<li>B为运行在A中的一个emulator，端口为5554</li>
-<li>C为运行在A中的另一个emulator，端口为5556</li>
-</ul>
-
-
-<p>是不是很废话&#8230;好了，进入正题，我们要做的就是一下三步：</p>
-
-<p>在B中起一个server，可以让C进行连接</p>
-
-<pre><code>B listening on 10.0.2.15:80
-</code></pre>
-
-<p>telnet到B的console里面对端口进行重定向：</p>
-
-<pre><code>$ telnet localhost 5554
-# redir add tcp:8080:90
-</code></pre>
-
-<p>在C中连接10.0.2.2:8080就可以和B进行交互了。</p>
-
-<p>这里补充一下，你如果进入adb shell在里面查看自己的IP会发现其为10.0.2.15，其通过10.0.2.2和PC进行连接。redir相当于将到达PC的8080端口的信息全部重定向到5554端口emulator的80端口。这样就完成而来emulator之间的连接了。</p>
-
-<hr />
-
-<h3>手机和emulator相连</h3>
-
-<p>照理来说按照上面的说法，手机和emulator的连接应该也很简单，只需要将手机连接到PC的ip加上一个端口P1，然后将P1重定向到emulator中server监听的端口P2就可以了。</p>
-
-<p>但是显示总是残酷的，包括redir和adb forwarding（功能似乎和redir是一样的）都只能将PC自己向端口P中写的信息forward到emulator里面的端口，而不能把其它地方从端口进来的forward。</p>
-
-<p>于是在<a href="http://stackoverflow.com/questions/7108326/how-can-we-change-the-ip-of-android-emulator%20question">这个问题</a>的回答中提到一种方法，在中间再加一个proxy，接下来我来介绍下这种方法：</p>
-
-<p>这是现在的框架：</p>
-
-<p><img src="http://ytliu.github.com/images/2012-12-01-1.png" title="framework of smartphone and emulator" alt="framework" /></p>
-
-<p>原理和两个模拟器相连很像，但是中间加了一个proxy：</p>
-
-<ul>
-<li>首先在emulator中server监听2012端口</li>
-<li>在PC上通过<em>adb forward</em>命令将PC上的2012端口forward到emulator中的2012端口（<em>adb forward tcp:2012 tcp:2012</em>）</li>
-<li>在proxy中将从外面来的2013端口forward到2012端口</li>
-<li>而在手机端则直接向PC的2013端口发送数据</li>
-</ul>
-
-
-<p>经过尝试这样是可行的。</p>
-
-<hr />
-
-<h3>tap/tun</h3>
-
-<p>虽然说上面的方法是可行的，但是并没有很好地解决这个问题，因为如果是通过这种方法，则我的emulator没开启一个server，都要起一个相应的proxy，这样就显得很废。有没有什么一劳永逸的方法呢？</p>
-
-<p>听斌哥说之前他在配qemu的时候通过tap/tun的技术来配置qemu的网络，于是我也尝试着配置tap/tun，不过虽然已经将其在PC中启动好了，但是由于对其原理还是不清楚，所以还是没有搞明白要如何使得emulator有一个自己独立的对外可见的IP，这块内容可能会等自己完全搞明白了再写吧。</p>
-
-<p>这里推荐下wikibook中对qemu networking的配置：</p>
-
-<p>http://en.wikibooks.org/wiki/QEMU/Networking</p>
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/12/01/connect-smartphone-to-android-emulator/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -990,64 +518,12 @@ jmp _dl_runtime_resolve
 
 <p>还有在这两天与交大的gossip组和港中文的两个博士（sbark和茗坤）也聊了很多，发现他们在代码的静态和动态分析这块领域真的专的蛮深的，和他们一起聊这块东西感觉很多时候我们都插不上话，而只是默默地倾听和学习。和他们的聊天中发现他们对于这方面的东西如数家珍，能够非常融会贯通地聊，而很多东西在我看来听起来很熟悉，但是却时常不能将人与事物，名称和做的东西联系起来，实在是惭愧。</p>
 
-<p>另外还见到了Seak江海客，真的是一个很有性格的boss，背着一个改造过的超大的登山包，操作着巨大的笔记本工作站，还在下面垫两块“水冷”装置，而且还有无时不刻的工作状态，感觉非常的潇洒和陶醉。还有会议的组织者Billy，真的是一个非常感性的人，充满激情，而且为人豪爽。让我感觉在他们安天的团队里一定是非常的惬意的。</p>
-
-<p>当然了，还听了好多精彩的演讲，Seak、360的赵武、武大的玉如&#8230;这里简单地介绍下我都学到了哪些东西吧，当然了有一个最遗憾的事就是没有听到Claud的演讲，竟然被万恶地调到了周五的上午，太可惜了，估计只能看看slide了。</p>
-
-<hr />
-
-<h4>11月22日</h4>
-
-<p>降速的发动机 —— 安全设备第三方AV引擎开发者的反思 by Seak</p>
-
-<p>其实这个更像是Seak从反病毒厂商的角度出发的一篇反思的文章，讲的非常的好，而且很实在。他从“我们做了什么”、“我们仿佛为你做了这件事”、“我们拒绝做哪些”、“我们给你找了这些麻烦”、“我知道你不知道我知道的事”这几点出发，提出AV领域冗长和保守这么一点，并且和我们分享了许多现在杀毒厂商的许多做法，比如我们似乎很熟悉其实却并不了解的包过滤、云查杀、多线程支持、脱壳功能、对照扫描、行为分析等一系列话题，非常有收获。</p>
-
-<p>而且我觉得Seak在之后的问答环节中对提问者的回答也非常的有条理和清晰，而且很实在，并不会有什么夸夸其谈，真的是一个大牛风范啊~</p>
-
-<hr />
-
-<p>未知感知——安全领域不可回避的挑战 by 武大</p>
-
-<p>这个是由武大的梁博士和玉如两个人做的talk，主要是介绍他们之前和现在做的一些工作，我比较感兴趣的是玉如讲的对于android的研究，特别是他提到的LBE，这个公司之前我们都没有关注过，而似乎和我们关系很大，而且听Claud说这个属于一个高帅富团队，做的东西真的是蛮不错的，我向他们要了一份LBE最初版本的apk想来研究看看。从代码入手会深入很多吧。</p>
-
-<hr />
-
-<p>智能电话和平板电脑的信息安全现状以及对策</p>
-
-<p>这个本来是由日本的西本逸郎来说的，后来他有事情没来，就由以为很和蔼的爷爷代替了，说的主要是日本相关的一些和智能相关的话题，比如他提到的恐怖事件（开发者机器被控制，应用程序自动窃取用户隐私数据；或者远程控制在bbs上发布恐怖信息）等，之后还提到了现实生活中和智能相关的话题和需求，比如（个人不希望携带多台设备；企业希望实现系统云计算化）等等。讲的还是比较泛，没有学到太多的东西，就当了解下异国文化吧。</p>
-
-<hr />
-
-<p>中国网站安全状况和解决方案 by 360赵武</p>
-
-<p>这个报告讲的还是很有意思的，发现360的人其实还是做了挺多东西的，而且让我了解到目前网站这个市场上的一些黑幕和现状。我觉得他有一句话讲的很有道理，他说对于现在的网站或者企业来说，安全不是他们的硬需求！大家都知道现在网络非常危险，可是如果我连盈利都还没有开始盈利，又有谁会真正去care安全呢？</p>
-
-<p>而现在网站面临这一系列的危险，比如网站勒索, 中国站长不懂技术，不懂安全，只会赚钱，网站管理员拥有一切，除了他的网站，还有一系列的攻击：挂马、篡改、黑链、后门、DDoS、钓鱼…而这些安全隐患由于一些主要矛盾的存在：</p>
-
-<ul>
-<li>巨大需求 - 高昂的成本</li>
-<li>安全技能需求 - 网站业务发展重点</li>
-<li>安全产品形式 - 网站需求</li>
-</ul>
-
-
-<p>使得现在的安全真的很不好做。</p>
-
-<p>后来赵老师还提到他觉得现在互联网最大的软肋在于DNS，虽然我对此不是很赞同，不过DNS确实很危险，非常容易被攻击者所利用。</p>
-
-<hr />
-
-<h4>11月23日</h4>
-
-<p>非常遗憾上午没去，所以没有听到Sbark和Claud的演讲，下午的演讲听起来没有第一天那么有意思，就没有做太多的笔记了。</p>
-
-<hr />
-
-<p>这两天的会开下来，让我真真切切感受到自己对于安全这一块还是多么的不了解，还有太多的东西需要去学习。</p>
-
-<p>我现在希望自己从Claud还没写完的一本书开始，从静态和动态分析开始学习，学着去对malware进行分析，学习ded/smali/wireshark/metasploit等分析和追踪工具，把一些比较理论的东西在现实中进行尝试。</p>
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/11/25/isfjian-wen-yu-shou-huo/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -1074,7 +550,7 @@ jmp _dl_runtime_resolve
       </li>
     
       <li class="post">
-        <a href="/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-%28%5B%3F%5D-%29-linuxxi-tong-diao-yong-biao-%28zhuan-%29/">系统调用学习笔记（一） - Linux系统调用表（转）</a>
+        <a href="/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-linuxxi-tong-diao-yong-biao-%28zhuan-%29/">系统调用学习笔记 - Linux系统调用表（转）</a>
       </li>
     
       <li class="post">
@@ -1089,9 +565,13 @@ jmp _dl_runtime_resolve
         <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/">Netfilter学习笔记（二）</a>
       </li>
     
+      <li class="post">
+        <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28yi-%29/">Netfilter学习笔记（一）</a>
+      </li>
+    
   </ul>
 </section>
-
+Included file &#8216;asides/weibo.html&#8217; not found in _includes directory
   
 </aside>
 

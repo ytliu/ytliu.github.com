@@ -38,7 +38,7 @@
   <header role="banner"><hgroup>
   <h1><a href="/">Mctrain's Blog</a></h1>
   
-    <h2>Android, Security, System, Network, as well as life moments</h2>
+    <h2>What I learned in IT, as well as what I thought about life</h2>
   
 </hgroup>
 
@@ -109,66 +109,12 @@
 
 <p>先简要介绍下这篇paper的motivation吧：在现在虚拟化的环境中，SR-IOV（single root I/O virtualization）可以说使得整个I/O的效率相对于传统的PV也好，用qemu模拟的HVM也好，提高了一个层次，由于可以将一个特定的device（比如网卡）或者virtual function直接赋予一个domain虚拟机，从而从本质上减少了host（比如xen）在整个I/O路径上的介入时间，同时也减少了相当一部分的内存拷贝操作，使得I/O的performance、latency都得到了提高。但是不管是不是用SR-IOV技术，由于x86体系结构的限制，在由物理设备产生的interrupt发生时还是会陷入host，由host来对interrupt进行第一步的处理，或是直接调用自己的interrupt handler，或是向虚拟机插入软件中断，再调度回虚拟机由虚拟机的interrupt handler处理，在处理完成之后由于对EOI寄存器的写操作还会再一次陷入host；由于这两次的context切换造成的overhead，包括context switch、cache pollution&#8230;也就造成了作者在做evaluation时测出的40%的overhead。（其实刚开始看到这个40%我还觉得挺不可思议的，我们实验室之前也对SR-IOV进行过评估，当时得出的结论是SR-IOV的性能很好，和native的环境几乎没有差别。不过后来发现是因为我们的测试环境是千兆，而作者的环境是万兆，而且是小包~~~看来测试环境的优劣还是很重要啊:-)）。</p>
 
-<p><img src="http://ytliu.github.com/images/2012-01-04-1.png" title="guest/host context switch in interrupt handling" alt="baseline interrupt handle" /></p>
-
-<p>于是乎，这篇paper的作者就提出了ELI（ExitLess Interrupt），其目的就是最大程度地减少由这些interrupt造成的context切换，从而达到性能的最大化。</p>
-
-<p>简单来说，这个问题最大的障碍是以下两点：</p>
-
-<pre><code>    1.x86本身的架构不支持有虚拟机处理特定的硬件中断，也就是说，要不就让所有中断产生时
-    直接陷入host，要不就让所有中断都由当前正在运行的虚拟机来处理；
-    2.安全问题，如果让虚拟机能够随意直接处理硬件中断，那么会造成很多不可知的安全问题。
-</code></pre>
-
-<p>对于第一个问题，是由x86的specification定义的，除非改变整个x86架构，否则不会有本质的解决方案。那么，作者又是如何解决这个问题的呢？在这里，就像在virtual memory里的shadow page table一样，作者提出一个shadow IDT的概念。在解释这个shadow IDT之前，我想先介绍下x86虚拟化环境下的中断处理机制：</p>
-
-<p><img src="http://ytliu.github.com/images/2012-01-04-2.png" title="interrupt handle in x86 virtualization" alt="x86 virtualization interrupt handling" /></p>
-
-<pre><code>    由xen的机制举例，在整个系统中有两个IDT（Interrupt Descriptor Table），一个IDT由xen
-    维护，一个由客户虚拟机维护，在一个硬件中断产生时，不管当前是xen在执行还是虚拟机在执
-    行，都会先进入xen的IDT，由中断的vector相对应的handler进行处理，如果发现是由分配给虚
-    拟机的硬件产生的中断，则有xen向虚拟机手动插入一个软件中断（software interrupt），当
-    之后重新调度回虚拟机时会首先判断中断的flag是否有被置上，如果有某个vector的位被置上
-    则先跳入相关的handler进行处理，处理完之后会向LAPIC（之前）或是x2APIC（现在）的相对应
-    的EOI寄存器写入处理完成的标志，在写这个寄存器的同时，控制权会再次跳到xen，由xen对此
-    进行模拟，告诉真实的硬件这个中断处理完成了。这是一个最简单的硬件处理过程，如果遇到当
-    虚拟机在处理一个中断的时候又来了一个硬件中断，则会根据中断的优先级，或者这个中断是不
-    是NMI等进行更加复杂的判断，这又是后话了。
-</code></pre>
-
-<p>那么shadow IDT又是怎么一回事呢？既然x86只支持两种模式的中断处理模式，那么ELI又是如何将特定的硬件中断交给客户虚拟机处理，而将其余的重新让xen进行处理的呢？整个流程简单来说是这样的：</p>
-
-<pre><code>    ELI用的是第二种模式：当有硬件中断产生时，并不是直接陷入xen，而是跳到客户虚拟机的"IDT"，
-    当然这个IDT不是客户虚拟机本身的IDT，而是由host在客户虚拟机启动时为其配置的shadow IDT，
-    在这个IDT中，只有赋予客户虚拟机的设备（比如网卡）对应的中断处理函数是由意义的，而其它
-    的entry则是被置上了一个NP（Non-present）位，也就是说，如果这个中断是由正确的中断产生的，
-    则直接由客户虚拟机的handler处理，否则会向原来一样陷入xen，只是这次的陷入原因是NP，而不
-    是像原来一样的中断原因。而在xen的NP处理时会判断这次的NP是不是由shadow IDT引起的，如果是
-    则重新注入软中断，否则则按一般的NP（如page fault）进行处理。而对于EOI的写操作，ELI只支
-    持x2APIC机制，因为在这个机制中可以设置相对应的bitmap来指定哪些寄存器的写需要陷入xen，由
-    于这是可配置的，所以也就可以控制特定的硬件EOI直接由客户虚拟机处理而不需要陷入xen。这样
-    就使得只有特定硬件产生的中断才会直接由客户虚拟机处理，其余的由host处理。但是这样并没有
-    解决第二个问题：安全隐患。
-</code></pre>
-
-<p>对于第二个安全问题，有以下几点：</p>
-
-<pre><code>    1.既然shadow IDT是存在客户虚拟机的地址空间的，那么用户就有能力去篡改里面的值，比如修改
-    IDT的virtual-to-physical映射，将自己的恶意IDT映射上去从而实现某些攻击，比如将时间中断
-    截获从而让虚拟机不能调度。对于这种攻击，一种方法是shadow所有的virtual-to-physical映射，
-    但是这样会造成很大的性能损失，其他的方法是作者提出的preemption timer（在某个可配置的时
-    间内强制陷入xen），或者是NMI和IDT limiting的结合（详见paper）；
-    2.用户可以故意不写EOI寄存器，这个造成的危害是因为x86会自动屏蔽那些优先级小于正在被处理
-    的中断的中断，所以它会影响host的interruptibility。对于这个问题，ELI会在每次陷入xen的时
-    候，不过客户虚拟机有没有写EOI，就会自动模拟EOI的写操作，如果发现客户虚拟机确实还没有完
-    成相对应的中断处理，则会进入injection mode，直到客户虚拟机进行了EOI的写。
-</code></pre>
-
-<hr />
-
-<p>总的来说，这篇paper给我最大的收获是熟悉了x86及其虚拟化环境下的interrupt机制，它们用纯软件的方式实现了ExitLess Interrupt，而且得到了很好的评测结果，确实是一篇很有实力的paper。同时还要感谢Muli Ben-Yehuda教授和Nadav Amit学者的热心解答。</p>
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/01/03/paper-reading-x86-interrupt-and-sr-iov-interrupts-avoidance/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -227,36 +173,12 @@
 
 <p>从这两个fingerprint算法可以很容易地看出对于ModP，由于它是一个content-based的算法，所以不管是不是有偏移都可以比较完整地得出内容上的重复性，但是它的效率太低了，因为它要算每一个byte的hash；而对于Fixed，它的效率远远大于ModP，但消除重复性的能力也相应地变小很多。</p>
 
-<p>于是作者提出提出的一种新的算法，叫SAMPLEBYTE fingerprint：</p>
-
-<pre><code>    提供一个256bit的数组A，遍历要发送的包的每一个字节，比如第一个字节是0x23，那么查找
-    数组A的第23个bit看它是否为1，如果为0则表示miss，继续查看后一个字节，如果为1则代表hit，
-    即将这个字节以及后window size个大小算一个hash作为fingerprint，然后跳过（p/2）个字节
-    （为了防止计算重复的hit）。
-</code></pre>
-
-<p>也就是说SAMPLEBYTE也是一个content-based的算法，而且跳过了每个byte都要检查的低效率从而达到更合理而又大粒度的sample机制。</p>
-
-<p>这是这篇paper的核心算法，至于最后如何利用得出的fingerprint，则可以通过下张图看出：</p>
-
-<p><img src="http://ytliu.github.com/images/2011-12-26-1.png" title="the overview of EndRE" alt="RE Overview" />
-<img src="http://ytliu.github.com/images/2011-12-26-2.png" title="Look up in fingerprint hash table" alt="Look up in fingerprint hash table" /></p>
-
-<p>在服务器端和客户端都要维护一个同步的cache，同时在服务器端有一个hash table，里面的key即为之前算出来的fingerprint，指向的是cache中的offset，当要传递一个包时，将算出的fingerprint在hash table里面查找，如果hit了，则从该fingerprint的第一个byte开始找出最大匹配的字符长度，从而省去了该重复内容的传递。而在客户端也只需要将接收到的内容按时间顺序写入cache中，保持和服务器的cache的同步性就好了。</p>
-
-<p>另外，这个数据重复性消除的问题还需要考虑的很重要的一点就是：在客户端不该有很复杂的计算，否则直接将包压缩传递岂不更高效？</p>
-
-<p>还有关于fingerprint算法和差抄袭算法的关系，问了下Naruil，他之前写的差抄袭算法也是用了fingerprint，不过用的是一个更健壮性的fingerprint算法，是基于一篇Sigmod&#8217;03的paper：<a href="http://dl.acm.org/citation.cfm?id=872770">Winnowing</a>。有机会可以去瞻仰下，据说效果相当好，反正我们这里的抄袭都是这么被检查出来的~</p>
-
-<hr />
-
-<p>另外一篇的题目是&#8221;Incoop: MapReduce for Incremental Computation&#8221;，发表在Socc&#8217;11上，做的是MapReduce上的Incremental computation。也就是说现在的MR架构对于两个输入，即使是有许多重复的输入也是从头开始重新计算一遍，而作者希望的是对于两个输入，对于不变的输入可以不再重复计算，而仅仅是变化的数据。因为DX是用英文说的，很多内容不是搞得太懂，只知道它用了&#8221;content-base chunking&#8221;和&#8221;reduce combiners&#8221;来分别解决stability和granularity的问题。至于具体的细节就搞不来了。</p>
-
-<hr />
-
-<p>The End.</p>
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2011/12/26/paper-reading-tcp-re-and-incremental-mr/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -318,34 +240,12 @@
 
 <p>还有关于Software-centric attack, 小Z讲了一个例子，比如说对iOS的pdf漏洞的良性利用，至于用来干嘛的，大家都懂得，jailbreak，不过其实我完全不知道这个是怎么样就得到root权限的，这几天研究下。</p>
 
-<p>最后还有一点比较感兴趣的是小Z提到android的process isolation，我挺感兴趣的，它说android里面是用到context的概念进行进程间通讯，在kernel里面有一个binder进行管理，如果把kernel作为TPM那应该就没有什么安全问题了吧，不过其实还是存疑的，我不知道有没有一份关于android的安全机制的survey，上网搜了下，找到一篇宾大的&#8221;understand android security&#8221;，抽空看下。</p>
-
-<p>其实这篇是一个完完全全的survey，小Z讲的也比较简单，不过其实手机的安全问题还是蛮多的，比如有提到的一个隐私的保护，有很多这方面的研究，比如通过限制控制流，比如TaintDroid，我想还有没有更强的机制呢？比如把Nicholai的histar用在手机上？</p>
-
-<hr />
-
-<p>另一篇是SOSP&#8217;11的</p>
-
-<pre><code>    "Detecting Failures in Distributed Systems with the FALCON Spy Network"
-</code></pre>
-
-<p>其实是一篇想法很简单的paper，只不过之前的人没有把这个问题当做一个问题罢了。想法简单来说是这样的，现在在distributed system里面判断节点是否挂掉主要用的是end-to-end timeout机制，这样的缺点是发现节点挂掉可能会有比较长的延迟，比如说60s，那么在这60s里面机器A可能已经down掉了但却还被分配了任务从而造成availability变差，而这篇的目标就是：</p>
-
-<pre><code>    Fast detection + reliability,
-</code></pre>
-
-<p>用的方法也很直接：gather inside information, avoid end-to-end timeout。相当于在运行应用程序主机的每一层跑一个spy（说白了就是和应用程序同个进程的一个线程），而每一层包括应用程序、OS、VMM，甚至是switch，用两个图就很容易理解：</p>
-
-<p><img src="http://ytliu.github.com/images/2011-12-23-1.png" title="FALCON's Model" alt="FALCON's Model" />
-<img src="http://ytliu.github.com/images/2011-12-23-2.png" title="FALCON's Implementation" alt="FALCON's Implementation" /></p>
-
-<p>从后来的evaluation来看它的detection速度确实变小好多，CPU的overhead也很小，不过我觉得有两个问题：  <br/>
-第一，在分布式系统中一台机器挂掉的几率可能很小，真的有必要为这么小的几率做一件这么复杂的事吗？比如原来是10秒钟检查到一个一个月才挂一次的机器现在用1秒钟来检查，却要付出一直用client和spy交互的代价？    <br/>
-第二，如Model里每一层的spy都要和client端交互，那么网络带宽就要占用很多吧，为什么作者不测试网络带宽的占用率呢？CPU的overhead小可能是因为本来服务器的程序就不是CPU intensive的，但是确实IO intensive，那为什么不说下网络带宽被额外占用多少呢？还有，对于作者提出的架构来说，每一层spy与client的交互是走network的，如果用PV或HVM的话都得经过最下层的switch，那么按照作者的逻辑，既然其中一层的spy挂了就相当于全部挂了，那为什么不仅仅利用最下层的switch的spy提供的信息来判断呢？这样岂不是可以节省网络带宽？</p>
-
-<p>The End.</p>
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2011/12/23/paper-reading-mobile-security-survey-and-ds-failure-detection/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -556,7 +456,7 @@
       </li>
     
       <li class="post">
-        <a href="/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-%28%5B%3F%5D-%29-linuxxi-tong-diao-yong-biao-%28zhuan-%29/">系统调用学习笔记（一） - Linux系统调用表（转）</a>
+        <a href="/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-linuxxi-tong-diao-yong-biao-%28zhuan-%29/">系统调用学习笔记 - Linux系统调用表（转）</a>
       </li>
     
       <li class="post">
@@ -571,9 +471,13 @@
         <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/">Netfilter学习笔记（二）</a>
       </li>
     
+      <li class="post">
+        <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28yi-%29/">Netfilter学习笔记（一）</a>
+      </li>
+    
   </ul>
 </section>
-
+Included file &#8216;asides/weibo.html&#8217; not found in _includes directory
   
 </aside>
 

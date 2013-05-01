@@ -4,7 +4,7 @@
   <title><![CDATA[Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-04-30T22:58:19+08:00</updated>
+  <updated>2013-05-01T09:37:10+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -645,10 +645,10 @@
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[系统调用学习笔记（一） - Linux系统调用表（转）]]></title>
-    <link href="http://ytliu.github.com/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-%28%5B%3F%5D-%29-linuxxi-tong-diao-yong-biao-%28zhuan-%29/"/>
+    <title type="html"><![CDATA[系统调用学习笔记 - Linux系统调用表（转）]]></title>
+    <link href="http://ytliu.github.com/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-linuxxi-tong-diao-yong-biao-%28zhuan-%29/"/>
     <updated>2013-04-28T20:56:00+08:00</updated>
-    <id>http://ytliu.github.com/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-([?]-)-linuxxi-tong-diao-yong-biao-(zhuan-)</id>
+    <id>http://ytliu.github.com/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-linuxxi-tong-diao-yong-biao-(zhuan-)</id>
     <content type="html"><![CDATA[<p>最近发现自己对Linux里面很多的系统调用都不清楚具体是在怎么回事儿，想要好好学习一下。</p>
 
 <p>在IBM的<a href="https://www.ibm.com/developerworks/cn/">developerWorks</a>中发现一份它们整理的<a href="http://www.ibm.com/developerworks/cn/linux/kernel/syscall/part1/appendix.html">Linux系统调用列表</a>，从进程控制，文件系统控制等八个方面列举了大部分常见的Linux系统调用：</p>
@@ -3866,6 +3866,9 @@ $ emulator-arm @4.2
 
 <p>你可以对源码进行修改，然后重新编译、使用，而这里主要要讲的是qemu的运行原理，资料来源是<a href="http://lists.gnu.org/archive/html/qemu-devel/2011-04/pdfhC5rVdz7U8.pdf">Qemu detailed study</a>。要说明的一点是，android emulator原理基本上是和qemu一样的，只是加了一些android specific的东西在里面。</p>
 
+<!-- more -->
+
+
 <p>首先是qemu整体流程：</p>
 
 <p><img src="http://ytliu.github.com/images/2012-12-30-1.png" title="qemu process" alt="qemu process" /></p>
@@ -3939,6 +3942,9 @@ $ emulator-arm @4.2
 
 <p>如果明天真的是世界末日的话，那这个就算我的遗嘱了吧&#8230;</p>
 
+<!-- more -->
+
+
 <p>算了，虽然懒，但是还是再加几句吧：</p>
 
 <blockquote><p>很高兴认识你们（你们懂的），如果还有下辈子（我还是比较相信投胎一说的），我还是希望在另外一个星球遇到你们，然后和你们一起傻一起疯，一起度过最二逼的青春岁月。<br/>然后，我还要在初中遇到小呆，经过一段暧昧的光年，传递那么几封可以用来回忆当年青涩傻逼岁月的信，然后再来上那个霸气的短信“刘宇涛先生，要不我们不谈了，直接结婚吧”，再然后，度过一段充满思念的异地恋，最终在一起，每周都能见个面，开启个“相亲相爱”模式，或者偶尔听你哭一哭，安静地看着你流泪，然后来个强有力的男人的拥抱&#8230;<br/>至于读书嘛~就不读那么认真啦，多享受享受生活，把自己想做的事不管有钱没钱有时间没时间都一股脑儿挤出时间来做掉，省的又来个世界末日啥的。<br/>世界太危险，读博要谨慎啊&#8230;</p></blockquote>
@@ -3969,6 +3975,9 @@ $ emulator-arm @4.2
 <p>另外在<a href="http://www.bottomupcs.com/" title="computer science from bottom up">Computer Science from the Bottom Up</a>中有一章对dynamic linker进行了详细的说明。</p>
 
 <p>以下的内容很多来自于该文档和俞甲子的《程序员的自我修养》一书第七章。</p>
+
+<!-- more -->
+
 
 <p>问题的产生是这样子的：当我们使用一段shared library的时候，它并没有指定说一定要把相应的代码放在哪个内存地址，而是由dynamic linker根据当前内存情况选择一段最合适的内存区域用于放置相应的code和data。那么dynamic linker是怎么做的呢？我们举一个很简单的例子来说明；</p>
 
@@ -4160,6 +4169,9 @@ jmp _dl_runtime_resolve
 
 <p>首先介绍下linux中的ASLR，ASLR可以对任意内存进行随机化：</p>
 
+<!-- more -->
+
+
 <ul>
 <li>stack：The userspace stack mapping set up by the kernel during exec(2) should be sufficiently randomized. Stack randomization is performed by the randomize_stack_top() function.</li>
 <li>Heap：The heap location returned by the brk(2) system call when a program is first exec’ed should be randomized. Heap randomization is performed by the arch_randomize_brk() function.</li>
@@ -4313,6 +4325,9 @@ jmp _dl_runtime_resolve
 </ul>
 
 
+<!-- more -->
+
+
 <p>即：</p>
 
 <ul>
@@ -4381,6 +4396,9 @@ jmp _dl_runtime_resolve
 <p>这个问题在于PC为emulator分配了一个端口号（这里为5554），所以在PC中可以很方便地和emulator进行交互，但是emulator并没有一个对外可见的IP地址。</p>
 
 <p>在<a href="http://stackoverflow.com,%20stackoverflow">stackoverflow</a>上查了好久，有一个说<a href="http://stackoverflow.com/questions/7108326/how-can-we-change-the-ip-of-android-emulator">如何连接两个emulator的</a>，还有一个<a href="http://stackoverflow.com/questions/7108326/how-can-we-change-the-ip-of-android-emulator">介绍了一个非常复杂但经过我的测试有效的方法</a>。这里简单介绍一下：</p>
+
+<!-- more -->
+
 
 <h3>两个emulator相连</h3>
 
@@ -4460,6 +4478,9 @@ jmp _dl_runtime_resolve
 <p>我想自己在这两天最大的收获在于认识了<a href="http://www.claudxiao.net/%20ClaudXiao">Claud Xiao</a>，第一天中午吃饭的时候，当发现一起聊了很久的坐在旁边吃饭的竟然是Claud的时候我瞬间就由一种穿越的感觉，前几天还在疯狂地浏览和学习他的博客，突然发现这个人就坐在我对面。他和我们讲了很多包括业界和学术界的关于安全方面的经历和事情，讲的很平易近人，而且非常的实在。这两天包括和他的聊天，还有他对很多问题的看法，甚至让我觉得他应该在安全领域做了好久了，而最后一个晚上吃饭的时候问他才知道他竟然只比我大了一岁！唉。。。差距啊。。。作为一个学术界和工业界两头都要兼顾的人，真的很不容易吧，而他对于学习新的事物又是那么的渴望而又充满激情，实在是钦佩。在这里真的很推荐他的<a href="http://www.claudxiao.net/%20IClaud">博客</a>，这几天从那里学到好多东西。</p>
 
 <p>还有在这两天与交大的gossip组和港中文的两个博士（sbark和茗坤）也聊了很多，发现他们在代码的静态和动态分析这块领域真的专的蛮深的，和他们一起聊这块东西感觉很多时候我们都插不上话，而只是默默地倾听和学习。和他们的聊天中发现他们对于这方面的东西如数家珍，能够非常融会贯通地聊，而很多东西在我看来听起来很熟悉，但是却时常不能将人与事物，名称和做的东西联系起来，实在是惭愧。</p>
+
+<!-- more -->
+
 
 <p>另外还见到了Seak江海客，真的是一个很有性格的boss，背着一个改造过的超大的登山包，操作着巨大的笔记本工作站，还在下面垫两块“水冷”装置，而且还有无时不刻的工作状态，感觉非常的潇洒和陶醉。还有会议的组织者Billy，真的是一个非常感性的人，充满激情，而且为人豪爽。让我感觉在他们安天的团队里一定是非常的惬意的。</p>
 

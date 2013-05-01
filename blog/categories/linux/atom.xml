@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Linux | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/linux/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-04-30T22:58:19+08:00</updated>
+  <updated>2013-05-01T09:37:10+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -724,10 +724,10 @@
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[系统调用学习笔记（一） - Linux系统调用表（转）]]></title>
-    <link href="http://ytliu.github.com/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-%28%5B%3F%5D-%29-linuxxi-tong-diao-yong-biao-%28zhuan-%29/"/>
+    <title type="html"><![CDATA[系统调用学习笔记 - Linux系统调用表（转）]]></title>
+    <link href="http://ytliu.github.com/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-linuxxi-tong-diao-yong-biao-%28zhuan-%29/"/>
     <updated>2013-04-28T20:56:00+08:00</updated>
-    <id>http://ytliu.github.com/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-([?]-)-linuxxi-tong-diao-yong-biao-(zhuan-)</id>
+    <id>http://ytliu.github.com/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-linuxxi-tong-diao-yong-biao-(zhuan-)</id>
     <content type="html"><![CDATA[<p>最近发现自己对Linux里面很多的系统调用都不清楚具体是在怎么回事儿，想要好好学习一下。</p>
 
 <p>在IBM的<a href="https://www.ibm.com/developerworks/cn/">developerWorks</a>中发现一份它们整理的<a href="http://www.ibm.com/developerworks/cn/linux/kernel/syscall/part1/appendix.html">Linux系统调用列表</a>，从进程控制，文件系统控制等八个方面列举了大部分常见的Linux系统调用：</p>
@@ -2071,6 +2071,9 @@
 <p>另外在<a href="http://www.bottomupcs.com/" title="computer science from bottom up">Computer Science from the Bottom Up</a>中有一章对dynamic linker进行了详细的说明。</p>
 
 <p>以下的内容很多来自于该文档和俞甲子的《程序员的自我修养》一书第七章。</p>
+
+<!-- more -->
+
 
 <p>问题的产生是这样子的：当我们使用一段shared library的时候，它并没有指定说一定要把相应的代码放在哪个内存地址，而是由dynamic linker根据当前内存情况选择一段最合适的内存区域用于放置相应的code和data。那么dynamic linker是怎么做的呢？我们举一个很简单的例子来说明；</p>
 

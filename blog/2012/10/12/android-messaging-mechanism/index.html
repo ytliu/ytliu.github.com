@@ -38,7 +38,7 @@
   <header role="banner"><hgroup>
   <h1><a href="/">Mctrain's Blog</a></h1>
   
-    <h2>Android, Security, System, Network, as well as life moments</h2>
+    <h2>What I learned in IT, as well as what I thought about life</h2>
   
 </hgroup>
 
@@ -96,6 +96,9 @@
 <div class="entry-content"><p>这两天做remote binder遇到一个bug，具体是什么就不细说了，总之是和android的message机制相关，在Handler.java里面通过mQueue.enqueueMessage()成功后却没有办法从Looper.java里面的mQueue.next()中读出该条message。搞了半天，打印了一堆log，最后发现竟然是因为Looper的线程被我自己block住了。这个主要是由于自己对其理解的错误造成的，之前我一直以为对于每个Activity（或Service）来说，除了主线程之外，都会有一个专用的Looper线程进行消息队列的轮询，今天和乃正讨论了下，其实不是这样的。对于一个进程来说，如果你没有需求说需要有某个线程做某些特定的事（比如socket监听），那么你的主线程就会进入Looper循环进行消息队列的轮询，否则你就需要自己再新建一个线程，或者重新开一个looper，或者进行socket监听&#8230;</p>
 
 <p>此外还有一点，looper是thread local的，对于这个的理解，应该是这样的：在每个线程新建之后，都会有一个原来线程的mQueue的引用，而如果你要自己做一些特定的事，比如重新开一个新的Looper进行其它消息的轮询，那么没有问题，你新建一个looper，但是要注意，你的mQueue是唯一的，也就是说，你之前的对原来线程的mQueue的引用就没了，也就是说，对于一个线程来说只可能有唯一的mQueue。</p>
+
+<!-- more -->
+
 
 <p>之后就是message的流程。有两种可能的情况：</p>
 
@@ -193,7 +196,7 @@
       </li>
     
       <li class="post">
-        <a href="/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-%28%5B%3F%5D-%29-linuxxi-tong-diao-yong-biao-%28zhuan-%29/">系统调用学习笔记（一） - Linux系统调用表（转）</a>
+        <a href="/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-linuxxi-tong-diao-yong-biao-%28zhuan-%29/">系统调用学习笔记 - Linux系统调用表（转）</a>
       </li>
     
       <li class="post">
@@ -208,9 +211,13 @@
         <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/">Netfilter学习笔记（二）</a>
       </li>
     
+      <li class="post">
+        <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28yi-%29/">Netfilter学习笔记（一）</a>
+      </li>
+    
   </ul>
 </section>
-
+Included file 'asides/weibo.html' not found in _includes directory
   
 </aside>
 
