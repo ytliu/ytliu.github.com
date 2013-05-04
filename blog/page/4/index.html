@@ -9,7 +9,7 @@
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="这两天看了两篇关于手机和云结合的文章，两篇的motivation不同，所以所用的方法也就自然不一样了。下面对这两篇进行分别的介绍： 第一篇叫《CloneCloud: Elastic Execution between Mobile Device and Cloud》 分开来说就是用了三种技术， &hellip;">
+  <meta name="description" content="花了大概两周的时间吧，把《progit》那本书看完了（我看书实在是比较慢，特别是这种英文书）。发觉git实在是一个太强大的工具了，以至于我看完了一遍又把前面所说的功能忘记了。。。orz。。。于是乎决定花一周时间重新回顾一下，顺便把一些牛逼的地方记下来。 Plumbing &amp; &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -68,6 +68,70 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/09/16/progit-reading-1/">Progit Reading 1</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-09-16T22:54:00+08:00" pubdate data-updated="true">Sep 16<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/09/16/progit-reading-1/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>花了大概两周的时间吧，把《progit》那本书看完了（我看书实在是比较慢，特别是这种英文书）。发觉git实在是一个太强大的工具了，以至于我看完了一遍又把前面所说的功能忘记了。。。orz。。。于是乎决定花一周时间重新回顾一下，顺便把一些牛逼的地方记下来。</p>
+
+<h2>Plumbing &amp; Porcelain</h2>
+
+<p>因为这是progit的最后一章，也是我刚刚看完的一章，还比较有印象。更重要的是这是git的internal的机制，对于深入理解git有很大的帮助，所以想先把这章啃下来。</p>
+
+<p>porcelain是瓷器的意思，在这里是指git中比较user-friendly的命令，比如文中介绍的将近30条git命令，包括checkout, brance, commit, 以及所有的remote命令等等。而plumbing是水管的意思，和porcelain相对的，指的是一些和unix style类似的low-level的可以直接在脚本中执行的命令（其实我也没搞懂为什么要交porcelain和plumbing两个名字，感觉没什么关系啊？）。事实上，如果我没有理解错的话，porcelain在git中应该就是由一系列plumbing命令组成的。比如git commit命令就是由一个叫做“git commit-tree”的plumbing命令完成的，至于什么是commit-tree，以及这个tree是怎么形成的，这个会再接下来慢慢解释。</p>
+
+<p>首先来看下.git目录下都有些什么。</p>
+
+<pre><code>$ ls .git
+HEAD
+config
+description
+hooks/
+index
+info/
+objects/
+refs/
+</code></pre>
+
+<p>这些是在<em>git init</em>的时候初始化就默认产生的，其中description现在还不需要考虑，config主要用来配置一些program-specific的参数选项，info是一个目录，包含了一些需要被ignore的文件模式，而hooks定义了一些client或server端用于用户进行脚本定制的功能，这会在接下来详细介绍。而在这一节中主要描述了以下四个对象：<strong>HEAD</strong>，<strong>index</strong>，<strong>objects</strong>，<strong>refs</strong>。这是git最internal的部分。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/09/16/progit-reading-1/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -520,55 +584,6 @@ d.Prevent nested migration.
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/02/12/wo-yao-ti-gao-zhi-xing-li-%21/">我要提高执行力！</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-02-12T23:24:00+08:00" pubdate data-updated="true">Feb 12<span>th</span>, 2012</time>
-        
-         | <a href="/blog/2012/02/12/wo-yao-ti-gao-zhi-xing-li-%21/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>已经快十二点了，但是这周的任务还没完成。而这一周是自己要开始执行计划的第一周，因为周末去北京开会，以为今天会比较早回来，没想到到达寝室已经是这个时间了。不过，我决定就算再困也一定要把第一周的任务完成！执行力的退化就是一次又一次地寻找理由妥协而造成的，不过今年的计划最后能完成多少，如果第一次就因为一个或许比较不可避免的原因推迟了，我也就不相信自己将来能做的多好了。何况下周事情感觉比这周还要多，拖延只会造成更严重的滞后，这不是我希望的，也就强迫自己一次吧~~</p>
-
-<p>说实话，当放假在家的时候斌哥告诉我要去北京开会的时候我可高兴自豪了，不要嘲笑我，就是，开会有什么好开心的，又累又没有假期的，不过在这种时候有一种这么重要的锻炼，对于自己来说确实是一种感激。总的来说这次去北京收获真的很大，除了见识了这么多教授，对他们常说的基金有了实质性的了解之外，在路上和北京还和海波斌哥他们讨论了那么多有趣的东西，还和小杜杜逛了一个小时的清华，真的从内心里感到惬意，甚至于上飞机的时候还有那么一丝的不舍呢。</p>
-
-<p>基金的事情就不说了，可能还是谨慎点好，说说这次来北京吧，这是自己有生以来第二次来北京，第一次是初中毕业参加航模比赛和一堆好朋友来，想起当时的稚嫩，都有一种难以说出口的感受。今天在小杜杜的带领下小逛清货，更是感受到一种物是人非的感受。应该快7年了吧，我们就这样从未成年到成年，从幼稚到青春再到渐渐地成熟，依然不变的是那份最最纯真的友谊和我们共同的默契和关心。今年我一定要再去一次北京，自己去，看看同学，和你们更自由地聊聊。今天清华园二校门突然映入眼帘，将自己带回7年前的那么一瞬间的杜杜所谓的moment，在那些走过的石砖上听杜杜的介绍和聊话，真的是一份最最惬意的享受。相信不久之后一定能再次相见，谢谢你的热情款待哦。</p>
-
-<p>还有今天飞机上和斌哥的聊天，让我回想起了好多小时候的事，想起了自己某天的梦想，想起自己曾经对它那么地热爱，对他那么地崇敬，想起那时候的好朋友们现在都行走在自己的道路上，我们走在自己原先的梦想道路上吗？十年、二十年后我们又聚在一起还能那么清晰地回忆那段记忆，能够一个细数那么一些曾经的梦想吗？</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2012/02/12/wo-yao-ti-gao-zhi-xing-li-%21/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/5/">&larr; Older</a>
@@ -590,6 +605,10 @@ d.Prevent nested migration.
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/05/04/androidde-na-xie-shi-cyanogenmod/">Android的那些事 - CyanogenMod</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2013/04/30/xi-tong-diao-yong-xue-xi-bi-ji-ptrace/">系统调用学习笔记 - ptrace和wait</a>
@@ -617,10 +636,6 @@ d.Prevent nested migration.
     
       <li class="post">
         <a href="/blog/2013/03/24/cross-reference-graph-of-android-component/">Cross Reference Graph of Android Component</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/10/redexer-and-ocaml/">Redexer and Ocaml</a>
       </li>
     
   </ul>

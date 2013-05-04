@@ -9,7 +9,7 @@
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="这两天看了AndroidForums上的一个Thread，主要是介绍Android Partition的，感觉写的非常好，很有必要做个简单的笔记。 具体的信息在以下两个链接地址中： http://androidforums.com/evo-4g-all-things-root/278898- &hellip;">
+  <meta name="description" content="11月22-23日两天参加了ISF2012，作为一个刚刚涉入安全领域的我来说实在是收获太多，很有必要进行个比较详细的总结。 我想自己在这两天最大的收获在于认识了Claud Xiao，第一天中午吃饭的时候，当发现一起聊了很久的坐在旁边吃饭的竟然是Claud的时候我瞬间就由一种穿越的感觉， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -68,6 +68,53 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/11/25/isfjian-wen-yu-shou-huo/">ISF见闻与收获</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-11-25T13:03:00+08:00" pubdate data-updated="true">Nov 25<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/11/25/isfjian-wen-yu-shou-huo/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>11月22-23日两天参加了<a href="http://isf.cisrg.org/%20ISF2012">ISF2012</a>，作为一个刚刚涉入安全领域的我来说实在是收获太多，很有必要进行个比较详细的总结。</p>
+
+<p>我想自己在这两天最大的收获在于认识了<a href="http://www.claudxiao.net/%20ClaudXiao">Claud Xiao</a>，第一天中午吃饭的时候，当发现一起聊了很久的坐在旁边吃饭的竟然是Claud的时候我瞬间就由一种穿越的感觉，前几天还在疯狂地浏览和学习他的博客，突然发现这个人就坐在我对面。他和我们讲了很多包括业界和学术界的关于安全方面的经历和事情，讲的很平易近人，而且非常的实在。这两天包括和他的聊天，还有他对很多问题的看法，甚至让我觉得他应该在安全领域做了好久了，而最后一个晚上吃饭的时候问他才知道他竟然只比我大了一岁！唉。。。差距啊。。。作为一个学术界和工业界两头都要兼顾的人，真的很不容易吧，而他对于学习新的事物又是那么的渴望而又充满激情，实在是钦佩。在这里真的很推荐他的<a href="http://www.claudxiao.net/%20IClaud">博客</a>，这几天从那里学到好多东西。</p>
+
+<p>还有在这两天与交大的gossip组和港中文的两个博士（sbark和茗坤）也聊了很多，发现他们在代码的静态和动态分析这块领域真的专的蛮深的，和他们一起聊这块东西感觉很多时候我们都插不上话，而只是默默地倾听和学习。和他们的聊天中发现他们对于这方面的东西如数家珍，能够非常融会贯通地聊，而很多东西在我看来听起来很熟悉，但是却时常不能将人与事物，名称和做的东西联系起来，实在是惭愧。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/11/25/isfjian-wen-yu-shou-huo/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -640,70 +687,6 @@ $ onecluster addhost cluster01 host01
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/09/16/progit-reading-1/">Progit Reading 1</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-09-16T22:54:00+08:00" pubdate data-updated="true">Sep 16<span>th</span>, 2012</time>
-        
-         | <a href="/blog/2012/09/16/progit-reading-1/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>花了大概两周的时间吧，把《progit》那本书看完了（我看书实在是比较慢，特别是这种英文书）。发觉git实在是一个太强大的工具了，以至于我看完了一遍又把前面所说的功能忘记了。。。orz。。。于是乎决定花一周时间重新回顾一下，顺便把一些牛逼的地方记下来。</p>
-
-<h2>Plumbing &amp; Porcelain</h2>
-
-<p>因为这是progit的最后一章，也是我刚刚看完的一章，还比较有印象。更重要的是这是git的internal的机制，对于深入理解git有很大的帮助，所以想先把这章啃下来。</p>
-
-<p>porcelain是瓷器的意思，在这里是指git中比较user-friendly的命令，比如文中介绍的将近30条git命令，包括checkout, brance, commit, 以及所有的remote命令等等。而plumbing是水管的意思，和porcelain相对的，指的是一些和unix style类似的low-level的可以直接在脚本中执行的命令（其实我也没搞懂为什么要交porcelain和plumbing两个名字，感觉没什么关系啊？）。事实上，如果我没有理解错的话，porcelain在git中应该就是由一系列plumbing命令组成的。比如git commit命令就是由一个叫做“git commit-tree”的plumbing命令完成的，至于什么是commit-tree，以及这个tree是怎么形成的，这个会再接下来慢慢解释。</p>
-
-<p>首先来看下.git目录下都有些什么。</p>
-
-<pre><code>$ ls .git
-HEAD
-config
-description
-hooks/
-index
-info/
-objects/
-refs/
-</code></pre>
-
-<p>这些是在<em>git init</em>的时候初始化就默认产生的，其中description现在还不需要考虑，config主要用来配置一些program-specific的参数选项，info是一个目录，包含了一些需要被ignore的文件模式，而hooks定义了一些client或server端用于用户进行脚本定制的功能，这会在接下来详细介绍。而在这一节中主要描述了以下四个对象：<strong>HEAD</strong>，<strong>index</strong>，<strong>objects</strong>，<strong>refs</strong>。这是git最internal的部分。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2012/09/16/progit-reading-1/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/4/">&larr; Older</a>
@@ -725,6 +708,10 @@ refs/
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/05/04/androidde-na-xie-shi-cyanogenmod/">Android的那些事 - CyanogenMod</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2013/04/30/xi-tong-diao-yong-xue-xi-bi-ji-ptrace/">系统调用学习笔记 - ptrace和wait</a>
@@ -752,10 +739,6 @@ refs/
     
       <li class="post">
         <a href="/blog/2013/03/24/cross-reference-graph-of-android-component/">Cross Reference Graph of Android Component</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/10/redexer-and-ocaml/">Redexer and Ocaml</a>
       </li>
     
   </ul>

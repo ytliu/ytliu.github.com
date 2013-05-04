@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Android | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/android/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-05-01T15:13:37+08:00</updated>
+  <updated>2013-05-04T23:13:51+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -12,6 +12,70 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Android的那些事 - CyanogenMod]]></title>
+    <link href="http://ytliu.github.com/blog/2013/05/04/androidde-na-xie-shi-cyanogenmod/"/>
+    <updated>2013-05-04T22:07:00+08:00</updated>
+    <id>http://ytliu.github.com/blog/2013/05/04/androidde-na-xie-shi-cyanogenmod</id>
+    <content type="html"><![CDATA[<p>这个系列我想记录一些和技术无关的关于Android的事情，这一章从CyanogenMod开始讲起吧。</p>
+
+<p>今天要把一个源码编译到手机上（我的测试机是Samsung Galaxy Nexus），按照以前的经历，首先要把它<code>lunch</code>成maguro，然后再开始make，但是这次的lunch发现只有一个叫做cm_maguro的选项，而且关键是它说找不到相关的配置文件，而且<code>repo sync</code>也失败了。</p>
+
+<p>讲到这里，我就不想继续下去了，这个就是一个装机的过程，遇到各种错误，然后google，然后。。。这个过程我打算另开一篇，而这一篇是关于这个<strong>cm_maguro</strong>。</p>
+
+<p>明白人都知道，这个“cm”指的就是“CyanogenMod”，而这个maguro呢？据说是Samsung Galaxy Nexus的一个代号而已，名为金枪鱼。这些在我们平时刷ROM的时候经常会出现的字眼，说出来都不好意思，我从来就没有搞清楚过他们之间具体的关系是什么，直到今天，我感觉自己终于有了一点头绪。</p>
+
+<p>先声明下，以下的部分基本上都是从各种百科或者论坛或者wiki再或者是CyanogenMod的官方网站上撸下来之后进行整理的，可能会感觉似曾相识，不过没关系，就当看故事好了。</p>
+
+<hr />
+
+<h4>CyanogenMod</h4>
+
+<p><a href="http://wiki.cyanogenmod.org/w/About">CyanogenMod</a>，从人的角度来说，是一个由Android爱好者组成的团队，并且它是目前全球最大的Android第三方编译团队。而从系统的角度来说，它又是一个基于开源Android系统，供某些手机使用的二级市场固件，它提供了一些在官方Android系统或手机厂商没有提供的功能。那么为什么会出现CyanogenMod呢？</p>
+
+<p>原因很简单，我们知道Android系统从一开始发布就是一个开源的系统，当时Android有另外一个问题就是，代码是开源了，但是那么多机型Google就算再闲也某赖新菜（方言，表示没心情管它，请无视），就拿Android 2.3来说，Google开放的源码只支持Nexus S和Nexus One，而对于其它机型，比如HTC的xxx，LG的xxx，google只能说一声对不住了。虽然说不同的手机制造厂商会花力气下去生产自己的ROM（简单来说，就是能把改过的代码跑在自己的机器上），但是作为一个Android用户，如果他想刷机怎么办？开源的代码不支持自己的机型，支持自己机型的ROM又由生产厂商封锁着，那些说好的“新功能”呢？那些说好的“随意刷机”呢？我觉得可以这么说，如果没有像CyanogenMod这样的团队，现在什么牛逼的第三方ROM，什么MIUI，估计都还在娘胎里没生出来吧，也就更不用说今天Android手机的千秋万代，一统江湖了。</p>
+
+<p>那么，CyanogenMod这样的团队到底做了些什么呢？</p>
+
+<p>问得好！其实吧，我也只是一知半解。我只是知道，相比于Google只对少数的几款机型的支持，CyanogenMod增加了对很多其它机型的支持，而这些改动主要是在内核部分。这些内核源代码都是各厂商根据GPL协议共开出来的，CM会在上面作一些改动（比如增加收音机，720P录像等）。也就是说，CM基于Google官方发布的ASOP，每当google发布新版本的ASOP的时候，CM团队都会将它们port到不同的机型上，并且增加一些新的特性、功能和bug的修复等等。也正是因为这样，CM的ROM经常也会为ASOP带来很多好处，有时候CM加上的新特性会在ASOP的新版本中出现，CM对bug的修复也会贡献给ASOP。</p>
+
+<p>另外在<a href="http://wiki.cyanogenmod.org/index.php?title=Devices">这里</a>可以找到所有CM支持的机型和它们相对应的代号，非常牛逼！</p>
+
+<h5>ROM，firmware，operating system，distribution</h5>
+
+<p>在CM的<a href="http://wiki.cyanogenmod.org/w/About">官方介绍</a>中特别说明，这四个词对于CyanogenMod来说都是指的同一个意思，都是指你装在你手机设备上的一整套软件。</p>
+
+<h5>CM版本</h5>
+
+<p>我们经常会看到CM7，CM8等等，这些都是CM的版本号，从[wiki]上的一张图可以很清楚的看出这些版本都是代表些什么意思：</p>
+
+<p><img src="http://ytliu.github.com/images/2013-05-04-1.png," title="CM version" alt="CM version" /></p>
+
+<hr />
+
+<h4>maguro, toro, tuna</h4>
+
+<p>在刷Galaxy Nexus的时候，会碰到这些代号，简单来说，tuna是Samsung Galaxy Nexus的代号，这里稍微跑题下，Android的很多机型都是采用和“鱼”相关的代号，比如Galaxy Nexus (tuna，金枪鱼)，emulator (goldfish，金鱼)，G1 (trout，鲑鱼)， Nexus One (mahimahi，海豚鱼)，Nexus S (herring，鲱鱼)等等。</p>
+
+<p>那么maguro和toro又是什么呢？</p>
+
+<p>事实上，Galaxy Nexus有两种类型的设备，一种是GSM/HSPA+的种类，代号为maguro，一种是CDMA/LTE的种类，代号为toro（还有一个它的变种叫toroplus）。对于maguro来说，在Galaxy Nexus的源码树中，一般会有两个目录，一个是<code>device/samsung/tuna</code>，一个是<code>device/samsung/maguro</code>。前者涵盖了所有maguro和toro共享的文件，而后者则存储和maguro特定相关的文件。</p>
+
+<h5>如何识别</h5>
+
+<p>有两种方法，一种是查看<code>Settings &gt; About phone &gt; Model number</code>，看看那个匹配：</p>
+
+<ul>
+<li>Samsung Galaxy Nexus (Maguro; GSM/HSPA+) - GT-I9250</li>
+<li>Samsung Galaxy Nexus (Toro; Verizon; CDMA/LTE) - SGH-I515</li>
+<li>Samsung Galaxy Nexus (Toro Plus; Sprint; CDMA/LTE) - SPH-L700</li>
+</ul>
+
+
+<p>但是在我刷好的手机上，<code>Model number</code>显示的只有Galaxy Nexus，所以可以看手机后盖上的图标，看看它是否有Verizon (toro) 或者 Sprint (toroplus)字样，如果都没有，那就是maguro了。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Netfilter学习笔记（三）]]></title>
@@ -825,611 +889,6 @@ state and I/O.
 <hr />
 
 <p>值得一提的是，这篇paper中提到的Dr. Android是一个叫做<a href="http://www.cs.umd.edu/projects/PL/redexer/about.html">redexer</a>的开源项目，也就是作者开发的。redexer是一个用ruby和OCaml写的Dalvik Binary Rewriter，效率很高，功能也挺强大的。我在之后的博客中会对其进行一个介绍。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Traceview in Android]]></title>
-    <link href="http://ytliu.github.com/blog/2013/02/23/traceview-in-android/"/>
-    <updated>2013-02-23T15:54:00+08:00</updated>
-    <id>http://ytliu.github.com/blog/2013/02/23/traceview-in-android</id>
-    <content type="html"><![CDATA[<p>这两天尝试了下用Android自带的<a href="http://developer.android.com/tools/debugging/debugging-tracing.html">Traceview</a>进行profile，感觉蛮有意思的，而且发现它的文档上对数据格式的说明和我实现时候碰到的情况有出入，于是在google code上发了封<a href="https://code.google.com/p/android/issues/detail?id=51286">帖</a>（<a href="https://code.google.com/p/android/issues/detail?id=50930#makechanges">前一封</a>被华丽丽地无视掉了），但是到最后还是不明白到底是什么问题，维护文档的人好不热情啊...</p>
-
-<p>反正这里还是按照我的实验情况来解释吧:-)</p>
-
-<!-- more -->
-
-
-<p>首先得解释下什么是Traceview。最简单而且最普遍的Traceview的流程是这样子的：</p>
-
-<ul>
-<li>用户首先要对源代码进行一些instrumentation，如下所示：</li>
-</ul>
-
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="c1">// start tracing to &quot;/sdcard/calc.trace&quot;</span>
-</span><span class='line'><span class="n">Debug</span><span class="o">.</span><span class="na">startMethodTracing</span><span class="o">(</span><span class="s">&quot;calc&quot;</span><span class="o">);</span>
-</span><span class='line'><span class="c1">// ...</span>
-</span><span class='line'><span class="c1">// stop tracing</span>
-</span><span class='line'><span class="n">Debug</span><span class="o">.</span><span class="na">stopMethodTracing</span><span class="o">();</span>
-</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<ul>
-<li>之后当运行到<code>Debug.startMethodTracing</code>时，系统就会进入Trace模式，在<code>/sdcard</code>目录下创建一个<code>calc.trace</code>文件，并动态地将之后的所有函数调用都trace进这个文件中（当然也包括framework中的API调用）；</li>
-<li>然后就可以利用Android提供的Traceview工具或者dmtracedump工具对这个文件进行分析了。</li>
-</ul>
-
-
-<p>其中通过Traceview可以获得很多非常有用的信息，包括Timeline Panel和Profile Panel，具体的可以参见Traceview的<a href="http://developer.android.com/tools/debugging/debugging-tracing.html">document</a>，这里就不阐述了。而通过dmtracedump工具可以得到整个运行过程中的call-stack diagram。</p>
-
-<p>不过目前的dmtracedump的call-graph功能还没有实现，于是我从网上找到一个用python脚本写的<a href="http://blog.csdn.net/zjujoe/article/details/6080738">dmtracedump替代</a>，一开始不能用，于是debug了一通，从而发现了前面说的和Traceview官方文档的出入。下面主要就是解释一下有何出入：</p>
-
-<p>首先要介绍下官方文档中由Debug产生的Traceview的文件格式是怎样的：</p>
-
-<p>cal.trace主要分为两个部分 —— key和data。</p>
-
-<p>key部分的格式是这样的：</p>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;em>version
-</span><span class='line'>1
-</span><span class='line'>clock=global
-</span><span class='line'>&lt;/em>threads
-</span><span class='line'>1 main
-</span><span class='line'>6 JDWP Handler
-</span><span class='line'>5 Async GC
-</span><span class='line'>4 Reference Handler
-</span><span class='line'>3 Finalizer
-</span><span class='line'>2 Signal Handler
-</span><span class='line'>&lt;em>methods
-</span><span class='line'>0x080f23f8 java/io/PrintStream write ([BII)V
-</span><span class='line'>0x080f25d4 java/io/PrintStream print (Ljava/lang/String;)V
-</span><span class='line'>0x080f27f4 java/io/PrintStream println (Ljava/lang/String;)V
-</span><span class='line'>0x080da620 java/lang/RuntimeException   &lt;init>    ()V
-</span><span class='line'>[...]
-</span><span class='line'>0x080f630c android/os/Debug startMethodTracing ()V
-</span><span class='line'>0x080f6350 android/os/Debug startMethodTracing (Ljava/lang/String;Ljava/lang/String;I)V
-</span><span class='line'>&lt;/em>end</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<p>它分为了3个sections，每一个section由<code>*</code>开头：</p>
-
-<ul>
-<li>version section;</li>
-<li>threads section：主要记录了thread ID和thread Name，其中thread ID会在data部分中被引用；</li>
-<li>methods section：主要记录了method ID和method signature，其中method ID用于被data部分的record引用。</li>
-</ul>
-
-
-<p>data部分的格式是这样的：</p>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>* File format:
-</span><span class='line'>* header
-</span><span class='line'>* record 0
-</span><span class='line'>* record 1
-</span><span class='line'>* ...
-</span><span class='line'>*
-</span><span class='line'>* Header format:
-</span><span class='line'>* u4 magic 0x574f4c53 ('SLOW')
-</span><span class='line'>* u2 version
-</span><span class='line'>* u2 offset to data
-</span><span class='line'>* u8 start date/time in usec
-</span><span class='line'>*
-</span><span class='line'>* Record format:
-</span><span class='line'>* u1 thread ID
-</span><span class='line'>* u4 method ID | method action
-</span><span class='line'>* u4 time delta since start, in usec</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<p>它由heade和一系列的records组成，其中在header里面有一个域叫offset to data，由此可以找到第一个record的地址，而每一个record由三部分组成：</p>
-
-<ul>
-<li>thread ID：就是在key里面的那个thread ID；</li>
-<li>method ID | method action：就是在key里面的那个method ID，method action有四种情况: {0->method entry; 1->method exit; 2->method exited by exception handling; 3->reversed};</li>
-<li>time：就是这个action发生的时间，正常情况下时间都是按照升序排序的。</li>
-</ul>
-
-
-<p>有了这个trace文件以及事先协议好的格式，就可以进行分析了。即对每一个record进行遍历，得到每个时间点的函数调用，并将它们串起来，就可以得到很多信息。</p>
-
-<p>但是在我的实验中，发现data部分中每个record不是像文档中描述的那样是由9个bytes组成的，而是14个bytes组成：</p>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>* Record format:
-</span><span class='line'>* u2 thread ID
-</span><span class='line'>* u4 method ID | method action
-</span><span class='line'>* u8 time delta since start, in usec</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<p>我的猜想是和产生trace文件时机器的配置有关，我的系统是Debian 6.0，x86_64，维护文档的人似乎没有回答我，不过根据后面一个回答，好像确实在新的版本中就是14个bytes。</p>
-
-<p>Anyway，不管怎么样，这个trace文件是可以提供非常多动态信息的，但是需要对源代码进行修改，并且可能会产生比较大的运行时overhead（自己猜的，没有验证）。不过按照文档上的说法还有一种方式是采用<a href="http://developer.android.com/tools/debugging/ddms.html">DDMS</a>，不过我也没有尝试过，就不在这里阐述了。</p>
-
-<hr />
-
-<p>另外，Python脚本我就不帖出来了，我用ruby重新实现了一遍，这是可以在我的机器上work的版本：</p>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-<span class='line-number'>82</span>
-<span class='line-number'>83</span>
-<span class='line-number'>84</span>
-<span class='line-number'>85</span>
-<span class='line-number'>86</span>
-<span class='line-number'>87</span>
-<span class='line-number'>88</span>
-<span class='line-number'>89</span>
-<span class='line-number'>90</span>
-<span class='line-number'>91</span>
-<span class='line-number'>92</span>
-<span class='line-number'>93</span>
-<span class='line-number'>94</span>
-<span class='line-number'>95</span>
-<span class='line-number'>96</span>
-<span class='line-number'>97</span>
-<span class='line-number'>98</span>
-<span class='line-number'>99</span>
-<span class='line-number'>100</span>
-<span class='line-number'>101</span>
-<span class='line-number'>102</span>
-<span class='line-number'>103</span>
-<span class='line-number'>104</span>
-<span class='line-number'>105</span>
-<span class='line-number'>106</span>
-<span class='line-number'>107</span>
-<span class='line-number'>108</span>
-<span class='line-number'>109</span>
-<span class='line-number'>110</span>
-<span class='line-number'>111</span>
-<span class='line-number'>112</span>
-<span class='line-number'>113</span>
-<span class='line-number'>114</span>
-<span class='line-number'>115</span>
-<span class='line-number'>116</span>
-<span class='line-number'>117</span>
-<span class='line-number'>118</span>
-<span class='line-number'>119</span>
-<span class='line-number'>120</span>
-<span class='line-number'>121</span>
-<span class='line-number'>122</span>
-<span class='line-number'>123</span>
-<span class='line-number'>124</span>
-<span class='line-number'>125</span>
-<span class='line-number'>126</span>
-<span class='line-number'>127</span>
-<span class='line-number'>128</span>
-<span class='line-number'>129</span>
-<span class='line-number'>130</span>
-<span class='line-number'>131</span>
-<span class='line-number'>132</span>
-<span class='line-number'>133</span>
-<span class='line-number'>134</span>
-<span class='line-number'>135</span>
-<span class='line-number'>136</span>
-<span class='line-number'>137</span>
-<span class='line-number'>138</span>
-<span class='line-number'>139</span>
-<span class='line-number'>140</span>
-<span class='line-number'>141</span>
-<span class='line-number'>142</span>
-<span class='line-number'>143</span>
-<span class='line-number'>144</span>
-<span class='line-number'>145</span>
-<span class='line-number'>146</span>
-<span class='line-number'>147</span>
-<span class='line-number'>148</span>
-<span class='line-number'>149</span>
-<span class='line-number'>150</span>
-<span class='line-number'>151</span>
-<span class='line-number'>152</span>
-<span class='line-number'>153</span>
-<span class='line-number'>154</span>
-<span class='line-number'>155</span>
-<span class='line-number'>156</span>
-<span class='line-number'>157</span>
-<span class='line-number'>158</span>
-<span class='line-number'>159</span>
-<span class='line-number'>160</span>
-<span class='line-number'>161</span>
-<span class='line-number'>162</span>
-<span class='line-number'>163</span>
-<span class='line-number'>164</span>
-<span class='line-number'>165</span>
-<span class='line-number'>166</span>
-<span class='line-number'>167</span>
-<span class='line-number'>168</span>
-<span class='line-number'>169</span>
-<span class='line-number'>170</span>
-<span class='line-number'>171</span>
-<span class='line-number'>172</span>
-<span class='line-number'>173</span>
-<span class='line-number'>174</span>
-<span class='line-number'>175</span>
-<span class='line-number'>176</span>
-<span class='line-number'>177</span>
-<span class='line-number'>178</span>
-<span class='line-number'>179</span>
-<span class='line-number'>180</span>
-<span class='line-number'>181</span>
-<span class='line-number'>182</span>
-<span class='line-number'>183</span>
-<span class='line-number'>184</span>
-<span class='line-number'>185</span>
-<span class='line-number'>186</span>
-<span class='line-number'>187</span>
-<span class='line-number'>188</span>
-<span class='line-number'>189</span>
-<span class='line-number'>190</span>
-<span class='line-number'>191</span>
-<span class='line-number'>192</span>
-<span class='line-number'>193</span>
-<span class='line-number'>194</span>
-<span class='line-number'>195</span>
-<span class='line-number'>196</span>
-<span class='line-number'>197</span>
-<span class='line-number'>198</span>
-<span class='line-number'>199</span>
-<span class='line-number'>200</span>
-<span class='line-number'>201</span>
-<span class='line-number'>202</span>
-<span class='line-number'>203</span>
-<span class='line-number'>204</span>
-<span class='line-number'>205</span>
-<span class='line-number'>206</span>
-<span class='line-number'>207</span>
-<span class='line-number'>208</span>
-<span class='line-number'>209</span>
-<span class='line-number'>210</span>
-<span class='line-number'>211</span>
-<span class='line-number'>212</span>
-<span class='line-number'>213</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">&lt;</span><span class="sr">/p&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;h1&gt;dmtracedump.rb&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">turn</span> <span class="n">the</span> <span class="n">traceview</span> <span class="n">data</span> <span class="n">into</span> <span class="n">a</span> <span class="n">png</span> <span class="n">pic</span><span class="p">,</span> <span class="n">showing</span> <span class="nb">methods</span> <span class="n">call</span> <span class="n">relationship</span><span class="o">&lt;</span><span class="sr">/h1&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;h6&gt;#&lt;/</span><span class="n">h6</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">h6</span><span class="o">&gt;</span><span class="c1">##################  Global Variable&lt;/h6&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">h6</span><span class="o">&gt;</span><span class="c1">#&lt;/h6&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="vi">@target_thread</span> <span class="o">=</span> <span class="mi">1</span>
-</span><span class='line'><span class="vi">@all_threads</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span class='line'><span class="vi">@all_methods</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span class='line'><span class="vi">@all_records</span> <span class="o">=</span> <span class="o">[]</span>
-</span><span class='line'><span class="vi">@parent_methods</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span class='line'><span class="vi">@child_methods</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span class='line'><span class="vi">@method_calls</span> <span class="o">=</span> <span class="p">{}</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;h6&gt;#&lt;/</span><span class="n">h6</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">h6</span><span class="o">&gt;</span><span class="c1">########################   Methods&lt;/h6&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">h6</span><span class="o">&gt;</span><span class="c1">#&lt;/h6&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="k">def</span> <span class="nf">add_one_thread</span><span class="p">(</span><span class="n">line</span><span class="p">)</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;pre&gt;&lt;code&gt;fields = line.split(&quot;\t&quot;)</span>
-</span><span class='line'><span class="sr">@all_threads[fields[0].to_i]=fields</span>
-</span><span class='line'><span class="sr">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;</span><span class="sr">/pre&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;p&gt;end&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="k">def</span> <span class="nf">add_one_method</span><span class="p">(</span><span class="n">line</span><span class="p">)</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;pre&gt;&lt;code&gt;fields = line.split(&quot;\t&quot;)</span>
-</span><span class='line'><span class="sr">@all_methods[fields[0].to_i(16)]=fields</span>
-</span><span class='line'><span class="sr">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;</span><span class="sr">/pre&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;p&gt;end&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="k">def</span> <span class="nf">add_one_record</span><span class="p">(</span><span class="n">one</span><span class="p">)</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;pre&gt;&lt;code&gt;record = one.unpack(&quot;SLQ&quot;)</span>
-</span><span class='line'><span class="sr">if record[0] == @target_thread</span>
-</span><span class='line'><span class="sr">    method_id = (record[1] /</span> <span class="mi">4</span><span class="p">)</span> <span class="o">*</span> <span class="mi">4</span>
-</span><span class='line'>    <span class="n">method_action</span> <span class="o">=</span> <span class="n">record</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span> <span class="o">%</span> <span class="mi">4</span>
-</span><span class='line'>    <span class="vi">@all_records</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="o">[</span><span class="n">record</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">,</span> <span class="n">method_id</span><span class="p">,</span> <span class="n">method_action</span><span class="p">,</span> <span class="n">record</span><span class="o">[</span><span class="mi">2</span><span class="o">]]</span><span class="p">)</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;p&gt;def handle_one_call(parent_method_id, method_id)&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="c1"># p &quot;#{parent_method_id} -&amp;gt; #{method_id}&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="o">!</span><span class="vi">@parent_methods</span><span class="o">.</span><span class="n">has_key?</span><span class="p">(</span><span class="n">parent_method_id</span><span class="p">)</span>
-</span><span class='line'>    <span class="vi">@parent_methods</span><span class="o">[</span><span class="n">parent_method_id</span><span class="o">]</span> <span class="o">=</span> <span class="mi">1</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span>  <span class="o">!</span><span class="vi">@child_methods</span><span class="o">.</span><span class="n">has_key?</span><span class="p">(</span><span class="n">method_id</span><span class="p">)</span>
-</span><span class='line'>    <span class="vi">@child_methods</span><span class="o">[</span><span class="n">method_id</span><span class="o">]</span> <span class="o">=</span> <span class="mi">1</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="vi">@method_calls</span><span class="o">.</span><span class="n">has_key?</span><span class="p">(</span><span class="n">parent_method_id</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">if</span> <span class="vi">@method_calls</span><span class="o">[</span><span class="n">parent_method_id</span><span class="o">].</span><span class="n">has_key?</span><span class="p">(</span><span class="n">method_id</span><span class="p">)</span>
-</span><span class='line'>        <span class="vi">@method_calls</span><span class="o">[</span><span class="n">parent_method_id</span><span class="o">][</span><span class="n">method_id</span><span class="o">]</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span class='line'>    <span class="k">else</span>
-</span><span class='line'>        <span class="vi">@method_calls</span><span class="o">[</span><span class="n">parent_method_id</span><span class="o">][</span><span class="n">method_id</span><span class="o">]</span> <span class="o">=</span> <span class="mi">1</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'><span class="k">else</span>
-</span><span class='line'>    <span class="vi">@method_calls</span><span class="o">[</span><span class="n">parent_method_id</span><span class="o">]</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span class='line'>    <span class="vi">@method_calls</span><span class="o">[</span><span class="n">parent_method_id</span><span class="o">][</span><span class="n">method_id</span><span class="o">]</span> <span class="o">=</span> <span class="mi">1</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;p&gt;def gen_funcname(method_id)&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">cla_med</span> <span class="o">=</span> <span class="vi">@all_methods</span><span class="o">[</span><span class="n">method_id</span><span class="o">][</span><span class="mi">1</span><span class="o">].</span><span class="n">gsub</span><span class="p">(</span><span class="sr">/[\/\$&amp;lt;&amp;gt;]/</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span>
-</span><span class='line'><span class="n">sub_med</span> <span class="o">=</span> <span class="vi">@all_methods</span><span class="o">[</span><span class="n">method_id</span><span class="o">][</span><span class="mi">2</span><span class="o">].</span><span class="n">gsub</span><span class="p">(</span><span class="sr">/[\/\$&amp;lt;&amp;gt;]/</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span>
-</span><span class='line'><span class="s2">&quot;</span><span class="si">#{</span><span class="n">cla_med</span><span class="si">}</span><span class="s2">_</span><span class="si">#{</span><span class="n">sub_med</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span class='line'><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;p&gt;def gen_dot_script_file&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">ofile</span> <span class="o">=</span> <span class="no">File</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;graph.dot&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
-</span><span class='line'><span class="n">ofile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;digraph vanzo {</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="vi">@all_methods</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">m</span><span class="o">|</span>
-</span><span class='line'>    <span class="k">if</span> <span class="vi">@parent_methods</span><span class="o">.</span><span class="n">has_key?</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
-</span><span class='line'>        <span class="n">ofile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">gen_funcname</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="si">}</span><span class="s2">  [shape=rectangle];</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">else</span>
-</span><span class='line'>        <span class="k">if</span> <span class="vi">@child_methods</span><span class="o">.</span><span class="n">has_key?</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
-</span><span class='line'>            <span class="n">ofile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">gen_funcname</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="si">}</span><span class="s2">  [shape=ellipse];</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span class='line'>        <span class="k">end</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="vi">@method_calls</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">each</span> <span class="p">{</span> <span class="o">|</span><span class="nb">p</span><span class="o">|</span>
-</span><span class='line'>    <span class="vi">@method_calls</span><span class="o">[</span><span class="nb">p</span><span class="o">].</span><span class="n">keys</span><span class="o">.</span><span class="n">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">c</span><span class="o">|</span>
-</span><span class='line'>        <span class="n">ofile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">gen_funcname</span><span class="p">(</span><span class="nb">p</span><span class="p">)</span><span class="si">}</span><span class="s2"> -&amp;gt; </span><span class="si">#{</span><span class="n">gen_funcname</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="si">}</span><span class="s2"> [label=&#39;</span><span class="si">#{</span><span class="vi">@method_calls</span><span class="o">[</span><span class="nb">p</span><span class="o">][</span><span class="n">c</span><span class="o">].</span><span class="n">to_s</span><span class="si">}</span><span class="s2">&#39; fontsize=&#39;10&#39;];</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">ofile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
-</span><span class='line'><span class="n">ofile</span><span class="o">.</span><span class="n">close</span>
-</span><span class='line'><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;h6&gt;#&lt;/</span><span class="n">h6</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">h6</span><span class="o">&gt;</span><span class="c1">#################### Script starts from here&lt;/h6&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">h6</span><span class="o">&gt;</span><span class="c1">#&lt;/h6&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="k">if</span> <span class="no">ARGV</span><span class="o">.</span><span class="n">size</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="mi">1</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;pre&gt;&lt;code&gt;print &quot;No input file specified.&quot;</span>
-</span><span class='line'><span class="sr">exit</span>
-</span><span class='line'><span class="sr">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;</span><span class="sr">/pre&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;p&gt;end&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="k">if</span> <span class="o">!</span><span class="no">File</span><span class="o">.</span><span class="n">exists?</span><span class="p">(</span><span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">)</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;pre&gt;&lt;code&gt;p &quot;input file not exists&quot;</span>
-</span><span class='line'><span class="sr">exit</span>
-</span><span class='line'><span class="sr">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;</span><span class="sr">/pre&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;p&gt;end&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="no">Now</span> <span class="n">handle</span> <span class="n">the</span> <span class="n">text</span> <span class="n">part</span><span class="o">&lt;</span><span class="sr">/h1&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;p&gt;current_section = 0</span>
-</span><span class='line'><span class="sr">lines = File.readlines(ARGV[0])</span>
-</span><span class='line'><span class="sr">lines.each { |line|&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">line</span><span class="o">.</span><span class="n">strip!</span>
-</span><span class='line'><span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">start_with?</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">start_with?</span><span class="p">(</span><span class="s2">&quot;*version&quot;</span><span class="p">)</span>
-</span><span class='line'>        <span class="n">current_section</span> <span class="o">=</span> <span class="mi">1</span>
-</span><span class='line'>    <span class="k">elsif</span> <span class="n">line</span><span class="o">.</span><span class="n">start_with?</span><span class="p">(</span><span class="s2">&quot;*threads&quot;</span><span class="p">)</span>
-</span><span class='line'>        <span class="n">current_section</span> <span class="o">=</span> <span class="mi">2</span>
-</span><span class='line'>    <span class="k">elsif</span> <span class="n">line</span><span class="o">.</span><span class="n">start_with?</span><span class="p">(</span><span class="s2">&quot;*methods&quot;</span><span class="p">)</span>
-</span><span class='line'>        <span class="n">current_section</span> <span class="o">=</span> <span class="mi">3</span>
-</span><span class='line'>    <span class="k">elsif</span> <span class="n">line</span><span class="o">.</span><span class="n">start_with?</span><span class="p">(</span><span class="s2">&quot;*end&quot;</span><span class="p">)</span>
-</span><span class='line'>        <span class="n">current_section</span> <span class="o">=</span> <span class="mi">4</span>
-</span><span class='line'>        <span class="k">break</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'><span class="k">elsif</span> <span class="n">current_section</span> <span class="o">==</span> <span class="mi">2</span>
-</span><span class='line'>    <span class="n">add_one_thread</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-</span><span class='line'><span class="k">elsif</span> <span class="n">current_section</span> <span class="o">==</span> <span class="mi">3</span>
-</span><span class='line'>    <span class="n">add_one_method</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="p">}</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;h1&gt;Now handle the binary part&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="n">file</span> <span class="o">=</span> <span class="no">File</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span>
-</span><span class='line'><span class="n">alldata</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;h1&gt;alldata = File.read(ARGV[0])&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="n">pos</span> <span class="o">=</span> <span class="n">alldata</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;SLOW&quot;</span><span class="p">)</span>
-</span><span class='line'><span class="n">offset</span> <span class="o">=</span> <span class="n">alldata</span><span class="o">[</span><span class="n">pos</span><span class="o">+</span><span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="o">].</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">)</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
-</span><span class='line'><span class="n">pos</span> <span class="o">+=</span> <span class="n">offset</span> <span class="c1">#where the record begin</span>
-</span><span class='line'><span class="n">record_num</span> <span class="o">=</span> <span class="n">alldata</span><span class="o">.</span><span class="n">length</span> <span class="o">-</span> <span class="n">pos</span>
-</span><span class='line'><span class="n">record_num</span> <span class="o">/=</span> <span class="mi">14</span>
-</span><span class='line'><span class="mi">0</span><span class="o">.</span><span class="n">upto</span><span class="p">(</span><span class="n">record_num</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span> <span class="o">|</span><span class="n">i</span><span class="o">|&lt;</span><span class="sr">/p&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;pre&gt;&lt;code&gt;add_one_record(alldata[pos+i*14, 14])</span>
-</span><span class='line'><span class="sr">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;</span><span class="sr">/pre&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;p&gt;}&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="n">my_stack</span> <span class="o">=</span> <span class="o">[</span><span class="mi">0</span><span class="o">]&lt;</span><span class="sr">/p&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;p&gt;@all_records.each { |onerecord|&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">thread_id</span> <span class="o">=</span> <span class="n">onerecord</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">;</span>
-</span><span class='line'><span class="n">method_id</span> <span class="o">=</span> <span class="n">onerecord</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span><span class="p">;</span>
-</span><span class='line'><span class="n">action</span> <span class="o">=</span> <span class="n">onerecord</span><span class="o">[</span><span class="mi">2</span><span class="o">]</span><span class="p">;</span>
-</span><span class='line'><span class="n">time</span> <span class="o">=</span> <span class="n">onerecord</span><span class="o">[</span><span class="mi">3</span><span class="o">]</span><span class="p">;</span>
-</span><span class='line'><span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="mi">0</span>
-</span><span class='line'>    <span class="k">if</span> <span class="n">my_stack</span><span class="o">.</span><span class="n">size</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="mi">1</span>
-</span><span class='line'>        <span class="n">parent_method_id</span> <span class="o">=</span> <span class="n">my_stack</span><span class="o">[-</span><span class="mi">1</span><span class="o">]</span>
-</span><span class='line'>        <span class="n">handle_one_call</span><span class="p">(</span><span class="n">parent_method_id</span><span class="p">,</span> <span class="n">method_id</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>    <span class="n">my_stack</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">method_id</span><span class="p">)</span>
-</span><span class='line'><span class="k">else</span>
-</span><span class='line'>    <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="mi">1</span>
-</span><span class='line'>        <span class="k">if</span> <span class="n">my_stack</span><span class="o">.</span><span class="n">size</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="mi">1</span>
-</span><span class='line'>            <span class="n">my_stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-</span><span class='line'>        <span class="k">end</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="p">}</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;p&gt;gen_dot_script_file</span>
-</span><span class='line'><span class="sr">os.system(&quot;dot -Tjpg graph.dot -o output.png;rm -f graph.dot&quot;);&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<p>用法：</p>
-
-<pre><code>$ ruby dmtracedump.rb calc.trace
-</code></pre>
 ]]></content>
   </entry>
   
