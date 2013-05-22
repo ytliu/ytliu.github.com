@@ -9,7 +9,7 @@
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="11月22-23日两天参加了ISF2012，作为一个刚刚涉入安全领域的我来说实在是收获太多，很有必要进行个比较详细的总结。 我想自己在这两天最大的收获在于认识了Claud Xiao，第一天中午吃饭的时候，当发现一起聊了很久的坐在旁边吃饭的竟然是Claud的时候我瞬间就由一种穿越的感觉， &hellip;">
+  <meta name="description" content="这两天碰到一个难题，如何让手机中的某应用程序通过网络连接PC中的android emulator里面的服务。 即我在emulator里面开启了一个服务，该服务通过socket监听2012端口，那么在我的手机中，如何通过socket连接到这个服务中，也就是说，我的IP要设为什么，端口号要设为什么？ &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -68,6 +68,55 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/12/01/connect-smartphone-to-android-emulator/">Connect Smartphone to Android Emulator</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-01T15:37:00+08:00" pubdate data-updated="true">Dec 1<span>st</span>, 2012</time>
+        
+         | <a href="/blog/2012/12/01/connect-smartphone-to-android-emulator/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>这两天碰到一个难题，如何让手机中的某应用程序通过网络连接PC中的android emulator里面的服务。</p>
+
+<p>即我在emulator里面开启了一个服务，该服务通过socket监听2012端口，那么在我的手机中，如何通过socket连接到这个服务中，也就是说，我的IP要设为什么，端口号要设为什么？</p>
+
+<p>这个问题在于PC为emulator分配了一个端口号（这里为5554），所以在PC中可以很方便地和emulator进行交互，但是emulator并没有一个对外可见的IP地址。</p>
+
+<p>在<a href="http://stackoverflow.com,%20stackoverflow">stackoverflow</a>上查了好久，有一个说<a href="http://stackoverflow.com/questions/7108326/how-can-we-change-the-ip-of-android-emulator">如何连接两个emulator的</a>，还有一个<a href="http://stackoverflow.com/questions/7108326/how-can-we-change-the-ip-of-android-emulator">介绍了一个非常复杂但经过我的测试有效的方法</a>。这里简单介绍一下：</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/12/01/connect-smartphone-to-android-emulator/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -622,71 +671,6 @@ $ onecluster addhost cluster01 host01
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/09/21/progit-reading-2/">Progit Reading 2</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-09-21T16:50:00+08:00" pubdate data-updated="true">Sep 21<span>st</span>, 2012</time>
-        
-         | <a href="/blog/2012/09/21/progit-reading-2/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>上章介绍了git internal的内容，接下里会从git更接近用户的角度来说。</p>
-
-<hr />
-
-<h1>git basic</h1>
-
-<p>git中的文件有以下几种状态，而所有的命令也就是对于这几种状态的查看和转换：</p>
-
-<p><img src="http://ytliu.github.com/images/2012-09-16-4.png" title="git file status" alt="git file status" /></p>
-
-<p>一般情况下，在新建一个文件后，需要<em>git add</em>将其变成tracked file，如果修改了一个该文件，则同样需要使用<em>git add</em>将其变成staged file，只有staged的文件才会在<em>git commit</em>的时候commit成功。</p>
-
-<p><strong>git status</strong></p>
-
-<p>这个可以用来查看当前文件的状态。如果我们在commit的参数中加上<em>-a</em>，就可以自动将tracked file变成staged file了。当然也可以忽略一些文件，这些都是写在.gitignore文件下的，那么，如何unstage一个文件呢？其实在你使用<em>git stage</em>命令的时候就会有提示:</p>
-
-<pre><code>$ git reset HEAD &lt;file&gt;
-</code></pre>
-
-<p>同样的，我们也可以把一个modified file变成unmodified file:</p>
-
-<pre><code>$ git checkout -- &lt;file&gt;
-</code></pre>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2012/09/21/progit-reading-2/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/4/">&larr; Older</a>
@@ -708,6 +692,10 @@ $ onecluster addhost cluster01 host01
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/05/22/chinasysxiao-ji/">ChinaSys小记（2013.5）</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2013/05/04/androidde-na-xie-shi-cyanogenmod/">Android的那些事 - CyanogenMod</a>
@@ -735,10 +723,6 @@ $ onecluster addhost cluster01 host01
     
       <li class="post">
         <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28yi-%29/">Netfilter学习笔记（一）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/24/cross-reference-graph-of-android-component/">Cross Reference Graph of Android Component</a>
       </li>
     
   </ul>

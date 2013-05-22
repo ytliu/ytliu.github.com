@@ -9,7 +9,7 @@
   <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="这两天尝试了下用Android自带的Traceview进行profile，感觉蛮有意思的，而且发现它的文档上对数据格式的说明和我实现时候碰到的情况有出入，于是在google code上发了封帖（前一封被华丽丽地无视掉了），但是到最后还是不明白到底是什么问题，维护文档的人好不热情啊&#8230; &hellip;">
+  <meta name="description" content="故事得从几天前利小哥发现的xidashi说起： 洗大师是一个android的安全应用软件+第三方应用市场，它的功能和特点简单来说就是： 在不root的情况下，允许用户对已安装的应用程序实行权限的细粒度动态控制 这里的细粒度动态控制是指用户可以随时允许或禁止该应用程序某一个权限， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -68,6 +68,63 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/">Dr. Android and Mr. Hide - Xidashi引发的故事</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-03-01T20:00:00+08:00" pubdate data-updated="true">Mar 1<span>st</span>, 2013</time>
+        
+         | <a href="/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>故事得从几天前利小哥发现的<a href="www.xidashi.com">xidashi</a>说起：</p>
+
+<p><img src="http://ytliu.github.com/images/2013-03-01-1.png" title="xidashi" alt="xidashi" /></p>
+
+<p>洗大师是一个android的安全应用软件+第三方应用市场，它的功能和特点简单来说就是：</p>
+
+<blockquote><p>在不root的情况下，允许用户对已安装的应用程序实行权限的细粒度动态控制</p></blockquote>
+
+<p>这里的细粒度动态控制是指用户可以随时允许或禁止该应用程序某一个权限，并对利用该权限调用API的行为进行log。</p>
+
+<p>洗大师的流程是这样子的：</p>
+
+<p>上传apk -> 服务器对apk进行”清洗“ -> 返回”清洗“过后的apk并安装 -> 在apk运行过程中进行动态权限控制</p>
+
+<p>当然还有一种模式就是”直接下载洗大师market提供的应用“。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -499,55 +556,6 @@ $ emulator-arm @4.2
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/12/01/connect-smartphone-to-android-emulator/">Connect Smartphone to Android Emulator</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-12-01T15:37:00+08:00" pubdate data-updated="true">Dec 1<span>st</span>, 2012</time>
-        
-         | <a href="/blog/2012/12/01/connect-smartphone-to-android-emulator/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>这两天碰到一个难题，如何让手机中的某应用程序通过网络连接PC中的android emulator里面的服务。</p>
-
-<p>即我在emulator里面开启了一个服务，该服务通过socket监听2012端口，那么在我的手机中，如何通过socket连接到这个服务中，也就是说，我的IP要设为什么，端口号要设为什么？</p>
-
-<p>这个问题在于PC为emulator分配了一个端口号（这里为5554），所以在PC中可以很方便地和emulator进行交互，但是emulator并没有一个对外可见的IP地址。</p>
-
-<p>在<a href="http://stackoverflow.com,%20stackoverflow">stackoverflow</a>上查了好久，有一个说<a href="http://stackoverflow.com/questions/7108326/how-can-we-change-the-ip-of-android-emulator">如何连接两个emulator的</a>，还有一个<a href="http://stackoverflow.com/questions/7108326/how-can-we-change-the-ip-of-android-emulator">介绍了一个非常复杂但经过我的测试有效的方法</a>。这里简单介绍一下：</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2012/12/01/connect-smartphone-to-android-emulator/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/3/">&larr; Older</a>
@@ -569,6 +577,10 @@ $ emulator-arm @4.2
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/05/22/chinasysxiao-ji/">ChinaSys小记（2013.5）</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2013/05/04/androidde-na-xie-shi-cyanogenmod/">Android的那些事 - CyanogenMod</a>
@@ -596,10 +608,6 @@ $ emulator-arm @4.2
     
       <li class="post">
         <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28yi-%29/">Netfilter学习笔记（一）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/24/cross-reference-graph-of-android-component/">Cross Reference Graph of Android Component</a>
       </li>
     
   </ul>
