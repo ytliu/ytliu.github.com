@@ -12,10 +12,10 @@
 	"buffers":
 	[
 		{
-			"file": "source/_posts/2013-04-14-tong-bu-yuan-yu-xue-xi-bi-ji-lock,rcuhe-transaction.markdown",
+			"file": "_config.yml",
 			"settings":
 			{
-				"buffer_size": 5569,
+				"buffer_size": 3407,
 				"line_ending": "Unix"
 			}
 		}
@@ -76,30 +76,75 @@
 	},
 	"file_history":
 	[
-		"/Users/luisleo/Documents/SJTU/Courses/软件程序理论/1120379027.hs",
+		"/Users/luisleo/blog/octopress/source/_includes/asides/about.html",
+		"/Users/luisleo/blog/octopress/source/_posts/2013-04-28-xi-tong-diao-yong-xue-xi-bi-ji-linuxxi-tong-diao-yong-biao-(zhuan-).markdown",
 		"/Users/luisleo/blog/octopress/source/_posts/2013-04-09-netfilterxue-xi-bi-ji-(san-).markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2013-03-29-netfilterxue-xi-bi-ji-(yi-).markdown",
+		"/Users/luisleo/blog/octopress/source/stylesheets/data-table.css",
+		"/Users/luisleo/blog/octopress/source.old/_includes/head.html",
+		"/Users/luisleo/blog/octopress/source/_includes/head.html",
+		"/Users/luisleo/blog/octopress/source/_includes/custom/header.html",
+		"/Users/luisleo/blog/octopress/source/_includes/header.html",
+		"/Users/luisleo/blog/octopress/source/_includes/custom/asides/about.html",
+		"/Users/luisleo/blog/octopress/source/_includes/custom/navigation.html",
+		"/Users/luisleo/blog/octopress/source/_includes/article.html",
+		"/Users/luisleo/blog/octopress/sass/custom/_styles.scss",
+		"/Users/luisleo/blog/octopress/source/_includes/navigation.html",
+		"/Users/luisleo/blog/octopress/source/stylesheets/screen.css",
+		"/Users/luisleo/blog/octopress/source/stylesheets/screen-ori.css",
+		"/Users/luisleo/blog/octopress/stylesheets/screen.css",
+		"/Users/luisleo/blog/octopress/source/index.html",
+		"/Users/luisleo/blog/octopress/source/_posts/2013-04-28-xi-tong-diao-yong-xue-xi-bi-ji-([?]-)-linuxxi-tong-diao-yong-biao-(zhuan-).markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2013-04-30-xi-tong-diao-yong-xue-xi-bi-ji-ptrace.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2011-12-23-paper-reading-mobile-security-survey-and-ds-failure-detection.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2011-12-26-paper-reading-tcp-re-and-incremental-mr.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-01-03-paper-reading-x86-interrupt-and-sr-iov-interrupts-avoidance.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-02-12-wo-yao-ti-gao-zhi-xing-li-!.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-02-19-za.markdown",
 		"/Users/luisleo/blog/octopress/source/_posts/2012-02-25-qian-tan-mou-xie-gong-ji-ji-qi-fang-fan.markdown",
-		"/Users/luisleo/blog/octopress/source/_posts/2011-12-21-markdownyu-fa-ce-shi.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-03-03-wei-lai-zai-na-li.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-03-09-wo-kan-bei-ai-and-wo-xue-ruby.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-03-17-exploitation-learning-outset.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-04-01-notes-about-ruby.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-09-02-quan-xin-de-kai-shi.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-09-13-guan-yu-shou-ji-he-yun-de-xue-zhu-yan-jiu.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-09-16-progit-reading-1.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-09-21-progit-reading-2.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-09-28-opennebula-setup-note.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-10-05-android-service-startup.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-10-12-android-messaging-mechanism.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-10-20-regain-my-vms-account.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-10-27-goagent-setup-note.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-11-03-parcel-object-in-android.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-11-11-getsystemservice-in-android.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-11-12-android-partition-explaination.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-11-25-isfjian-wen-yu-shou-huo.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-12-01-connect-smartphone-to-android-emulator.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-12-08-get-root-in-my-android.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-12-09-aslr-in-android.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-12-15-dynamic-linker.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-12-20-ru-guo-ming-tian-shi-shi-jie-mo-ri.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2013-02-17-[(zhuan-)]-ji-suan-ji-de-qi-dong.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2012-12-30-qemu-study-for-android-emulator.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2013-01-06-base64bian-ma.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2013-01-12-qiao-bang-zhu-chuan-you-gan.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2013-02-23-traceview-in-android.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2013-04-14-tong-bu-yuan-yu-xue-xi-bi-ji-lock,rcuhe-transaction.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2013-03-01-dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2013-03-10-redexer-and-ocaml.markdown",
 		"/Users/luisleo/blog/octopress/source/_posts/2013-03-29-netfilterxue-xi-bi-ji-(er-).markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2013-03-24-cross-reference-graph-of-android-component.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2013-04-30-xi-tong-diao-yong-xue-xi-bi-ji-([?]-)-linuxxi-tong-diao-yong-biao-(zhuan-).markdown",
+		"/Users/luisleo/blog/octopress/_deploy/blog/2013/04/30/xi-tong-diao-yong-xue-xi-bi-ji-([?]-)-linuxxi-tong-diao-yong-biao-(zhuan-)/index.html",
+		"/Users/luisleo/blog/octopress/source/_posts/2011-12-21-markdownyu-fa-ce-shi.markdown",
+		"/Users/luisleo/Documents/SJTU/Courses/软件程序理论/1120379027.hs",
 		"/Users/luisleo/granter.py",
 		"/Users/luisleo/hello-user.py",
-		"/Users/luisleo/blog/octopress/source/_posts/2012-12-08-get-root-in-my-android.markdown",
 		"/Users/luisleo/blog/octopress/source/_posts/2013-03-29-netfilterxue-xi-bi-ji.markdown",
-		"/Users/luisleo/blog/octopress/source/_posts/2013-03-24-cross-reference-graph-of-android-component.markdown",
 		"/Users/luisleo/blog/octopress/source/_posts/2013-03-10-redexer-and-ocaml-and-functional-language.markdown",
-		"/Users/luisleo/blog/octopress/source/_posts/2013-03-01-dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi.markdown",
-		"/Users/luisleo/blog/octopress/source/_posts/2013-02-23-traceview-in-android.markdown",
-		"/Users/luisleo/blog/octopress/source/_posts/2013-02-17-[(zhuan-)]-ji-suan-ji-de-qi-dong.markdown",
-		"/Users/luisleo/blog/octopress/source/_posts/2012-02-19-za.markdown",
 		"/Users/luisleo/blog/octopress/source/_posts/2013-02-23-ruby-substring-performance.markdown",
-		"/Users/luisleo/blog/octopress/source/_posts/2013-01-12-qiao-bang-zhu-chuan-you-gan.markdown",
 		"/Users/luisleo/id_rsa.pub",
-		"/Users/luisleo/blog/octopress/source/_posts/2013-01-06-base64bian-ma.markdown",
-		"/Users/luisleo/blog/octopress/source/_posts/2012-12-30-qemu-study-for-android-emulator.markdown",
 		"/Users/luisleo/Library/Application Support/Sublime Text 2/Packages/Default/Preferences.sublime-settings",
-		"/Users/luisleo/blog/octopress/source/_posts/2012-01-03-paper-reading-x86-interrupt-and-sr-iov-interrupts-avoidance.markdown",
-		"/Users/luisleo/blog/octopress/source/_posts/2011-12-26-paper-reading-tcp-re-and-incremental-mr.markdown",
-		"/Users/luisleo/blog/octopress/source/_posts/2012-12-15-dynamic-linker.markdown",
 		"/Users/luisleo/Documents/IPADS/project/remote-binder/paper/todo",
 		"/Users/luisleo/Documents/IPADS/project/remote-binder/paper/abstract.tex",
 		"/Users/luisleo/Programs/android/tool/mercury/src/mercury/server/src/com/mwr/mercury/Common.java",
@@ -140,6 +185,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"font-size:2.2",
 			"chmod",
 			"	#",
 			"vintage",
@@ -179,24 +225,23 @@
 			[
 				{
 					"buffer": 0,
-					"file": "source/_posts/2013-04-14-tong-bu-yuan-yu-xue-xi-bi-ji-lock,rcuhe-transaction.markdown",
+					"file": "_config.yml",
 					"settings":
 					{
-						"buffer_size": 5569,
+						"buffer_size": 3407,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								149,
-								149
+								153,
+								153
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/Markdown/Markdown.tmLanguage",
-							"translate_tabs_to_spaces": false
+							"syntax": "Packages/YAML/YAML.tmLanguage"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
@@ -253,16 +298,116 @@
 		"selected_items":
 		[
 			[
+				"ab",
+				"source/_includes/asides/about.html"
+			],
+			[
+				"head",
+				"source.old/_includes/head.html"
+			],
+			[
+				"hea",
+				"source/_includes/head.html"
+			],
+			[
+				"header",
+				"source/_includes/custom/header.html"
+			],
+			[
+				"heade",
+				"source/_includes/header.html"
+			],
+			[
+				"data-",
+				"source/stylesheets/data-table.css"
+			],
+			[
+				"abo",
+				"source/_includes/asides/about.html"
+			],
+			[
+				"navi",
+				"source/_includes/custom/navigation.html"
+			],
+			[
+				"about",
+				"source/_includes/custom/asides/about.html"
+			],
+			[
+				"_con",
+				"_config.yml"
+			],
+			[
+				"navigat",
+				"source/_includes/navigation.html"
+			],
+			[
+				"article",
+				"source/_includes/article.html"
+			],
+			[
+				"_style",
+				"sass/custom/_styles.scss"
+			],
+			[
+				"screen",
+				"stylesheets/screen.css"
+			],
+			[
+				"index",
+				"source/index.html"
+			],
+			[
+				"screen-",
+				"source/stylesheets/screen-ori.css"
+			],
+			[
+				"xi-ton",
+				"source/_posts/2013-04-28-xi-tong-diao-yong-xue-xi-bi-ji-([?]-)-linuxxi-tong-diao-yong-biao-(zhuan-).markdown"
+			],
+			[
+				"xi-t",
+				"source/_posts/2013-04-28-xi-tong-diao-yong-xue-xi-bi-ji-([?]-)-linuxxi-tong-diao-yong-biao-(zhuan-).markdown"
+			],
+			[
+				"data-ta",
+				"source/stylesheets/data-table.css"
+			],
+			[
+				"data",
+				"source/stylesheets/data-table.css"
+			],
+			[
+				"scree",
+				"source/stylesheets/screen.css"
+			],
+			[
+				"screen.",
+				"stylesheets/screen.css"
+			],
+			[
+				"xi",
+				"_deploy/blog/2013/04/30/xi-tong-diao-yong-xue-xi-bi-ji-([?]-)-linuxxi-tong-diao-yong-biao-(zhuan-)/index.html"
+			],
+			[
+				"mark",
+				"source/_posts/2011-12-21-markdownyu-fa-ce-shi.markdown"
+			],
+			[
+				"head.h",
+				"source/_includes/head.html"
+			],
+			[
+				"si-to",
+				"source/_posts/2013-04-30-xi-tong-diao-yong-xue-xi-bi-ji-ptrace.markdown"
+			],
+			[
 				"qian-",
 				"source/_posts/2012-02-25-qian-tan-mou-xie-gong-ji-ji-qi-fang-fan.markdown"
 			],
 			[
 				"net",
 				"source/_posts/2013-04-09-netfilterxue-xi-bi-ji-(san-).markdown"
-			],
-			[
-				"mark",
-				"source/_posts/2011-12-21-markdownyu-fa-ce-shi.markdown"
 			],
 			[
 				"tong",
