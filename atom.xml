@@ -4,7 +4,7 @@
   <title><![CDATA[Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-05-22T21:34:45+08:00</updated>
+  <updated>2013-05-22T21:37:15+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -52,7 +52,7 @@
 
 <p>晚上在微软亚研的赞助下吃了一顿自助餐，认识了三个国防科大的博士。</p>
 
-<h4>2013.5.18 周五 静之湖</h4>
+<h4>2013.5.18 周六 静之湖</h4>
 
 <p>上午的session是两个keynote，一个是Baidu的<a href="http://cn.linkedin.com/pub/shiding-lin/4a/a88/1a2">林仕鼎</a>工程师的talk，他演讲的主题叫做“Application-Driven Datacenter Computing”，介绍了他们家在做的面向应用的架构，以及整个搜索引擎的整个流程框架，同时，他还给出了一些蛮有趣的数据，比如在百度，一个做transaction的机器：</p>
 
