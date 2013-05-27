@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Android | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/android/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-05-26T21:49:02+08:00</updated>
+  <updated>2013-05-27T11:19:40+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -57,7 +57,7 @@
 
 <p>我们经常会看到CM7，CM8等等，这些都是CM的版本号，从<a href="http://en.wikipedia.org/wiki/CyanogenMod#Version_history">wiki</a>上的一张图可以很清楚的看出这些版本都是代表些什么意思：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-05-04-1.png" title="CM version" alt="CM version" /></p>
+<p><img src="http://ytliu.info/images/2013-05-04-1.png" title="CM version" alt="CM version" /></p>
 
 <hr />
 
@@ -463,7 +463,7 @@
 </pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">nfq_handle_packet</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">rv</span><span class="p">);</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
-<p>的时候就会将收到的包传给该函数进行处理，当然了，还可以像<a href="http://ytliu.github.io/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/">这里</a>一样通过<code>struct iphdr</code>和<code>struct tcphdr</code>结构体来获得payload里面的IP包头和TCP包的信息，对其进行处理。</p>
+<p>的时候就会将收到的包传给该函数进行处理，当然了，还可以像<a href="http://ytliu.info/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/">这里</a>一样通过<code>struct iphdr</code>和<code>struct tcphdr</code>结构体来获得payload里面的IP包头和TCP包的信息，对其进行处理。</p>
 
 <ul>
 <li>之后在jni目录下创建<code>Android.mk</code>文件：</li>
@@ -807,7 +807,7 @@
     <link href="http://ytliu.github.com/blog/2013/03/10/redexer-and-ocaml/"/>
     <updated>2013-03-10T09:53:00+08:00</updated>
     <id>http://ytliu.github.com/blog/2013/03/10/redexer-and-ocaml</id>
-    <content type="html"><![CDATA[<p>在<a href="http://ytliu.github.com/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/">上一篇博客</a>是一个用ruby和OCaml写的Dalvik binary rewriter，它提供了unparse, htmlunparse, id, combine, info, classes, api, opstat, cg, cfg, dom, pdom, dump_method等功能，还可以自己扩展相应的功能，具体的可以参看它的<a href="https://github.com/plum-umd/redexer">github主页</a>。</p>
+    <content type="html"><![CDATA[<p>在<a href="http://ytliu.info/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/">上一篇博客</a>是一个用ruby和OCaml写的Dalvik binary rewriter，它提供了unparse, htmlunparse, id, combine, info, classes, api, opstat, cg, cfg, dom, pdom, dump_method等功能，还可以自己扩展相应的功能，具体的可以参看它的<a href="https://github.com/plum-umd/redexer">github主页</a>。</p>
 
 <p>redexer主要原理就是将<code>.dex</code>文件按照<a href="http://source.android.com/tech/dalvik/dex-format.html">Dalvik Executable Format</a>映射到内存中的数据结构，然后根据这些数据结果进行分析，可以达到比较高的性能。</p>
 
@@ -828,7 +828,7 @@ state and I/O.
 
 <p>然后在<a href="http://stackoverflow.com/questions/2078978/functional-programming-vs-object-oriented-programming">stack overflow</a>里面有一个蛮经典的回答”When do you choose functional programming over object oriented ?“</p>
 
-<p><img src="http://ytliu.github.com/images/2013-03-10-1.png" title="answer" alt="stackoverflowans" /></p>
+<p><img src="http://ytliu.info/images/2013-03-10-1.png" title="answer" alt="stackoverflowans" /></p>
 
 <p>另外，在OCaml里面有很多FP的特性，比如 static type system, type inference, parametric polymorphism, tail recursion, pattern matching, first class lexical closures, functors (parametric modules), exception handling, and incremental generational automatic garbage collection等等，这些会在之后对OCaml的学习中慢慢弄清楚来吧~</p>
 ]]></content>
@@ -841,7 +841,7 @@ state and I/O.
     <id>http://ytliu.github.com/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi</id>
     <content type="html"><![CDATA[<p>故事得从几天前利小哥发现的<a href="www.xidashi.com">xidashi</a>说起：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-03-01-1.png" title="xidashi" alt="xidashi" /></p>
+<p><img src="http://ytliu.info/images/2013-03-01-1.png" title="xidashi" alt="xidashi" /></p>
 
 <p>洗大师是一个android的安全应用软件+第三方应用市场，它的功能和特点简单来说就是：</p>
 
@@ -882,9 +882,9 @@ state and I/O.
 
 <p>这篇文章采用了第二种方式，而它的方法其实是很直观的：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-03-01-2.png" title="Mr. Hide" alt="mrhide" /></p>
+<p><img src="http://ytliu.info/images/2013-03-01-2.png" title="Mr. Hide" alt="mrhide" /></p>
 
-<p><img src="http://ytliu.github.com/images/2013-03-01-3.png" title="Dr. Android" alt="drandroid" /></p>
+<p><img src="http://ytliu.info/images/2013-03-01-3.png" title="Dr. Android" alt="drandroid" /></p>
 
 <ul>
 <li>首先，将apk中的粗粒度权限换成细粒度权限；</li>

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: OCaml | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/ocaml/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-05-26T21:49:02+08:00</updated>
+  <updated>2013-05-27T11:19:40+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -18,7 +18,7 @@
     <link href="http://ytliu.github.com/blog/2013/03/10/redexer-and-ocaml/"/>
     <updated>2013-03-10T09:53:00+08:00</updated>
     <id>http://ytliu.github.com/blog/2013/03/10/redexer-and-ocaml</id>
-    <content type="html"><![CDATA[<p>在<a href="http://ytliu.github.com/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/">上一篇博客</a>是一个用ruby和OCaml写的Dalvik binary rewriter，它提供了unparse, htmlunparse, id, combine, info, classes, api, opstat, cg, cfg, dom, pdom, dump_method等功能，还可以自己扩展相应的功能，具体的可以参看它的<a href="https://github.com/plum-umd/redexer">github主页</a>。</p>
+    <content type="html"><![CDATA[<p>在<a href="http://ytliu.info/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/">上一篇博客</a>是一个用ruby和OCaml写的Dalvik binary rewriter，它提供了unparse, htmlunparse, id, combine, info, classes, api, opstat, cg, cfg, dom, pdom, dump_method等功能，还可以自己扩展相应的功能，具体的可以参看它的<a href="https://github.com/plum-umd/redexer">github主页</a>。</p>
 
 <p>redexer主要原理就是将<code>.dex</code>文件按照<a href="http://source.android.com/tech/dalvik/dex-format.html">Dalvik Executable Format</a>映射到内存中的数据结构，然后根据这些数据结果进行分析，可以达到比较高的性能。</p>
 
@@ -39,7 +39,7 @@ state and I/O.
 
 <p>然后在<a href="http://stackoverflow.com/questions/2078978/functional-programming-vs-object-oriented-programming">stack overflow</a>里面有一个蛮经典的回答”When do you choose functional programming over object oriented ?“</p>
 
-<p><img src="http://ytliu.github.com/images/2013-03-10-1.png" title="answer" alt="stackoverflowans" /></p>
+<p><img src="http://ytliu.info/images/2013-03-10-1.png" title="answer" alt="stackoverflowans" /></p>
 
 <p>另外，在OCaml里面有很多FP的特性，比如 static type system, type inference, parametric polymorphism, tail recursion, pattern matching, first class lexical closures, functors (parametric modules), exception handling, and incremental generational automatic garbage collection等等，这些会在之后对OCaml的学习中慢慢弄清楚来吧~</p>
 ]]></content>

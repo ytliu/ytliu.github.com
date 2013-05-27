@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ruby | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/ruby/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-05-26T21:49:02+08:00</updated>
+  <updated>2013-05-27T11:19:40+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -124,7 +124,7 @@ gem install mime
 
 <p>这里<em>.map</em>是对Array里面的所有元素都做一遍to_f操作变成一个新的Array，<em>.inject(0)</em>则是在为之后的reduce赋一个初始值0，之后每一次reduce都进行一次<em>a + e</em>的操作，将a作为输出，然后再将<em>a, e</em>作为输入。举一个例子：</p>
 
-<p><img src="http://ytliu.github.com/images/2012-04-01-1.png" title="reduce example" alt="example-1" /></p>
+<p><img src="http://ytliu.info/images/2012-04-01-1.png" title="reduce example" alt="example-1" /></p>
 
 <p>希望之后还有什么需要的都可以用ruby来尝试下，然后再慢慢地学习ruby on rails，不会忘记我的梦想滴~</p>
 ]]></content>

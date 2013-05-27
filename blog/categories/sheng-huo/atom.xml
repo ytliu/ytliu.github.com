@@ -4,7 +4,7 @@
   <title><![CDATA[Category: 生活 | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/sheng-huo/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-05-26T21:49:02+08:00</updated>
+  <updated>2013-05-27T11:19:40+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -95,7 +95,7 @@
 
 <p>到上海之后两天就和实验室一起去常州南山和天目湖春游了，爬了两天的山，脚好酸，感觉自己太弱了！最后放一张图作为结束吧（感觉这张照片的构图很不错，最后那个摆出V字形的就是弱弱的我啦啦啦）</p>
 
-<p><img src="http://ytliu.github.com/images/2013-05-22-1.png" title="IPADS Image" alt="IPADS Image" /></p>
+<p><img src="http://ytliu.info/images/2013-05-22-1.jpeg" title="IPADS Image" alt="IPADS Image" /></p>
 ]]></content>
   </entry>
   
@@ -228,7 +228,7 @@
 </code></pre>
 
 <p>其实讲了那么多，大部分是motivation，就是用一种反向工程的方式来做VMI。但我对这篇paper最感兴趣的是这个reverse engineering的方法！这个方法由作者的一张图可以很清晰地表达出来：
-<img src="http://ytliu.github.com/images/2012-02-12-1.png" title="An example of Virtuoso's usage" alt="Virtuoso's usage" /></p>
+<img src="http://ytliu.info/images/2012-02-12-1.png" title="An example of Virtuoso's usage" alt="Virtuoso's usage" /></p>
 
 <p>整个过程由log trace, trace analyze, instruction translator, run outside of VM等步骤组成，具体的流程或许说几千个字都说不完，这里也不纠缠了，如果有兴趣可以自己去看，这里想提下的就是里面提到的几个理论和工具，这些是我很想去尝试下的：</p>
 

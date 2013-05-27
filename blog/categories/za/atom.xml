@@ -4,7 +4,7 @@
   <title><![CDATA[Category: 杂 | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/za/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-05-26T21:49:02+08:00</updated>
+  <updated>2013-05-27T11:19:40+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -131,16 +131,12 @@
     <link href="http://ytliu.github.com/blog/2011/12/21/markdownyu-fa-ce-shi/"/>
     <updated>2011-12-21T15:17:00+08:00</updated>
     <id>http://ytliu.github.com/blog/2011/12/21/markdownyu-fa-ce-shi</id>
-    <content type="html"><![CDATA[<p><a href="http://ytliu.github.com">http://ytliu.github.com</a></p>
+    <content type="html"><![CDATA[<p><a href="http://ytliu.info">http://ytliu.info</a></p>
 
-<p>[mctrain](http://ytliu.github.com "mctrain's blog")  <br/>
-<a href="http://ytliu.github.com" title="mctrain's blog">mctrain</a>  <br/>
-<a href="http://ytliu.github.com" title="mctrain's blog">mctrain-2</a></p>
-
-<pre><code>    ![pic](http://ytliu.github.com/images/search.png "pic")
-</code></pre>
-
-<p><img src="http://ytliu.github.com/images/search.png" title="pic" alt="pic" /></p>
+<p>[mctrain](http://ytliu.info "mctrain's blog")  <br/>
+<a href="http://ytliu.info" title="mctrain's blog">mctrain</a>  <br/>
+<a href="http://ytliu.info" title="mctrain's blog">mctrain-2</a> <br/>
+<img src="http://ytliu.info/images/search.png" title="pic" alt="pic" /></p>
 
 <pre><code>    #title1
 </code></pre>

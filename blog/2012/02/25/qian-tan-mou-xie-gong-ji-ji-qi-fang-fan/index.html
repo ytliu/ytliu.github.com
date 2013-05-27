@@ -61,9 +61,6 @@
   
 <ul class="main-navigation">
   <li><a href="/">Home</a></li>
-  <li><a href="/blog">Blog</a></li>
-  <li><a href="/blog/archives">Archives</a></li>
-  <li><a href="/notes">Notes</a></li>
 </ul>
 
 </nav>
@@ -123,7 +120,7 @@
 
 <p><em>bf</em>最简单的攻击就是修改函数调用的return address，canaries即是在进入函数栈时在压入的return address之后再加入一个4位的随机数（canaries），如果攻击者改了return address那么canaries也会被改，那么系统在返回时将会报错。但是也有可能在函数返回之前调用一些函数变量，variable reordering则是将变量的顺序进行调整使得攻击者无法对本地变量进行overwrite，这两个技术都是靠编译器支持的，如果开启了这两种保护，栈上的结构将会变成这样：</p>
 
-<p><img src="http://ytliu.github.com/images/2012-02-25-1.png" title="stack layout" alt="stack layout with or without GS protection" /></p>
+<p><img src="http://ytliu.info/images/2012-02-25-1.png" title="stack layout" alt="stack layout with or without GS protection" /></p>
 
 <p>这两种机制的缺点很明显，对于canaries，它只能保护函数返回时的控制流变化，而且<em>canaries</em>也有可能被破解，对于<em>vr</em>它只支持有限种类的变量reordering，对于一些结构体的保护就不是很好。</p>
 
@@ -137,7 +134,7 @@
 
 <p>文中举了个简单但是明了的例子，虽然不同系统中对heap的实现大同小异，但原理都是一样的。在本文的例子中，堆的结构是这样的：</p>
 
-<p><img src="http://ytliu.github.com/images/2012-02-25-2.png" title="heap layout" alt="heap layout" /></p>
+<p><img src="http://ytliu.info/images/2012-02-25-2.png" title="heap layout" alt="heap layout" /></p>
 
 <p>每一个被回收的堆都有一个带有信息的头结构，里面包含了next, prev, size, used的信息，而在free操作过后都会有一个merge的操作，即将相邻的两个free的堆merge起来从而避免fragmentation，在这个merge操作中有一个非常关键的操作：</p>
 
@@ -147,7 +144,7 @@
 
 <p>而系统在计算<em>next->prev</em>时会先得到next的地址然后加4，于是攻击者就可以通过buffer overflow将堆的头结构改成以下内容（这里要说明下，heap的overflow可以通过integer的overflow来实现，具体可参阅文章前半部分）：</p>
 
-<p><img src="http://ytliu.github.com/images/2012-02-25-3.png" title="heap header layout" alt="heap header layout" /></p>
+<p><img src="http://ytliu.info/images/2012-02-25-3.png" title="heap header layout" alt="heap header layout" /></p>
 
 <p>将next中的地址指向栈中存放<em>return address + 4</em>的地址，然后<em>next + 4</em>即为return address，将其地址通过那步关键操作赋值成攻击者注入的恶意代码的地址，即可达到目的。</p>
 
@@ -295,50 +292,6 @@
   <p>My name is Liu Yutao and this is my blog. I am a Ph.D candidate in <a href="http://ipads.se.sjtu.edu.cn/" >IPADS</a> of SJTU, and this is my <a href="http://ipads.se.sjtu.edu.cn/doku.php?id=pub:members:yutao_liu">Homepage</a>.</p>
   <p>E-mail me at mctrain016@gmail.com if you have any questions or comments.</p>
 </section>
-<section>
-  <h1>Recent Posts</h1>
-  <ul id="recent_posts">
-    
-      <li class="post">
-        <a href="/blog/2013/05/22/chinasysxiao-ji/">ChinaSys小记（2013.5）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/05/04/androidde-na-xie-shi-cyanogenmod/">Android的那些事 - CyanogenMod</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/04/30/xi-tong-diao-yong-xue-xi-bi-ji-ptrace/">系统调用学习笔记 - ptrace和wait</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-linuxxi-tong-diao-yong-biao-%28zhuan-%29/">系统调用学习笔记 - Linux系统调用表（转）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/04/14/tong-bu-yuan-yu-xue-xi-bi-ji-lock%2Crcuhe-transaction/">同步原语学习笔记 - Lock，RCU和Transaction Memory</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/04/09/netfilterxue-xi-bi-ji-%28san-%29/">Netfilter学习笔记（三）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/">Netfilter学习笔记（二）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28yi-%29/">Netfilter学习笔记（一）</a>
-      </li>
-    
-  </ul>
-</section>
-
-<section>
-<h1>分類</h1>
-<span class='categories_tag'> <a href='/blog/categories/android' style='font-size: 160.0%'>Android(15)</a>  <a href='/blog/categories/attack' style='font-size: 104.0%'>Attack(1)</a>  <a href='/blog/categories/cloud' style='font-size: 104.0%'>Cloud(1)</a>  <a href='/blog/categories/git' style='font-size: 108.0%'>Git(2)</a>  <a href='/blog/categories/life' style='font-size: 104.0%'>Life(1)</a>  <a href='/blog/categories/linux' style='font-size: 116.0%'>Linux(4)</a>  <a href='/blog/categories/mobile' style='font-size: 104.0%'>Mobile(1)</a>  <a href='/blog/categories/network' style='font-size: 112.0%'>Network(3)</a>  <a href='/blog/categories/ocaml' style='font-size: 104.0%'>Ocaml(1)</a>  <a href='/blog/categories/opennebula' style='font-size: 104.0%'>Opennebula(1)</a>  <a href='/blog/categories/paper' style='font-size: 116.0%'>Paper(4)</a>  <a href='/blog/categories/qemu' style='font-size: 104.0%'>Qemu(1)</a>  <a href='/blog/categories/ruby' style='font-size: 104.0%'>Ruby(1)</a>  <a href='/blog/categories/ruby' style='font-size: 104.0%'>Ruby(1)</a>  <a href='/blog/categories/security' style='font-size: 116.0%'>Security(4)</a>  <a href='/blog/categories/security' style='font-size: 104.0%'>Security(1)</a>  <a href='/blog/categories/system' style='font-size: 108.0%'>System(2)</a>  <a href='/blog/categories/人生' style='font-size: 108.0%'>人生(2)</a>  <a href='/blog/categories/周计划' style='font-size: 108.0%'>周计划(2)</a>  <a href='/blog/categories/杂' style='font-size: 112.0%'>杂(3)</a>  <a href='/blog/categories/梦想' style='font-size: 104.0%'>梦想(1)</a>  <a href='/blog/categories/生活' style='font-size: 120.0%'>生活(5)</a> </span>
-</section>
-
 <iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=0&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=1961136593&verifier=9b2b2fd0&dpc=1"></iframe>
 
   

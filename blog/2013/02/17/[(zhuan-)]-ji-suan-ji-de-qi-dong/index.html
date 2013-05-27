@@ -61,9 +61,6 @@
   
 <ul class="main-navigation">
   <li><a href="/">Home</a></li>
-  <li><a href="/blog">Blog</a></li>
-  <li><a href="/blog/archives">Archives</a></li>
-  <li><a href="/notes">Notes</a></li>
 </ul>
 
 </nav>
@@ -129,7 +126,7 @@
 
 <p>上个世纪70年代初，&#8221;只读内存&#8221;（read-only memory，缩写为ROM）发明，开机程序被刷入ROM芯片，计算机通电后，第一件事就是读取它。</p>
 
-<p><img src="http://ytliu.github.com/images/2013-02-17-1.png" title="BIOS" alt="BIOS" /></p>
+<p><img src="http://ytliu.info/images/2013-02-17-1.png" title="BIOS" alt="BIOS" /></p>
 
 <p>这块芯片里的程序叫做&#8221;基本輸出輸入系統&#8221;（Basic Input/Output System），简称为BIOS。</p>
 
@@ -149,7 +146,7 @@
 
 <p>打开BIOS的操作界面，里面有一项就是&#8221;设定启动顺序&#8221;。</p>
 
-<p><img src="http://ytliu.github.com/images/2013-02-17-2.png" title="BIOS Sequence" alt="BIOS Sequence" /></p>
+<p><img src="http://ytliu.info/images/2013-02-17-2.png" title="BIOS Sequence" alt="BIOS Sequence" /></p>
 
 <h4>二、第二阶段：主引导记录</h4>
 
@@ -220,7 +217,7 @@
 
 <p>Linux环境中，目前最流行的启动管理器是Grub。</p>
 
-<p><img src="http://ytliu.github.com/images/2013-02-17-3.png" title="Grub" alt="Grub" /></p>
+<p><img src="http://ytliu.info/images/2013-02-17-3.png" title="Grub" alt="Grub" /></p>
 
 <p>对于grub而言，在MBR中的446字节的引导程序属于GRUB的开始执行程序，通过这段程序，进一步执行stage1.5或是stage2的执行程序，将在下面详细介绍执行过程。</p>
 
@@ -268,23 +265,23 @@
 
 <p>对于传统MBR，其结构主要如下：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-02-17-4.png" title="BIOS Graph" alt="BIOS Graph" /></p>
+<p><img src="http://ytliu.info/images/2013-02-17-4.png" title="BIOS Graph" alt="BIOS Graph" /></p>
 
 <p>上图即对上文中所述的很形象的说明，在图中看到MBR被分成三个部分，分别是：Bootloader、分别表以及Magic Number。其中Bootloader部分为stage1中被执行的起始部分。</p>
 
 <p>相反，对于EFI系统中所采用的GPT分区方式，则采用了不同于MBR分区方式的形式，从下图中可以发现：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-02-17-5.png" title="EFI Graph" alt="EFI Graph" /></p>
+<p><img src="http://ytliu.info/images/2013-02-17-5.png" title="EFI Graph" alt="EFI Graph" /></p>
 
 <p>如上图所示，GPT分区表主要包括：保护MBR、首要GPT头、首要GPT、备用GPT、备用GPT头和磁盘数据区。保护MBR与正常的MBR区别不大，主要是分区表上的不同，在保护MBR中只要一个表示为0xEE的分区，以此来表示这块硬盘使用GPT分区表。首要GPT头包含了众多信息，具体内容如下：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-02-17-6.png" title="EFI Table" alt="EFI Table" /></p>
+<p><img src="http://ytliu.info/images/2013-02-17-6.png" title="EFI Table" alt="EFI Table" /></p>
 
 <p>分区表头定义了硬盘的可用空间以及组成分区表的项的大小和数量。分区表头还记录了这块硬盘的GUID，记录了分区表头本身的位置和大小（位置总是在LBA1）以及备份分区表头和分区表的位置和大小（在硬盘的最后）。它还存储着它本身和分区表的CRC32校验。固件、引导程序和操作系统在启动时可以根据这个校验值来判断分区表是否有错误，如果出错了，可以使用软件从硬盘最后的备份GPT分区表恢复整个分区表，如果备份GPT也校验错误，那么磁盘将不可用，系统拒绝启动。</p>
 
 <p>接下来主要是128个分区表项，GPT分区表使用简单而直接的方式表示分区。一个分区表项的前16字节是分区类型GUID。例如，EFI系统分区的GUID类型是{C12A7328-F81F-11D2-BA4B-00A0C93EC93B} 。接下来的16字节是该分区的唯一的GUID（这个指的是该分区本身，而之前的GUID指的是该分区的类型）。在接下来是分区其实和末尾的64位LBA编号，以及分区的名字和属性。具体结构如下表：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-02-17-7.png" title="EFI Table2" alt="EFI Table2" /></p>
+<p><img src="http://ytliu.info/images/2013-02-17-7.png" title="EFI Table2" alt="EFI Table2" /></p>
 
 <h4>MBR引导</h4>
 
@@ -449,50 +446,6 @@
   <p>My name is Liu Yutao and this is my blog. I am a Ph.D candidate in <a href="http://ipads.se.sjtu.edu.cn/" >IPADS</a> of SJTU, and this is my <a href="http://ipads.se.sjtu.edu.cn/doku.php?id=pub:members:yutao_liu">Homepage</a>.</p>
   <p>E-mail me at mctrain016@gmail.com if you have any questions or comments.</p>
 </section>
-<section>
-  <h1>Recent Posts</h1>
-  <ul id="recent_posts">
-    
-      <li class="post">
-        <a href="/blog/2013/05/22/chinasysxiao-ji/">ChinaSys小记（2013.5）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/05/04/androidde-na-xie-shi-cyanogenmod/">Android的那些事 - CyanogenMod</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/04/30/xi-tong-diao-yong-xue-xi-bi-ji-ptrace/">系统调用学习笔记 - ptrace和wait</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-linuxxi-tong-diao-yong-biao-%28zhuan-%29/">系统调用学习笔记 - Linux系统调用表（转）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/04/14/tong-bu-yuan-yu-xue-xi-bi-ji-lock%2Crcuhe-transaction/">同步原语学习笔记 - Lock，RCU和Transaction Memory</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/04/09/netfilterxue-xi-bi-ji-%28san-%29/">Netfilter学习笔记（三）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/">Netfilter学习笔记（二）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28yi-%29/">Netfilter学习笔记（一）</a>
-      </li>
-    
-  </ul>
-</section>
-
-<section>
-<h1>分類</h1>
-<span class='categories_tag'> <a href='/blog/categories/android' style='font-size: 160.0%'>Android(15)</a>  <a href='/blog/categories/attack' style='font-size: 104.0%'>Attack(1)</a>  <a href='/blog/categories/cloud' style='font-size: 104.0%'>Cloud(1)</a>  <a href='/blog/categories/git' style='font-size: 108.0%'>Git(2)</a>  <a href='/blog/categories/life' style='font-size: 104.0%'>Life(1)</a>  <a href='/blog/categories/linux' style='font-size: 116.0%'>Linux(4)</a>  <a href='/blog/categories/mobile' style='font-size: 104.0%'>Mobile(1)</a>  <a href='/blog/categories/network' style='font-size: 112.0%'>Network(3)</a>  <a href='/blog/categories/ocaml' style='font-size: 104.0%'>Ocaml(1)</a>  <a href='/blog/categories/opennebula' style='font-size: 104.0%'>Opennebula(1)</a>  <a href='/blog/categories/paper' style='font-size: 116.0%'>Paper(4)</a>  <a href='/blog/categories/qemu' style='font-size: 104.0%'>Qemu(1)</a>  <a href='/blog/categories/ruby' style='font-size: 104.0%'>Ruby(1)</a>  <a href='/blog/categories/ruby' style='font-size: 104.0%'>Ruby(1)</a>  <a href='/blog/categories/security' style='font-size: 116.0%'>Security(4)</a>  <a href='/blog/categories/security' style='font-size: 104.0%'>Security(1)</a>  <a href='/blog/categories/system' style='font-size: 108.0%'>System(2)</a>  <a href='/blog/categories/人生' style='font-size: 108.0%'>人生(2)</a>  <a href='/blog/categories/周计划' style='font-size: 108.0%'>周计划(2)</a>  <a href='/blog/categories/杂' style='font-size: 112.0%'>杂(3)</a>  <a href='/blog/categories/梦想' style='font-size: 104.0%'>梦想(1)</a>  <a href='/blog/categories/生活' style='font-size: 120.0%'>生活(5)</a> </span>
-</section>
-
 <iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=0&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=1961136593&verifier=9b2b2fd0&dpc=1"></iframe>
 
   

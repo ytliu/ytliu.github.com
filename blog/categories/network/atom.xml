@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Network | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/network/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-05-26T21:49:02+08:00</updated>
+  <updated>2013-05-27T11:19:40+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -390,7 +390,7 @@
 </pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">nfq_handle_packet</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">rv</span><span class="p">);</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
-<p>的时候就会将收到的包传给该函数进行处理，当然了，还可以像<a href="http://ytliu.github.io/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/">这里</a>一样通过<code>struct iphdr</code>和<code>struct tcphdr</code>结构体来获得payload里面的IP包头和TCP包的信息，对其进行处理。</p>
+<p>的时候就会将收到的包传给该函数进行处理，当然了，还可以像<a href="http://ytliu.info/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/">这里</a>一样通过<code>struct iphdr</code>和<code>struct tcphdr</code>结构体来获得payload里面的IP包头和TCP包的信息，对其进行处理。</p>
 
 <ul>
 <li>之后在jni目录下创建<code>Android.mk</code>文件：</li>
@@ -837,7 +837,7 @@ $ mv scapy-latest.zip /usr/local/bin/scapy
 
 <p>网络栈中对netfilter的支持如图所示：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-03-29-1.png" title="package flow in netfiter and general networking" alt="netfilter" /></p>
+<p><img src="http://ytliu.info/images/2013-03-29-1.png" title="package flow in netfiter and general networking" alt="netfilter" /></p>
 
 <p>可以看到在链路层和网络层中按照封包流的路径有五种类型的hooks: prerouting, input, forward, output, postrouting。这五种hooks会在封包到达之时按照封包流的顺序调用相应的回调函数，对四种类型的表中的chain（会在iptables中描述）进行过滤和修改：filter, nat, mangle, raw。而定义这些过滤的规则则是由一个用户态的命令<code>iptables</code>进行配置，也就是我接下来要详细描述的命令。</p>
 

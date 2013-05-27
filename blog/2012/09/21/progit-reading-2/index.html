@@ -61,9 +61,6 @@
   
 <ul class="main-navigation">
   <li><a href="/">Home</a></li>
-  <li><a href="/blog">Blog</a></li>
-  <li><a href="/blog/archives">Archives</a></li>
-  <li><a href="/notes">Notes</a></li>
 </ul>
 
 </nav>
@@ -107,7 +104,7 @@
 
 <p>git中的文件有以下几种状态，而所有的命令也就是对于这几种状态的查看和转换：</p>
 
-<p><img src="http://ytliu.github.com/images/2012-09-16-4.png" title="git file status" alt="git file status" /></p>
+<p><img src="http://ytliu.info/images/2012-09-16-4.png" title="git file status" alt="git file status" /></p>
 
 <p>一般情况下，在新建一个文件后，需要<em>git add</em>将其变成tracked file，如果修改了一个该文件，则同样需要使用<em>git add</em>将其变成staged file，只有staged的文件才会在<em>git commit</em>的时候commit成功。</p>
 
@@ -223,15 +220,15 @@ $ git config --global alias.last 'log -1 HEAD'
 
 <p>git branch的抽象是这样子的，每次commit都会产生一个commit object:</p>
 
-<p><img src="http://ytliu.github.com/images/2012-09-16-5.png" title="commit object" alt="commit object" /></p>
+<p><img src="http://ytliu.info/images/2012-09-16-5.png" title="commit object" alt="commit object" /></p>
 
 <p>而一个branch则有一个个commit object通过pointer串起来的:</p>
 
-<p><img src="http://ytliu.github.com/images/2012-09-16-6.png" title="branch" alt="branch" /></p>
+<p><img src="http://ytliu.info/images/2012-09-16-6.png" title="branch" alt="branch" /></p>
 
 <p>在整个git目录中有一个很特别的index叫做HEAD，它指向了当前的branch:</p>
 
-<p><img src="http://ytliu.github.com/images/2012-09-16-7.png" title="current branch" alt="current branch" /></p>
+<p><img src="http://ytliu.info/images/2012-09-16-7.png" title="current branch" alt="current branch" /></p>
 
 <p>之后，就是对branch的一些操作:</p>
 
@@ -254,11 +251,11 @@ $ git merge another_branch
 
 <p>如果两个branch不在一个history中(如图所示):</p>
 
-<p><img src="http://ytliu.github.com/images/2012-09-16-8.png" title="merge branch 1" alt="merge branch 1" /></p>
+<p><img src="http://ytliu.info/images/2012-09-16-8.png" title="merge branch 1" alt="merge branch 1" /></p>
 
 <p>则会找到一个common ancestor，之后创建一个新的commit object，它的parents为两个branch，</p>
 
-<p><img src="http://ytliu.github.com/images/2012-09-16-9.png" title="merge branch 2" alt="merge branch 2" /></p>
+<p><img src="http://ytliu.info/images/2012-09-16-9.png" title="merge branch 2" alt="merge branch 2" /></p>
 
 <p>如果两个branch有conflic，则需要通过diff工具进行merge，merge完之后用<em>git add</em>和<em>git commit</em>进行确认。</p>
 
@@ -285,15 +282,15 @@ $ git push local_name :branch_name  # delete a remote branch from the server
 
 <p>和merge不同，rebase是将一个branch的改动replay到另一个branch上，比如说，一个简单的例子:</p>
 
-<p><img src="http://ytliu.github.com/images/2012-09-16-10.png" title="rebase branch 1" alt="rebase branch 1" /></p>
+<p><img src="http://ytliu.info/images/2012-09-16-10.png" title="rebase branch 1" alt="rebase branch 1" /></p>
 
 <p>以experiment为current branch，<em>git merge master</em>的结果是这样的:</p>
 
-<p><img src="http://ytliu.github.com/images/2012-09-16-11.png" title="rebase branch 2" alt="rebase branch 2" /></p>
+<p><img src="http://ytliu.info/images/2012-09-16-11.png" title="rebase branch 2" alt="rebase branch 2" /></p>
 
 <p>而以experiment为current branch，<em>git rebase master</em>的结果是这样的:</p>
 
-<p><img src="http://ytliu.github.com/images/2012-09-16-12.png" title="rebase branch 3" alt="rebase branch 3" /></p>
+<p><img src="http://ytliu.info/images/2012-09-16-12.png" title="rebase branch 3" alt="rebase branch 3" /></p>
 
 <p>它的过程是这样的：先找到一个common ancestor，将两个branch的diff结果保存到一个文件里面，将当前的branch重新设成新的branch，之后将这些diff都应用到这个branch中。</p>
 
@@ -325,7 +322,7 @@ $ git show HEAD~2   # see the grandparent commit of HEAD...
 
 <p>另外也可以看commit range，比如如图所示:</p>
 
-<p><img src="http://ytliu.github.com/images/2012-09-16-13.png" title="commit range" alt="commit range" /></p>
+<p><img src="http://ytliu.info/images/2012-09-16-13.png" title="commit range" alt="commit range" /></p>
 
 <p>branch1..branch2的意思是: all commits reachable by branch2 that aren&#8217;t reachable by branch1。</p>
 
@@ -535,50 +532,6 @@ $ git config --global color.diff [true | false | always]
   <p>My name is Liu Yutao and this is my blog. I am a Ph.D candidate in <a href="http://ipads.se.sjtu.edu.cn/" >IPADS</a> of SJTU, and this is my <a href="http://ipads.se.sjtu.edu.cn/doku.php?id=pub:members:yutao_liu">Homepage</a>.</p>
   <p>E-mail me at mctrain016@gmail.com if you have any questions or comments.</p>
 </section>
-<section>
-  <h1>Recent Posts</h1>
-  <ul id="recent_posts">
-    
-      <li class="post">
-        <a href="/blog/2013/05/22/chinasysxiao-ji/">ChinaSys小记（2013.5）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/05/04/androidde-na-xie-shi-cyanogenmod/">Android的那些事 - CyanogenMod</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/04/30/xi-tong-diao-yong-xue-xi-bi-ji-ptrace/">系统调用学习笔记 - ptrace和wait</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-linuxxi-tong-diao-yong-biao-%28zhuan-%29/">系统调用学习笔记 - Linux系统调用表（转）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/04/14/tong-bu-yuan-yu-xue-xi-bi-ji-lock%2Crcuhe-transaction/">同步原语学习笔记 - Lock，RCU和Transaction Memory</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/04/09/netfilterxue-xi-bi-ji-%28san-%29/">Netfilter学习笔记（三）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/">Netfilter学习笔记（二）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28yi-%29/">Netfilter学习笔记（一）</a>
-      </li>
-    
-  </ul>
-</section>
-
-<section>
-<h1>分類</h1>
-<span class='categories_tag'> <a href='/blog/categories/android' style='font-size: 160.0%'>Android(15)</a>  <a href='/blog/categories/attack' style='font-size: 104.0%'>Attack(1)</a>  <a href='/blog/categories/cloud' style='font-size: 104.0%'>Cloud(1)</a>  <a href='/blog/categories/git' style='font-size: 108.0%'>Git(2)</a>  <a href='/blog/categories/life' style='font-size: 104.0%'>Life(1)</a>  <a href='/blog/categories/linux' style='font-size: 116.0%'>Linux(4)</a>  <a href='/blog/categories/mobile' style='font-size: 104.0%'>Mobile(1)</a>  <a href='/blog/categories/network' style='font-size: 112.0%'>Network(3)</a>  <a href='/blog/categories/ocaml' style='font-size: 104.0%'>Ocaml(1)</a>  <a href='/blog/categories/opennebula' style='font-size: 104.0%'>Opennebula(1)</a>  <a href='/blog/categories/paper' style='font-size: 116.0%'>Paper(4)</a>  <a href='/blog/categories/qemu' style='font-size: 104.0%'>Qemu(1)</a>  <a href='/blog/categories/ruby' style='font-size: 104.0%'>Ruby(1)</a>  <a href='/blog/categories/ruby' style='font-size: 104.0%'>Ruby(1)</a>  <a href='/blog/categories/security' style='font-size: 116.0%'>Security(4)</a>  <a href='/blog/categories/security' style='font-size: 104.0%'>Security(1)</a>  <a href='/blog/categories/system' style='font-size: 108.0%'>System(2)</a>  <a href='/blog/categories/人生' style='font-size: 108.0%'>人生(2)</a>  <a href='/blog/categories/周计划' style='font-size: 108.0%'>周计划(2)</a>  <a href='/blog/categories/杂' style='font-size: 112.0%'>杂(3)</a>  <a href='/blog/categories/梦想' style='font-size: 104.0%'>梦想(1)</a>  <a href='/blog/categories/生活' style='font-size: 120.0%'>生活(5)</a> </span>
-</section>
-
 <iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=0&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=1961136593&verifier=9b2b2fd0&dpc=1"></iframe>
 
   

@@ -61,9 +61,6 @@
   
 <ul class="main-navigation">
   <li><a href="/">Home</a></li>
-  <li><a href="/blog">Blog</a></li>
-  <li><a href="/blog/archives">Archives</a></li>
-  <li><a href="/notes">Notes</a></li>
 </ul>
 
 </nav>
@@ -151,13 +148,13 @@
 
 <p>为了减小等待message的时间，有一种解决方法叫GOLL:</p>
 
-<p><img src="http://ytliu.github.com/images/2013-04-14-01.png" title="GOLL" alt="GOLL" /></p>
+<p><img src="http://ytliu.info/images/2013-04-14-01.png" title="GOLL" alt="GOLL" /></p>
 
 <p>即构造一棵二叉树，两个reader共享一个activeReader，而对于writer来说，只要其子节点存在activeReader，则它就为1。</p>
 
 <p>另外一种方法叫BR lock：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-04-14-02.png" title="big reader lock" alt="BRLock" /></p>
+<p><img src="http://ytliu.info/images/2013-04-14-02.png" title="big reader lock" alt="BRLock" /></p>
 
 <p>和GOLL相比，它为每一个reader都维护一个变量，这样在reader之间都完全不会存在message，但是对于writer来说，它的overhead则增大了很多，在writer进入CS之前，需要所有的reader都发message给它。</p>
 
@@ -213,7 +210,7 @@
 
 <p>除了lock之后，还有一种同步原语叫RCU：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-04-14-03.png" title="RCU" alt="RCU" /></p>
+<p><img src="http://ytliu.info/images/2013-04-14-03.png" title="RCU" alt="RCU" /></p>
 
 <p>RCU最大的特点在于writer可以在reader进行读取操作的时候直接修改，不过需要注意的是，这里的修改是这样的：</p>
 
@@ -238,7 +235,7 @@
 
 <p>这里注意在Reader的代码中，<code>rcu_read_lock()</code>会关闭中断，禁止在一个核中其它进程的抢断，而<code>rcu_read_unlock()</code>则会打开中断，恢复抢断机制。于是writer就可以根据reader进程是否进行过context switch来判断说是否对Shared_data的读过程是否全部结束了：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-04-14-04.png" title="RCU Figure" alt="RCU figure 2" /></p>
+<p><img src="http://ytliu.info/images/2013-04-14-04.png" title="RCU Figure" alt="RCU figure 2" /></p>
 
 <p>RCU还要考虑的一个问题是在reader中是否能允许sleep？因为如果一个reader在读的过程中如果碰到一段IO操作，那么它如果不sleep的话，则会很大地浪费CPU资源，而如果sleep的话，则会发生一次context switch，而此时，读的过程其实并没有结束，与RCU的语义就不符了。</p>
 
@@ -329,50 +326,6 @@
   <p>My name is Liu Yutao and this is my blog. I am a Ph.D candidate in <a href="http://ipads.se.sjtu.edu.cn/" >IPADS</a> of SJTU, and this is my <a href="http://ipads.se.sjtu.edu.cn/doku.php?id=pub:members:yutao_liu">Homepage</a>.</p>
   <p>E-mail me at mctrain016@gmail.com if you have any questions or comments.</p>
 </section>
-<section>
-  <h1>Recent Posts</h1>
-  <ul id="recent_posts">
-    
-      <li class="post">
-        <a href="/blog/2013/05/22/chinasysxiao-ji/">ChinaSys小记（2013.5）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/05/04/androidde-na-xie-shi-cyanogenmod/">Android的那些事 - CyanogenMod</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/04/30/xi-tong-diao-yong-xue-xi-bi-ji-ptrace/">系统调用学习笔记 - ptrace和wait</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-linuxxi-tong-diao-yong-biao-%28zhuan-%29/">系统调用学习笔记 - Linux系统调用表（转）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/04/14/tong-bu-yuan-yu-xue-xi-bi-ji-lock%2Crcuhe-transaction/">同步原语学习笔记 - Lock，RCU和Transaction Memory</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/04/09/netfilterxue-xi-bi-ji-%28san-%29/">Netfilter学习笔记（三）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/">Netfilter学习笔记（二）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28yi-%29/">Netfilter学习笔记（一）</a>
-      </li>
-    
-  </ul>
-</section>
-
-<section>
-<h1>分類</h1>
-<span class='categories_tag'> <a href='/blog/categories/android' style='font-size: 160.0%'>Android(15)</a>  <a href='/blog/categories/attack' style='font-size: 104.0%'>Attack(1)</a>  <a href='/blog/categories/cloud' style='font-size: 104.0%'>Cloud(1)</a>  <a href='/blog/categories/git' style='font-size: 108.0%'>Git(2)</a>  <a href='/blog/categories/life' style='font-size: 104.0%'>Life(1)</a>  <a href='/blog/categories/linux' style='font-size: 116.0%'>Linux(4)</a>  <a href='/blog/categories/mobile' style='font-size: 104.0%'>Mobile(1)</a>  <a href='/blog/categories/network' style='font-size: 112.0%'>Network(3)</a>  <a href='/blog/categories/ocaml' style='font-size: 104.0%'>Ocaml(1)</a>  <a href='/blog/categories/opennebula' style='font-size: 104.0%'>Opennebula(1)</a>  <a href='/blog/categories/paper' style='font-size: 116.0%'>Paper(4)</a>  <a href='/blog/categories/qemu' style='font-size: 104.0%'>Qemu(1)</a>  <a href='/blog/categories/ruby' style='font-size: 104.0%'>Ruby(1)</a>  <a href='/blog/categories/ruby' style='font-size: 104.0%'>Ruby(1)</a>  <a href='/blog/categories/security' style='font-size: 116.0%'>Security(4)</a>  <a href='/blog/categories/security' style='font-size: 104.0%'>Security(1)</a>  <a href='/blog/categories/system' style='font-size: 108.0%'>System(2)</a>  <a href='/blog/categories/人生' style='font-size: 108.0%'>人生(2)</a>  <a href='/blog/categories/周计划' style='font-size: 108.0%'>周计划(2)</a>  <a href='/blog/categories/杂' style='font-size: 112.0%'>杂(3)</a>  <a href='/blog/categories/梦想' style='font-size: 104.0%'>梦想(1)</a>  <a href='/blog/categories/生活' style='font-size: 120.0%'>生活(5)</a> </span>
-</section>
-
 <iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=0&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=1961136593&verifier=9b2b2fd0&dpc=1"></iframe>
 
   

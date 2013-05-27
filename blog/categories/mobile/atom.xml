@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Mobile | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/mobile/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-05-26T21:49:02+08:00</updated>
+  <updated>2013-05-27T11:19:40+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -44,7 +44,7 @@ d.Prevent nested migration.
 
 <p><strong>thread migrate</strong>: 在Dalvik VM执行到migrate point的时候，会有一个migrator thread将thread suspend住，并将当前的thread state打包，把它所需要的信息通过网络发给cloud端的clone。这里的state主要包括execution stack frames and relevant data objects in the process heap, and register contents at the migration point. Virtualized stack frames…在cloud端的clone接收到这些信息后会有一个migrator thread来将这些信息装入VM的内存中，并继续执行，当遇到reintegration的时候用同样的方式将该thread的state打包发回去，mobile端的thread继续执行~这些看起来很容易，但是有一个问题，因为每一个object都是通过内存地址进行reference的，在不同的platform中这些reference可能会不一样，这里作者用了一种叫做object mapping table的方式，用一张图（Figure 7）就可以很方便的说明：</p>
 
-<p><img src="http://ytliu.github.com/images/2012-09-13.png" title="object mapping table example" alt="object mapping table example" /></p>
+<p><img src="http://ytliu.info/images/2012-09-13.png" title="object mapping table example" alt="object mapping table example" /></p>
 
 <p>另外，clonecloud系统是实现在AOS和Android x86 virtual machine上的，修改了大约8000行的Dalvik代码，用JChord工具进行static analysis，用Monsoon power monitor [Mon]测量了energy consumption来计算cost model，通过hprof(HPR)进行thread state的capture。最后evaluation就不细说了，据说提速20X，降低了20X的能耗，当然这个是怎么测的我也没细看。</p>
 

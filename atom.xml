@@ -4,7 +4,7 @@
   <title><![CDATA[Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2013-05-26T21:49:02+08:00</updated>
+  <updated>2013-05-27T11:19:40+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
@@ -95,7 +95,7 @@
 
 <p>到上海之后两天就和实验室一起去常州南山和天目湖春游了，爬了两天的山，脚好酸，感觉自己太弱了！最后放一张图作为结束吧（感觉这张照片的构图很不错，最后那个摆出V字形的就是弱弱的我啦啦啦）</p>
 
-<p><img src="http://ytliu.github.com/images/2013-05-22-1.png" title="IPADS Image" alt="IPADS Image" /></p>
+<p><img src="http://ytliu.info/images/2013-05-22-1.jpeg" title="IPADS Image" alt="IPADS Image" /></p>
 ]]></content>
   </entry>
   
@@ -143,7 +143,7 @@
 
 <p>我们经常会看到CM7，CM8等等，这些都是CM的版本号，从<a href="http://en.wikipedia.org/wiki/CyanogenMod#Version_history">wiki</a>上的一张图可以很清楚的看出这些版本都是代表些什么意思：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-05-04-1.png" title="CM version" alt="CM version" /></p>
+<p><img src="http://ytliu.info/images/2013-05-04-1.png" title="CM version" alt="CM version" /></p>
 
 <hr />
 
@@ -1882,13 +1882,13 @@
 
 <p>为了减小等待message的时间，有一种解决方法叫GOLL:</p>
 
-<p><img src="http://ytliu.github.com/images/2013-04-14-01.png" title="GOLL" alt="GOLL" /></p>
+<p><img src="http://ytliu.info/images/2013-04-14-01.png" title="GOLL" alt="GOLL" /></p>
 
 <p>即构造一棵二叉树，两个reader共享一个activeReader，而对于writer来说，只要其子节点存在activeReader，则它就为1。</p>
 
 <p>另外一种方法叫BR lock：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-04-14-02.png" title="big reader lock" alt="BRLock" /></p>
+<p><img src="http://ytliu.info/images/2013-04-14-02.png" title="big reader lock" alt="BRLock" /></p>
 
 <p>和GOLL相比，它为每一个reader都维护一个变量，这样在reader之间都完全不会存在message，但是对于writer来说，它的overhead则增大了很多，在writer进入CS之前，需要所有的reader都发message给它。</p>
 
@@ -1944,7 +1944,7 @@
 
 <p>除了lock之后，还有一种同步原语叫RCU：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-04-14-03.png" title="RCU" alt="RCU" /></p>
+<p><img src="http://ytliu.info/images/2013-04-14-03.png" title="RCU" alt="RCU" /></p>
 
 <p>RCU最大的特点在于writer可以在reader进行读取操作的时候直接修改，不过需要注意的是，这里的修改是这样的：</p>
 
@@ -1969,7 +1969,7 @@
 
 <p>这里注意在Reader的代码中，<code>rcu_read_lock()</code>会关闭中断，禁止在一个核中其它进程的抢断，而<code>rcu_read_unlock()</code>则会打开中断，恢复抢断机制。于是writer就可以根据reader进程是否进行过context switch来判断说是否对Shared_data的读过程是否全部结束了：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-04-14-04.png" title="RCU Figure" alt="RCU figure 2" /></p>
+<p><img src="http://ytliu.info/images/2013-04-14-04.png" title="RCU Figure" alt="RCU figure 2" /></p>
 
 <p>RCU还要考虑的一个问题是在reader中是否能允许sleep？因为如果一个reader在读的过程中如果碰到一段IO操作，那么它如果不sleep的话，则会很大地浪费CPU资源，而如果sleep的话，则会发生一次context switch，而此时，读的过程其实并没有结束，与RCU的语义就不符了。</p>
 
@@ -2335,7 +2335,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>的时候就会将收到的包传给该函数进行处理，当然了，还可以像<a href="http://ytliu.github.io/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/">这里</a>一样通过<code>struct iphdr</code>和<code>struct tcphdr</code>结构体来获得payload里面的IP包头和TCP包的信息，对其进行处理。</p>
+<p>的时候就会将收到的包传给该函数进行处理，当然了，还可以像<a href="http://ytliu.info/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/">这里</a>一样通过<code>struct iphdr</code>和<code>struct tcphdr</code>结构体来获得payload里面的IP包头和TCP包的信息，对其进行处理。</p>
 
 <ul>
 <li>之后在jni目录下创建<code>Android.mk</code>文件：</li>
@@ -2768,7 +2768,7 @@ $ mv scapy-latest.zip /usr/local/bin/scapy
 
 <p>网络栈中对netfilter的支持如图所示：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-03-29-1.png" title="package flow in netfiter and general networking" alt="netfilter" /></p>
+<p><img src="http://ytliu.info/images/2013-03-29-1.png" title="package flow in netfiter and general networking" alt="netfilter" /></p>
 
 <p>可以看到在链路层和网络层中按照封包流的路径有五种类型的hooks: prerouting, input, forward, output, postrouting。这五种hooks会在封包到达之时按照封包流的顺序调用相应的回调函数，对四种类型的表中的chain（会在iptables中描述）进行过滤和修改：filter, nat, mangle, raw。而定义这些过滤的规则则是由一个用户态的命令<code>iptables</code>进行配置，也就是我接下来要详细描述的命令。</p>
 
@@ -2953,7 +2953,7 @@ $ mv scapy-latest.zip /usr/local/bin/scapy
     <link href="http://ytliu.github.com/blog/2013/03/10/redexer-and-ocaml/"/>
     <updated>2013-03-10T09:53:00+08:00</updated>
     <id>http://ytliu.github.com/blog/2013/03/10/redexer-and-ocaml</id>
-    <content type="html"><![CDATA[<p>在<a href="http://ytliu.github.com/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/">上一篇博客</a>是一个用ruby和OCaml写的Dalvik binary rewriter，它提供了unparse, htmlunparse, id, combine, info, classes, api, opstat, cg, cfg, dom, pdom, dump_method等功能，还可以自己扩展相应的功能，具体的可以参看它的<a href="https://github.com/plum-umd/redexer">github主页</a>。</p>
+    <content type="html"><![CDATA[<p>在<a href="http://ytliu.info/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/">上一篇博客</a>是一个用ruby和OCaml写的Dalvik binary rewriter，它提供了unparse, htmlunparse, id, combine, info, classes, api, opstat, cg, cfg, dom, pdom, dump_method等功能，还可以自己扩展相应的功能，具体的可以参看它的<a href="https://github.com/plum-umd/redexer">github主页</a>。</p>
 
 <p>redexer主要原理就是将<code>.dex</code>文件按照<a href="http://source.android.com/tech/dalvik/dex-format.html">Dalvik Executable Format</a>映射到内存中的数据结构，然后根据这些数据结果进行分析，可以达到比较高的性能。</p>
 
@@ -2974,7 +2974,7 @@ state and I/O.
 
 <p>然后在<a href="http://stackoverflow.com/questions/2078978/functional-programming-vs-object-oriented-programming">stack overflow</a>里面有一个蛮经典的回答”When do you choose functional programming over object oriented ?“</p>
 
-<p><img src="http://ytliu.github.com/images/2013-03-10-1.png" title="answer" alt="stackoverflowans" /></p>
+<p><img src="http://ytliu.info/images/2013-03-10-1.png" title="answer" alt="stackoverflowans" /></p>
 
 <p>另外，在OCaml里面有很多FP的特性，比如 static type system, type inference, parametric polymorphism, tail recursion, pattern matching, first class lexical closures, functors (parametric modules), exception handling, and incremental generational automatic garbage collection等等，这些会在之后对OCaml的学习中慢慢弄清楚来吧~</p>
 ]]></content>
@@ -2987,7 +2987,7 @@ state and I/O.
     <id>http://ytliu.github.com/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi</id>
     <content type="html"><![CDATA[<p>故事得从几天前利小哥发现的<a href="www.xidashi.com">xidashi</a>说起：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-03-01-1.png" title="xidashi" alt="xidashi" /></p>
+<p><img src="http://ytliu.info/images/2013-03-01-1.png" title="xidashi" alt="xidashi" /></p>
 
 <p>洗大师是一个android的安全应用软件+第三方应用市场，它的功能和特点简单来说就是：</p>
 
@@ -3028,9 +3028,9 @@ state and I/O.
 
 <p>这篇文章采用了第二种方式，而它的方法其实是很直观的：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-03-01-2.png" title="Mr. Hide" alt="mrhide" /></p>
+<p><img src="http://ytliu.info/images/2013-03-01-2.png" title="Mr. Hide" alt="mrhide" /></p>
 
-<p><img src="http://ytliu.github.com/images/2013-03-01-3.png" title="Dr. Android" alt="drandroid" /></p>
+<p><img src="http://ytliu.info/images/2013-03-01-3.png" title="Dr. Android" alt="drandroid" /></p>
 
 <ul>
 <li>首先，将apk中的粗粒度权限换成细粒度权限；</li>
@@ -3582,7 +3582,7 @@ state and I/O.
 
 <p>上个世纪70年代初，&#8221;只读内存&#8221;（read-only memory，缩写为ROM）发明，开机程序被刷入ROM芯片，计算机通电后，第一件事就是读取它。</p>
 
-<p><img src="http://ytliu.github.com/images/2013-02-17-1.png" title="BIOS" alt="BIOS" /></p>
+<p><img src="http://ytliu.info/images/2013-02-17-1.png" title="BIOS" alt="BIOS" /></p>
 
 <p>这块芯片里的程序叫做&#8221;基本輸出輸入系統&#8221;（Basic Input/Output System），简称为BIOS。</p>
 
@@ -3602,7 +3602,7 @@ state and I/O.
 
 <p>打开BIOS的操作界面，里面有一项就是&#8221;设定启动顺序&#8221;。</p>
 
-<p><img src="http://ytliu.github.com/images/2013-02-17-2.png" title="BIOS Sequence" alt="BIOS Sequence" /></p>
+<p><img src="http://ytliu.info/images/2013-02-17-2.png" title="BIOS Sequence" alt="BIOS Sequence" /></p>
 
 <h4>二、第二阶段：主引导记录</h4>
 
@@ -3673,7 +3673,7 @@ state and I/O.
 
 <p>Linux环境中，目前最流行的启动管理器是Grub。</p>
 
-<p><img src="http://ytliu.github.com/images/2013-02-17-3.png" title="Grub" alt="Grub" /></p>
+<p><img src="http://ytliu.info/images/2013-02-17-3.png" title="Grub" alt="Grub" /></p>
 
 <p>对于grub而言，在MBR中的446字节的引导程序属于GRUB的开始执行程序，通过这段程序，进一步执行stage1.5或是stage2的执行程序，将在下面详细介绍执行过程。</p>
 
@@ -3721,23 +3721,23 @@ state and I/O.
 
 <p>对于传统MBR，其结构主要如下：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-02-17-4.png" title="BIOS Graph" alt="BIOS Graph" /></p>
+<p><img src="http://ytliu.info/images/2013-02-17-4.png" title="BIOS Graph" alt="BIOS Graph" /></p>
 
 <p>上图即对上文中所述的很形象的说明，在图中看到MBR被分成三个部分，分别是：Bootloader、分别表以及Magic Number。其中Bootloader部分为stage1中被执行的起始部分。</p>
 
 <p>相反，对于EFI系统中所采用的GPT分区方式，则采用了不同于MBR分区方式的形式，从下图中可以发现：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-02-17-5.png" title="EFI Graph" alt="EFI Graph" /></p>
+<p><img src="http://ytliu.info/images/2013-02-17-5.png" title="EFI Graph" alt="EFI Graph" /></p>
 
 <p>如上图所示，GPT分区表主要包括：保护MBR、首要GPT头、首要GPT、备用GPT、备用GPT头和磁盘数据区。保护MBR与正常的MBR区别不大，主要是分区表上的不同，在保护MBR中只要一个表示为0xEE的分区，以此来表示这块硬盘使用GPT分区表。首要GPT头包含了众多信息，具体内容如下：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-02-17-6.png" title="EFI Table" alt="EFI Table" /></p>
+<p><img src="http://ytliu.info/images/2013-02-17-6.png" title="EFI Table" alt="EFI Table" /></p>
 
 <p>分区表头定义了硬盘的可用空间以及组成分区表的项的大小和数量。分区表头还记录了这块硬盘的GUID，记录了分区表头本身的位置和大小（位置总是在LBA1）以及备份分区表头和分区表的位置和大小（在硬盘的最后）。它还存储着它本身和分区表的CRC32校验。固件、引导程序和操作系统在启动时可以根据这个校验值来判断分区表是否有错误，如果出错了，可以使用软件从硬盘最后的备份GPT分区表恢复整个分区表，如果备份GPT也校验错误，那么磁盘将不可用，系统拒绝启动。</p>
 
 <p>接下来主要是128个分区表项，GPT分区表使用简单而直接的方式表示分区。一个分区表项的前16字节是分区类型GUID。例如，EFI系统分区的GUID类型是{C12A7328-F81F-11D2-BA4B-00A0C93EC93B} 。接下来的16字节是该分区的唯一的GUID（这个指的是该分区本身，而之前的GUID指的是该分区的类型）。在接下来是分区其实和末尾的64位LBA编号，以及分区的名字和属性。具体结构如下表：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-02-17-7.png" title="EFI Table2" alt="EFI Table2" /></p>
+<p><img src="http://ytliu.info/images/2013-02-17-7.png" title="EFI Table2" alt="EFI Table2" /></p>
 
 <h4>MBR引导</h4>
 
@@ -3895,7 +3895,7 @@ state and I/O.
 
 <p>首先我们会有一张Base64 index table:</p>
 
-<p><img src="http://ytliu.github.com/images/2013-01-06-1.png" title="Base64 index table" alt="Base64 index table" /></p>
+<p><img src="http://ytliu.info/images/2013-01-06-1.png" title="Base64 index table" alt="Base64 index table" /></p>
 
 <p>该表记录了0-63（即000000-111111)对应的ASCII字符。</p>
 
@@ -3905,7 +3905,7 @@ state and I/O.
 
 <p>如果将每一个字母的ASCII码作为一个8-bit的二进制数展开的话会得到一个二进制串，比如我们<code>Man</code>的三个字母<code>M</code>、<code>a</code>、<code>n</code>的ASCII码分别为<code>77</code>、<code>97</code>、<code>110</code>，展开二进制并连起来既得到<code>010011010110000101101110</code>。然后我们将这个3x8的bit分成4x6，并将每6个bit组成的数字记下来，然后通过查询前面的那张<em>Base64 index table</em>即可得到四个字符<code>TWFu</code>，也就是<code>Man</code>的Base64表达形式。如下图所示：</p>
 
-<p><img src="http://ytliu.github.com/images/2013-01-06-2.png" title="Base64 example" alt="Base64 example" /></p>
+<p><img src="http://ytliu.info/images/2013-01-06-2.png" title="Base64 example" alt="Base64 example" /></p>
 
 <p>当然这张<em>Base64 index table</em>可以采用任意的字母数字顺序，而不用按照这种顺序，只要解码的时候用同一张index table就可以了。</p>
 
@@ -4030,7 +4030,7 @@ $ emulator-arm @4.2
 
 <p>首先是qemu整体流程：</p>
 
-<p><img src="http://ytliu.github.com/images/2012-12-30-1.png" title="qemu process" alt="qemu process" /></p>
+<p><img src="http://ytliu.info/images/2012-12-30-1.png" title="qemu process" alt="qemu process" /></p>
 
 <p>首先将guest code（这里即为arm code）被TCG（Tiny Code Generator)转换成一个中间表达，然后再转换成host code（这里即为x86 code），具体来说分为两步：</p>
 
@@ -4042,7 +4042,7 @@ $ emulator-arm @4.2
 
 <p>我们先来看下qemu的code base：</p>
 
-<p><img src="http://ytliu.github.com/images/2012-12-30-2.png" title="qemu code base" alt="qemu code base" /></p>
+<p><img src="http://ytliu.info/images/2012-12-30-2.png" title="qemu code base" alt="qemu code base" /></p>
 
 <ul>
 <li><code>vl.c/vl-android.c</code>: 这个是整个qemu的入口函数，主要是初始化qemu环境，然后进入<code>main_loop</code>；</li>
@@ -4063,7 +4063,7 @@ $ emulator-arm @4.2
 
 <p>这是主要部分，流程是这样的：</p>
 
-<p><img src="http://ytliu.github.com/images/2012-12-30-3.png" title="qemu process from code perspective" alt="qemu process from code perspective" /></p>
+<p><img src="http://ytliu.info/images/2012-12-30-3.png" title="qemu process from code perspective" alt="qemu process from code perspective" /></p>
 
 <p>其中函数<code>cpu_exec()</code>相当于主要的执行循环函数，它将TB第一次初始化，在两个嵌套无限for循环中通过<code>tb_find_fast()</code>来获得host code TB，然后通过<code>tcg_qemu_tb_exec()</code>来执行相应代码。</p>
 
@@ -4127,7 +4127,7 @@ $ emulator-arm @4.2
 
 <p>在<a href="http://www.jollen.org/blog/2006/12/enabling_dynamic_loader_1.html" title="elf">jollen</a>的博客中有一断对ELF Session的表格:</p>
 
-<p><img src="http://ytliu.github.com/images/2012-12-09-1.png" title="elf section" alt="elf section" /></p>
+<p><img src="http://ytliu.info/images/2012-12-09-1.png" title="elf section" alt="elf section" /></p>
 
 <p>很有参考价值。其中将会涉及到的sections有<em>.got</em>, <em>.plt</em>, <em>.interp</em>。</p>
 
