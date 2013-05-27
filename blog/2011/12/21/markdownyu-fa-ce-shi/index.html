@@ -5,8 +5,8 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Markdown语法测试 - My Octopress Blog</title>
-  <meta name="author" content="Your Name">
+  <title>Markdown语法测试 - Mctrain's Blog</title>
+  <meta name="author" content="Liu Yutao">
 
   
   <meta name="description" content="http://ytliu.github.com [mctrain](http://ytliu.github.com &#8220;mctrain&#8217;s blog&#8221;) mctrain mctrain-2 ![pic](http://ytliu.github.com/images &hellip;">
@@ -18,16 +18,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://ytliu.github.com/blog/2011/12/21/markdownyu-fa-ce-shi/">
+  <link rel="canonical" href="http://ytliu.github.com/blog/2011/12/21/markdownyu-fa-ce-shi">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="/atom.xml" rel="alternate" title="Mctrain's Blog" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="/javascripts/ender.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Delius' rel='stylesheet' type='text/css'>
 
   
 
@@ -35,15 +38,17 @@
 
 <body   >
   <header role="banner"><hgroup>
-  <h1><a href="/">My Octopress Blog</a></h1>
+  <h1><a href="/">Mctrain's Blog</a></h1>
   
-    <h2>A blogging framework for hackers.</h2>
+    <h2>What I learned in IT, as well as thought about life</h2>
   
 </hgroup>
 
 </header>
-  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <nav role="navigation"><ul class="subscription" data-subscription="rss email">
   <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+    <li><a href="ytliu.cc@gmail.com" rel="subscribe-email" title="subscribe via email">Email</a></li>
   
 </ul>
   
@@ -55,8 +60,10 @@
 </form>
   
 <ul class="main-navigation">
-  <li><a href="/">Blog</a></li>
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog">Blog</a></li>
   <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/notes">Notes</a></li>
 </ul>
 
 </nav>
@@ -84,6 +91,8 @@
 
 
 <time datetime="2011-12-21T15:17:00+08:00" pubdate data-updated="true">Dec 21<span>st</span>, 2011</time>
+        
+         | <a href="#disqus_thread">Comments</a>
         
       </p>
     
@@ -190,17 +199,13 @@
 
 
 
-<figure class='code'><figcaption><span>Javascript Array Syntax </span><a href='http://j.mp/pPUUmW'>MDN Documentation </a></figcaption> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>Javascript Array Syntax</span><a href='http://j.mp/pPUUmW'>MDN Documentation </a></figcaption> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">var</span> <span class="nx">arr1</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">arrayLength</span><span class="p">);</span>
 </span><span class='line'><span class="kd">var</span> <span class="nx">arr2</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">element0</span><span class="p">,</span> <span class="nx">element1</span><span class="p">,</span> <span class="p">...,</span> <span class="nx">elementN</span><span class="p">);</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>中文测试
-这个测试中有很多很多很多字符</p>
-
-<blockquote><p>&#8220;C&#8221;是系统默认的locale，&#8221;POSIX&#8221;是&#8221;C&#8221;的别名。所以当我们新安装完一个系统时，默认的locale就是C或POSIX。</p><p>在Debian中安装locales的方法如下：</p><p>· 通过apt-get install locales命令安装locales包<br/>· 安装完成locales包后，系统会自动进行locale配置，你只要选择所需的locale，可以多选。最后指定一个系统默认的locale。这样系统就会帮你自动生成相应的locale和配置好系统的locale。</p><p>· 增加新的locale也很简单，用dpkg-reconfigure locales重新配置locale即可。</p><p>· 我们也可手动增加locale，只要把新的locale增加到/etc/locale.gen文件中，再运行locale-gen命令即可生成新的locale。再通过设置上面介绍的LC_*变量就可设置系统的locale了。下是一个locale.gen文件的样例。</p></blockquote>
 
 </div>
 
@@ -210,7 +215,7 @@
       
   
 
-<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+<span class="byline author vcard">Posted by <span class="fn">Liu Yutao</span></span>
 
       
 
@@ -229,7 +234,7 @@
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/杂/'>杂</a>
+    <a class='category' href='/blog/categories/za/'>杂</a>
   
 </span>
 
@@ -238,8 +243,8 @@
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ytliu.github.com/blog/2011/12/21/markdownyu-fa-ce-shi/" data-via="" data-counturl="http://ytliu.github.com/blog/2011/12/21/markdownyu-fa-ce-shi/" >Tweet</a>
   
+  <div class="g-plusone" data-size="medium"></div>
   
   
 </div>
@@ -254,41 +259,67 @@
   </footer>
 </article>
 
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
 </div>
 
 <aside class="sidebar">
   
     <section>
+  <h1>About Me</h1>
+  <p align="middle"><img src="http://ytliu.github.com/images/mypic.jpg" alt="Liu Yutao" width="60%" /></p>
+  <p>My name is Liu Yutao and this is my blog. I am a Ph.D candidate in <a href="http://ipads.se.sjtu.edu.cn/" >IPADS</a> of SJTU, and this is my <a href="http://ipads.se.sjtu.edu.cn/doku.php?id=pub:members:yutao_liu">Homepage</a>.</p>
+  <p>E-mail me at mctrain016@gmail.com if you have any questions or comments.</p>
+</section>
+<section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2012/09/02/quan-xin-de-kai-shi/">全新的开始</a>
+        <a href="/blog/2013/05/22/chinasysxiao-ji/">ChinaSys小记（2013.5）</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2012/04/01/notes-about-ruby/">Notes about Ruby</a>
+        <a href="/blog/2013/05/04/androidde-na-xie-shi-cyanogenmod/">Android的那些事 - CyanogenMod</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2012/03/26/wo-de-meng-xiang/">我的梦想</a>
+        <a href="/blog/2013/04/30/xi-tong-diao-yong-xue-xi-bi-ji-ptrace/">系统调用学习笔记 - ptrace和wait</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2012/03/17/exploitation-learning-outset/">Metasploit Learning Outset</a>
+        <a href="/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-linuxxi-tong-diao-yong-biao-%28zhuan-%29/">系统调用学习笔记 - Linux系统调用表（转）</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2012/03/09/wo-kan-bei-ai-and-wo-xue-ruby/">我看北爱&amp;我学ruby</a>
+        <a href="/blog/2013/04/14/tong-bu-yuan-yu-xue-xi-bi-ji-lock%2Crcuhe-transaction/">同步原语学习笔记 - Lock，RCU和Transaction Memory</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/04/09/netfilterxue-xi-bi-ji-%28san-%29/">Netfilter学习笔记（三）</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/">Netfilter学习笔记（二）</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28yi-%29/">Netfilter学习笔记（一）</a>
       </li>
     
   </ul>
 </section>
 
+<section>
+<h1>分類</h1>
+<span class='categories_tag'> <a href='/blog/categories/android' style='font-size: 160.0%'>Android(15)</a>  <a href='/blog/categories/attack' style='font-size: 104.0%'>Attack(1)</a>  <a href='/blog/categories/cloud' style='font-size: 104.0%'>Cloud(1)</a>  <a href='/blog/categories/git' style='font-size: 108.0%'>Git(2)</a>  <a href='/blog/categories/life' style='font-size: 104.0%'>Life(1)</a>  <a href='/blog/categories/linux' style='font-size: 116.0%'>Linux(4)</a>  <a href='/blog/categories/mobile' style='font-size: 104.0%'>Mobile(1)</a>  <a href='/blog/categories/network' style='font-size: 112.0%'>Network(3)</a>  <a href='/blog/categories/ocaml' style='font-size: 104.0%'>Ocaml(1)</a>  <a href='/blog/categories/opennebula' style='font-size: 104.0%'>Opennebula(1)</a>  <a href='/blog/categories/paper' style='font-size: 116.0%'>Paper(4)</a>  <a href='/blog/categories/qemu' style='font-size: 104.0%'>Qemu(1)</a>  <a href='/blog/categories/ruby' style='font-size: 104.0%'>Ruby(1)</a>  <a href='/blog/categories/ruby' style='font-size: 104.0%'>Ruby(1)</a>  <a href='/blog/categories/security' style='font-size: 116.0%'>Security(4)</a>  <a href='/blog/categories/security' style='font-size: 104.0%'>Security(1)</a>  <a href='/blog/categories/system' style='font-size: 108.0%'>System(2)</a>  <a href='/blog/categories/人生' style='font-size: 108.0%'>人生(2)</a>  <a href='/blog/categories/周计划' style='font-size: 108.0%'>周计划(2)</a>  <a href='/blog/categories/杂' style='font-size: 112.0%'>杂(3)</a>  <a href='/blog/categories/梦想' style='font-size: 104.0%'>梦想(1)</a>  <a href='/blog/categories/生活' style='font-size: 120.0%'>生活(5)</a> </span>
+</section>
 
-
-
-
+<iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=0&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=1961136593&verifier=9b2b2fd0&dpc=1"></iframe>
 
   
 </aside>
@@ -297,28 +328,42 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2012 - Your Name -
+  Copyright &copy; 2013 - Liu Yutao -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 
 </footer>
   
 
-
+<script type="text/javascript">
+      var disqus_shortname = 'mctrainsblog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://ytliu.github.com/blog/2011/12/21/markdownyu-fa-ce-shi/';
+        var disqus_url = 'http://ytliu.github.com/blog/2011/12/21/markdownyu-fa-ce-shi/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
 
 
 
 
 
   <script type="text/javascript">
-    (function(){
-      var twitterWidgets = document.createElement('script');
-      twitterWidgets.type = 'text/javascript';
-      twitterWidgets.async = true;
-      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
-      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
     })();
   </script>
+
+
 
 
 

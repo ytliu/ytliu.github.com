@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Paper | My Octopress Blog]]></title>
+  <title><![CDATA[Category: Paper | Mctrain's Blog]]></title>
   <link href="http://ytliu.github.com/blog/categories/paper/atom.xml" rel="self"/>
   <link href="http://ytliu.github.com/"/>
-  <updated>2012-09-02T22:26:30+08:00</updated>
+  <updated>2013-05-26T21:49:02+08:00</updated>
   <id>http://ytliu.github.com/</id>
   <author>
-    <name><![CDATA[Your Name]]></name>
+    <name><![CDATA[Liu Yutao]]></name>
     
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
@@ -34,6 +34,9 @@
 <h4><strong>前言</strong></h4>
 
 <p>对于一个成功的攻击，有很大一部分是需要用到<em>buffer overflow</em>技术的，而<em>bf</em>分为很多，主要看你要覆盖什么内容，之后如何使得控制流变成你想要执行的代码，对于之后的这些攻击技术，也就出现了相应的防范策略和机制。但不管怎么说，这里所提到的所有攻击都源自于<em>bf</em>，没有它的攻击属于另外的范畴，这篇暂且不谈。</p>
+
+<!-- more -->
+
 
 <h4><strong>stack cookies(canaries) &amp; variable reordering</strong></h4>
 
@@ -160,6 +163,9 @@
 
 <p>先简要介绍下这篇paper的motivation吧：在现在虚拟化的环境中，SR-IOV（single root I/O virtualization）可以说使得整个I/O的效率相对于传统的PV也好，用qemu模拟的HVM也好，提高了一个层次，由于可以将一个特定的device（比如网卡）或者virtual function直接赋予一个domain虚拟机，从而从本质上减少了host（比如xen）在整个I/O路径上的介入时间，同时也减少了相当一部分的内存拷贝操作，使得I/O的performance、latency都得到了提高。但是不管是不是用SR-IOV技术，由于x86体系结构的限制，在由物理设备产生的interrupt发生时还是会陷入host，由host来对interrupt进行第一步的处理，或是直接调用自己的interrupt handler，或是向虚拟机插入软件中断，再调度回虚拟机由虚拟机的interrupt handler处理，在处理完成之后由于对EOI寄存器的写操作还会再一次陷入host；由于这两次的context切换造成的overhead，包括context switch、cache pollution...也就造成了作者在做evaluation时测出的40%的overhead。（其实刚开始看到这个40%我还觉得挺不可思议的，我们实验室之前也对SR-IOV进行过评估，当时得出的结论是SR-IOV的性能很好，和native的环境几乎没有差别。不过后来发现是因为我们的测试环境是千兆，而作者的环境是万兆，而且是小包~~~看来测试环境的优劣还是很重要啊:-)）。</p>
 
+<!-- more -->
+
+
 <p><img src="http://ytliu.github.com/images/2012-01-04-1.png" title="guest/host context switch in interrupt handling" alt="baseline interrupt handle" /></p>
 
 <p>于是乎，这篇paper的作者就提出了ELI（ExitLess Interrupt），其目的就是最大程度地减少由这些interrupt造成的context切换，从而达到性能的最大化。</p>
@@ -251,6 +257,9 @@
 
 <p>从这两个fingerprint算法可以很容易地看出对于ModP，由于它是一个content-based的算法，所以不管是不是有偏移都可以比较完整地得出内容上的重复性，但是它的效率太低了，因为它要算每一个byte的hash；而对于Fixed，它的效率远远大于ModP，但消除重复性的能力也相应地变小很多。</p>
 
+<!-- more -->
+
+
 <p>于是作者提出提出的一种新的算法，叫SAMPLEBYTE fingerprint：</p>
 
 <pre><code>    提供一个256bit的数组A，遍历要发送的包的每一个字节，比如第一个字节是0x23，那么查找
@@ -312,6 +321,9 @@
 <blockquote><p>JTAG port is used for factory and field diagnostics and provides device-specific access to the internal flip-flops that store all the chip’s state.<br/>Since JTAG access gives the hardware equivalent of a software debugger, attackers have been using it from the beginning. The first attackers were probably competitors reverse engineering designs to copy them or improve their own. Currently, a packaged version of this attack has been in use for years to get free satellite TV.</p><footer><strong>@Nate Lawson</strong> <cite><a href='http://rdist.root.org/2007/04/06/jtag-attacks-and-pr-submarines'>rdist.root.org/2007/04/06/&hellip;</a></cite></footer></blockquote></p>
 
 <p>还有关于Software-centric attack, 小Z讲了一个例子，比如说对iOS的pdf漏洞的良性利用，至于用来干嘛的，大家都懂得，jailbreak，不过其实我完全不知道这个是怎么样就得到root权限的，这几天研究下。</p>
+
+<!-- more -->
+
 
 <p>最后还有一点比较感兴趣的是小Z提到android的process isolation，我挺感兴趣的，它说android里面是用到context的概念进行进程间通讯，在kernel里面有一个binder进行管理，如果把kernel作为TPM那应该就没有什么安全问题了吧，不过其实还是存疑的，我不知道有没有一份关于android的安全机制的survey，上网搜了下，找到一篇宾大的"understand android security"，抽空看下。</p>
 

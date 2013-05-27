@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>My Octopress Blog</title>
-  <meta name="author" content="Your Name">
+  <title>Mctrain's Blog</title>
+  <meta name="author" content="Liu Yutao">
 
   
-  <meta name="description" content="今天组会两篇paper，Naruil讲的第一篇听了蛮有收获的，DX讲的第二篇感觉是自己英文太差而且领域不熟最后听的不是很懂，就大致记录下吧。 第一篇是一个做数据中心之间数据传递重复消除的系统，叫End-to-end RE(redundancy elimination)，是发在NSDI&#8217; &hellip;">
+  <meta name="description" content="故事得从几天前利小哥发现的xidashi说起： 洗大师是一个android的安全应用软件+第三方应用市场，它的功能和特点简单来说就是： 在不root的情况下，允许用户对已安装的应用程序实行权限的细粒度动态控制 这里的细粒度动态控制是指用户可以随时允许或禁止该应用程序某一个权限， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,16 +18,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://ytliu.github.com/blog/page/2/">
+  <link rel="canonical" href="http://ytliu.github.com/blog/page/2">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="/atom.xml" rel="alternate" title="Mctrain's Blog" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="/javascripts/ender.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Delius' rel='stylesheet' type='text/css'>
 
   
 
@@ -35,15 +38,17 @@
 
 <body   >
   <header role="banner"><hgroup>
-  <h1><a href="/">My Octopress Blog</a></h1>
+  <h1><a href="/">Mctrain's Blog</a></h1>
   
-    <h2>A blogging framework for hackers.</h2>
+    <h2>What I learned in IT, as well as thought about life</h2>
   
 </hgroup>
 
 </header>
-  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <nav role="navigation"><ul class="subscription" data-subscription="rss email">
   <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+    <li><a href="ytliu.cc@gmail.com" rel="subscribe-email" title="subscribe via email">Email</a></li>
   
 </ul>
   
@@ -55,8 +60,10 @@
 </form>
   
 <ul class="main-navigation">
-  <li><a href="/">Blog</a></li>
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog">Blog</a></li>
   <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/notes">Notes</a></li>
 </ul>
 
 </nav>
@@ -70,7 +77,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2011/12/26/paper-reading-tcp-re-and-incremental-mr/">Paper Reading: TCP RE and Incremental MR</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/">Dr. Android and Mr. Hide - Xidashi引发的故事</a></h1>
     
     
       <p class="meta">
@@ -86,68 +93,37 @@
   
 
 
-<time datetime="2011-12-26T20:57:00+08:00" pubdate data-updated="true">Dec 26<span>th</span>, 2011</time>
+<time datetime="2013-03-01T20:00:00+08:00" pubdate data-updated="true">Mar 1<span>st</span>, 2013</time>
+        
+         | <a href="/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/#disqus_thread">Comments</a>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>今天组会两篇paper，Naruil讲的第一篇听了蛮有收获的，DX讲的第二篇感觉是自己英文太差而且领域不熟最后听的不是很懂，就大致记录下吧。</p>
+  <div class="entry-content"><p>故事得从几天前利小哥发现的<a href="www.xidashi.com">xidashi</a>说起：</p>
 
-<p>第一篇是一个做数据中心之间数据传递重复消除的系统，叫End-to-end RE(redundancy elimination)，是发在NSDI&#8217;11上的，题目叫&#8221;EndRE: An End-System Redundancy Elimination Service for Enterprises&#8221;，主要由微软的人做的。简单来说它的motivation就是现在在网络中传递的数据有很大一部分是重复的，比如两个包有大量的重复数据，而这些重复数据占用了大量的带宽，而这篇paper的工作就是如何在减少重复数据的同时也不减少太多的性能。</p>
+<p><img src="http://ytliu.github.com/images/2013-03-01-1.png" title="xidashi" alt="xidashi" /></p>
 
-<p>现在在用的关于这种重复数据消除的技术主要是&#8221;Middlebox-based&#8221;，它有几个缺点：  <br/>
-*       关于安全方面的问题，网络数据在middlebox里面是明文，这样才能更好地判断重复性，这样就势必减弱了网络数据的安全级别；    <br/>
-*       对于一些终端的手机设备，它需要和PC终端传递数据，在这过程中同样有数据的重复，而这种情况就不适宜用Middlebox技术了；      <br/>
-*       代价比较大，现在用的middlebox都是很强大的服务器，配备巨大的内存来存储内容的cache。</p>
+<p>洗大师是一个android的安全应用软件+第三方应用市场，它的功能和特点简单来说就是：</p>
 
-<p>于是作者就提出一种end-to-end的RE技术。通篇听下来最大的收获是对传统的fingerprint算法和作者提出的一种新的SAMPLEBYTE fingerprint算法的理解。</p>
+<blockquote><p>在不root的情况下，允许用户对已安装的应用程序实行权限的细粒度动态控制</p></blockquote>
 
-<p>这篇paper里面提到了两种传统的fingerprint算法：</p>
+<p>这里的细粒度动态控制是指用户可以随时允许或禁止该应用程序某一个权限，并对利用该权限调用API的行为进行log。</p>
 
-<pre><code>    ModP fingerprint：
-            这是一种content-based的fingerprint算法，用一种特殊的hash算法
-            （每一个window的hash值 = 上一个window的hash值+上一个window的第一个byte+下一个byte）
-            这样可以快速地得出每个window的hash值，之后将该hash值mod一个P，
-            如果结果为0，则将该hash值作为一个sample的fingerprint。             
-    Fixed fingerprint：
-            这是一个position-based的fingerprint算法，即每隔P个byte算一个hash
-            （window size大小的byte），之后将其作为一个sample的fingerprint。
-</code></pre>
+<p>洗大师的流程是这样子的：</p>
 
-<p>从这两个fingerprint算法可以很容易地看出对于ModP，由于它是一个content-based的算法，所以不管是不是有偏移都可以比较完整地得出内容上的重复性，但是它的效率太低了，因为它要算每一个byte的hash；而对于Fixed，它的效率远远大于ModP，但消除重复性的能力也相应地变小很多。</p>
+<p>上传apk -> 服务器对apk进行”清洗“ -> 返回”清洗“过后的apk并安装 -> 在apk运行过程中进行动态权限控制</p>
 
-<p>于是作者提出提出的一种新的算法，叫SAMPLEBYTE fingerprint：</p>
+<p>当然还有一种模式就是”直接下载洗大师market提供的应用“。</p>
 
-<pre><code>    提供一个256bit的数组A，遍历要发送的包的每一个字节，比如第一个字节是0x23，那么查找
-    数组A的第23个bit看它是否为1，如果为0则表示miss，继续查看后一个字节，如果为1则代表hit，
-    即将这个字节以及后window size个大小算一个hash作为fingerprint，然后跳过（p/2）个字节
-    （为了防止计算重复的hit）。
-</code></pre>
-
-<p>也就是说SAMPLEBYTE也是一个content-based的算法，而且跳过了每个byte都要检查的低效率从而达到更合理而又大粒度的sample机制。</p>
-
-<p>这是这篇paper的核心算法，至于最后如何利用得出的fingerprint，则可以通过下张图看出：</p>
-
-<p><img src="http://ytliu.github.com/images/2011-12-26-1.png" title="the overview of EndRE" alt="RE Overview" />
-<img src="http://ytliu.github.com/images/2011-12-26-2.png" title="Look up in fingerprint hash table" alt="Look up in fingerprint hash table" /></p>
-
-<p>在服务器端和客户端都要维护一个同步的cache，同时在服务器端有一个hash table，里面的key即为之前算出来的fingerprint，指向的是cache中的offset，当要传递一个包时，将算出的fingerprint在hash table里面查找，如果hit了，则从该fingerprint的第一个byte开始找出最大匹配的字符长度，从而省去了该重复内容的传递。而在客户端也只需要将接收到的内容按时间顺序写入cache中，保持和服务器的cache的同步性就好了。</p>
-
-<p>另外，这个数据重复性消除的问题还需要考虑的很重要的一点就是：在客户端不该有很复杂的计算，否则直接将包压缩传递岂不更高效？</p>
-
-<p>还有关于fingerprint算法和差抄袭算法的关系，问了下Naruil，他之前写的差抄袭算法也是用了fingerprint，不过用的是一个更健壮性的fingerprint算法，是基于一篇Sigmod&#8217;03的paper：<a href="http://dl.acm.org/citation.cfm?id=872770">Winnowing</a>。有机会可以去瞻仰下，据说效果相当好，反正我们这里的抄袭都是这么被检查出来的~</p>
-
-<hr />
-
-<p>另外一篇的题目是&#8221;Incoop: MapReduce for Incremental Computation&#8221;，发表在Socc&#8217;11上，做的是MapReduce上的Incremental computation。也就是说现在的MR架构对于两个输入，即使是有许多重复的输入也是从头开始重新计算一遍，而作者希望的是对于两个输入，对于不变的输入可以不再重复计算，而仅仅是变化的数据。因为DX是用英文说的，很多内容不是搞得太懂，只知道它用了&#8221;content-base chunking&#8221;和&#8221;reduce combiners&#8221;来分别解决stability和granularity的问题。至于具体的细节就搞不来了。</p>
-
-<hr />
-
-<p>The End.</p>
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/03/01/dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -158,7 +134,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2011/12/23/paper-reading-mobile-security-survey-and-ds-failure-detection/">Paper Reading - Mobile Security Survey &amp; DS Failure Detection</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/02/23/traceview-in-android/">Traceview in Android</a></h1>
     
     
       <p class="meta">
@@ -174,69 +150,25 @@
   
 
 
-<time datetime="2011-12-23T13:38:00+08:00" pubdate data-updated="true">Dec 23<span>rd</span>, 2011</time>
+<time datetime="2013-02-23T15:54:00+08:00" pubdate data-updated="true">Feb 23<span>rd</span>, 2013</time>
+        
+         | <a href="/blog/2013/02/23/traceview-in-android/#disqus_thread">Comments</a>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>今天考坑爹的专题讲座，昨天组会的paper reading只能拖到现在写了。  <br/>
-先稍微提下为什么要有这个section吧~我一直觉得自己进PPI一年半，开过的组会听过的paper到现在为止大部分都不记得了，效率太尼玛低下了！于是乎我就想把自己一些比较有感触的paper整理下，至少忘得会慢些吧~</p>
+  <div class="entry-content"><p>这两天尝试了下用Android自带的<a href="http://developer.android.com/tools/debugging/debugging-tracing.html">Traceview</a>进行profile，感觉蛮有意思的，而且发现它的文档上对数据格式的说明和我实现时候碰到的情况有出入，于是在google code上发了封<a href="https://code.google.com/p/android/issues/detail?id=51286">帖</a>（<a href="https://code.google.com/p/android/issues/detail?id=50930#makechanges">前一封</a>被华丽丽地无视掉了），但是到最后还是不明白到底是什么问题，维护文档的人好不热情啊&#8230;</p>
 
-<p>好了，废话结束。进入正题。</p>
+<p>反正这里还是按照我的实验情况来解释吧:-)</p>
 
-<p>昨天讲了两篇paper，一篇是S&amp;P的security section的，Z神讲的，这篇其实和我们现在的方向挺相关的，不过确实没有任何创新，是一片完完全全的survey，title is</p>
-
-<pre><code>    "Mobile Security Catching up? Revealing the Nuts and Boits of the Security of Mobile Devices"
-</code></pre>
-
-<p>作者是Michael Becher，它介绍了现在手机上存在的一些安全问题，包括和Desktop的比较，以及一些attack model，比如：</p>
-
-<pre><code>    Hardware-centric attack
-            MITM attack - 中间人攻击
-            JTAG attack
-            forensic attack - 没听懂。。。
-    Device-independent - 和普通服务器上的攻击差不多
-    Software-centric attack
-    user layer attack
-</code></pre>
-
-<p>其中，关于JTAG attack,</p>
-
-<blockquote><p>JTAG port is used for factory and field diagnostics and provides device-specific access to the internal flip-flops that store all the chip’s state.<br/>Since JTAG access gives the hardware equivalent of a software debugger, attackers have been using it from the beginning. The first attackers were probably competitors reverse engineering designs to copy them or improve their own. Currently, a packaged version of this attack has been in use for years to get free satellite TV.</p><footer><strong>@Nate Lawson</strong> <cite><a href='http://rdist.root.org/2007/04/06/jtag-attacks-and-pr-submarines'>rdist.root.org/2007/04/06/&hellip;</a></cite></footer></blockquote>
-
-
-<p>还有关于Software-centric attack, 小Z讲了一个例子，比如说对iOS的pdf漏洞的良性利用，至于用来干嘛的，大家都懂得，jailbreak，不过其实我完全不知道这个是怎么样就得到root权限的，这几天研究下。</p>
-
-<p>最后还有一点比较感兴趣的是小Z提到android的process isolation，我挺感兴趣的，它说android里面是用到context的概念进行进程间通讯，在kernel里面有一个binder进行管理，如果把kernel作为TPM那应该就没有什么安全问题了吧，不过其实还是存疑的，我不知道有没有一份关于android的安全机制的survey，上网搜了下，找到一篇宾大的&#8221;understand android security&#8221;，抽空看下。</p>
-
-<p>其实这篇是一个完完全全的survey，小Z讲的也比较简单，不过其实手机的安全问题还是蛮多的，比如有提到的一个隐私的保护，有很多这方面的研究，比如通过限制控制流，比如TaintDroid，我想还有没有更强的机制呢？比如把Nicholai的histar用在手机上？</p>
-
-<hr />
-
-<p>另一篇是SOSP&#8217;11的</p>
-
-<pre><code>    "Detecting Failures in Distributed Systems with the FALCON Spy Network"
-</code></pre>
-
-<p>其实是一篇想法很简单的paper，只不过之前的人没有把这个问题当做一个问题罢了。想法简单来说是这样的，现在在distributed system里面判断节点是否挂掉主要用的是end-to-end timeout机制，这样的缺点是发现节点挂掉可能会有比较长的延迟，比如说60s，那么在这60s里面机器A可能已经down掉了但却还被分配了任务从而造成availability变差，而这篇的目标就是：</p>
-
-<pre><code>    Fast detection + reliability,
-</code></pre>
-
-<p>用的方法也很直接：gather inside information, avoid end-to-end timeout。相当于在运行应用程序主机的每一层跑一个spy（说白了就是和应用程序同个进程的一个线程），而每一层包括应用程序、OS、VMM，甚至是switch，用两个图就很容易理解：</p>
-
-<p><img src="http://ytliu.github.com/images/2011-12-23-1.png" title="FALCON's Model" alt="FALCON's Model" />
-<img src="http://ytliu.github.com/images/2011-12-23-2.png" title="FALCON's Implementation" alt="FALCON's Implementation" /></p>
-
-<p>从后来的evaluation来看它的detection速度确实变小好多，CPU的overhead也很小，不过我觉得有两个问题：  <br/>
-第一，在分布式系统中一台机器挂掉的几率可能很小，真的有必要为这么小的几率做一件这么复杂的事吗？比如原来是10秒钟检查到一个一个月才挂一次的机器现在用1秒钟来检查，却要付出一直用client和spy交互的代价？    <br/>
-第二，如Model里每一层的spy都要和client端交互，那么网络带宽就要占用很多吧，为什么作者不测试网络带宽的占用率呢？CPU的overhead小可能是因为本来服务器的程序就不是CPU intensive的，但是确实IO intensive，那为什么不说下网络带宽被额外占用多少呢？还有，对于作者提出的架构来说，每一层spy与client的交互是走network的，如果用PV或HVM的话都得经过最下层的switch，那么按照作者的逻辑，既然其中一层的spy挂了就相当于全部挂了，那为什么不仅仅利用最下层的switch的spy提供的信息来判断呢？这样岂不是可以节省网络带宽？</p>
-
-<p>The End.</p>
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/02/23/traceview-in-android/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -247,7 +179,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2011/12/21/kai-pian-yi-shi/">开篇仪式</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/02/17/%5B%28zhuan-%29%5D-ji-suan-ji-de-qi-dong/">【转】计算机的启动</a></h1>
     
     
       <p class="meta">
@@ -263,23 +195,25 @@
   
 
 
-<time datetime="2011-12-21T15:58:00+08:00" pubdate data-updated="true">Dec 21<span>st</span>, 2011</time>
+<time datetime="2013-02-17T14:24:00+08:00" pubdate data-updated="true">Feb 17<span>th</span>, 2013</time>
+        
+         | <a href="/blog/2013/02/17/%5B%28zhuan-%29%5D-ji-suan-ji-de-qi-dong/#disqus_thread">Comments</a>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>其实很早就一直在想要写博客了，之前也尝试过（<a href="http://blog.csdn.net/microtrain016" title="microtrain016's blog">一只小小小鸟</a>），但是最后还是没有坚持下来。   <br/>
-昨天看了鹏老大的一篇博文 - <a href="http://mindhacks.cn/2011/11/04/how-to-interview-a-person-for-two-years/">《怎样花两年时间去面试一个人》</a>，真的很有感触，其实我不能算一个geek，技术其实也挺一般的，在自己看来离人才还差得远，但是里面提到的&#8221;书单计划&#8221;和&#8221;github计划&#8221;应该是一个慢慢积累的过程，我还有半年的本科生涯，之后还有至少五年的博士，我没有要急于找工作的负担，为什么不趁这个最最珍贵的时间来积累呢？我一直相信于&#8221;厚积薄发&#8221;，还记得本科的时候看着自己与其他人的距离我写下&#8221;时间会拉近人与人之间的差距&#8221;，三年过去我觉得自己做到了一些，超过了一些当时在我心目中的牛人。但当我进入PPI，当我开始要考虑自己的博士生涯的时候发现，自己又成了一个更高层次的弱者，我为此感到兴奋，我未来的生活又可以在这种激情中度过，只是在这慢慢的积累中我希望看到一点一滴的进步，我很清楚自己在发散思维上的弱势，我急需一些方法提高。</p>
+  <div class="entry-content"><p>寒假回来就要开始执行新年的计划了~首先是每周的一篇blog。</p>
 
-<p>我写博客是希望将自己在这个学习的过程中的感悟、收获以一种相比于记忆更不会消逝的方式记录下来，如果还能引起别人带来那么一丁点儿的共鸣那再好不过了，我从不祈求于自己能写出多么牛逼的技术文章，任何技术上的收获、生活中的感悟我都会记录下来，我从不认为文字分所谓的&#8221;贫贱贵富&#8221;，只要是自己的就是最真实的。</p>
+<p>今天看了<a href="http://www.ruanyifeng.com/blog/">阮一峰</a>最新的一篇博客<a href="http://www.ruanyifeng.com/blog/2013/02/booting.html">计算机是如何启动的</a>，感觉写得很好，又清楚又简单。虽然自己关于计算机启动这个过程从大三OS课的时候就陆陆续续地一直有了解，但是都没有一个系统的了解，或者了解了又忘了，希望通过这次记录把这点彻底弄清楚来并且记在脑子里。另外在评论中有另外一个小哥<a href="http://www.dalei.org/">大磊</a>把他的<a href="http://www.dalei.org/linux-unix-boot-process/">博客</a>也贴出来了，写得很详细，作为阮一峰的补充吧。</p>
 
-<p>至于为什么要用Octopress+Github，是因为我们实验室的两个大牛（<a href="http://blog.yxwang.me">zellux</a>和<a href="http://chenyufei.info">ChenYufei</a>）都开始尝试着用了它，而且我也想感受用vi写博文的感觉所以就尝试写段时间，我希望这个尝试能一直进行下去。也希望能从中得到那些我希望得到的东西。</p>
-
-<p>开篇结束，坚持是未来最大的挑战！</p>
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/02/17/%5B%28zhuan-%29%5D-ji-suan-ji-de-qi-dong/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -290,7 +224,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2011/12/21/markdownyu-fa-ce-shi/">Markdown语法测试</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/01/12/qiao-bang-zhu-chuan-you-gan/">乔帮主传有感</a></h1>
     
     
       <p class="meta">
@@ -306,127 +240,320 @@
   
 
 
-<time datetime="2011-12-21T15:17:00+08:00" pubdate data-updated="true">Dec 21<span>st</span>, 2011</time>
+<time datetime="2013-01-12T20:34:00+08:00" pubdate data-updated="true">Jan 12<span>th</span>, 2013</time>
+        
+         | <a href="/blog/2013/01/12/qiao-bang-zhu-chuan-you-gan/#disqus_thread">Comments</a>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p><a href="http://ytliu.github.com">http://ytliu.github.com</a></p>
+  <div class="entry-content"><p>这几周花了晚上的时间把乔帮主的传记给看完了。在我的记忆中我已经很久很久（或许久到甚至都不记得）没有看过什么名人传记，或许我本身就没有资格评论别人，而且由于自己的孤陋寡闻，也从来没有什么自己所谓的偶像。从乔帮主的传记中我惊叹于原来一个人可以那么真实地出现在这个世界中，通过他的创造力改变这个世界；居然存在一个让人看起来那么“讨厌”的人却有着别人无法逃脱的魅力；通过自己的意志让真正强大的人做到自己从未想过做到原本也确实无法做到的事，用他那强大到无法抗拒的“现实扭曲力场“来改变别人甚至使自己相信原本不存在的现实；他是一个自私到不行的非主流痞子，从不会设身处地地为周围的人考虑全凭自己一厢情愿去判定事物的好坏，去赞扬别人，去不惜代价地辱骂对方，但当面对全世界时，却毫不吝啬地为她着想，甚至去赌博这个世界未来的样子；或许没有一个人能像他那样将艺术和科技如此无缝地结合，让这个社会的普通人类去感受一个由它个人，以及一个伟大的公司所创造的更高的品味，即使是在即将离开人世的时候还在专注于此。他尽自己全力经营并留下的那个公司，由他物色、培养并使之无比强大的那些富有激情和创造力的人们，必将继续为我们大众带来一件件跨时代的产品，而他的一生一世，所经历的、所遭受的、所创造的、所改变的，留给世人一个神话般的存在，所有的这些遗产，不仅伟大，而且永恒。</p>
 
-<p>[mctrain](http://ytliu.github.com &#8220;mctrain&#8217;s blog&#8221;)  <br/>
-<a href="http://ytliu.github.com" title="mctrain's blog">mctrain</a>  <br/>
-<a href="http://ytliu.github.com" title="mctrain's blog">mctrain-2</a></p>
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/01/12/qiao-bang-zhu-chuan-you-gan/">Read on &rarr;</a>
+    </footer>
+  
 
-<pre><code>    ![pic](http://ytliu.github.com/images/search.png "pic")
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/01/06/base64bian-ma/">Base64编码</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-01-06T12:42:00+08:00" pubdate data-updated="true">Jan 6<span>th</span>, 2013</time>
+        
+         | <a href="/blog/2013/01/06/base64bian-ma/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>这两天看<a href="http://www.csc.ncsu.edu/faculty/jiang/" title="Xuxian Jiang">Jiang</a>团队对<a href="http://www.csc.ncsu.edu/faculty/jiang/AnserverBot/" title="AnserverBot Malware">AnserverBot</a>的一篇详细的<a href="http://www.csc.ncsu.edu/faculty/jiang/pubs/AnserverBot_Analysis.pdf" title="AnserverBot Analysis">分析</a>中提到AnserverBot中对很多数据（比如C&amp;C server的url等）进行了Base64编码，于是，我对这种编码进行了了解，并根据他们实现的python解码脚本，写了一个ruby的解码脚本。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/01/06/base64bian-ma/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/12/30/qemu-study-for-android-emulator/">Qemu Study for Android Emulator</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-30T19:10:00+08:00" pubdate data-updated="true">Dec 30<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/12/30/qemu-study-for-android-emulator/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>这两天看了下android emulator的源代码，位置在<code>android-src/external/qemu</code>里面，</p>
+
+<p>编译和启动的方式很简单；</p>
+
+<pre><code>$ ./android-configure.sh
+$ make
+$ export ANDROID_SDK_ROOT=/path/to/androdi-sdk
+$ emulator-arm @4.2
 </code></pre>
 
-<p><img src="http://ytliu.github.com/images/search.png" title="pic" alt="pic" /></p>
+<p>你可以对源码进行修改，然后重新编译、使用，而这里主要要讲的是qemu的运行原理，资料来源是<a href="http://lists.gnu.org/archive/html/qemu-devel/2011-04/pdfhC5rVdz7U8.pdf">Qemu detailed study</a>。要说明的一点是，android emulator原理基本上是和qemu一样的，只是加了一些android specific的东西在里面。</p>
 
-<pre><code>    #title1
-</code></pre>
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/12/30/qemu-study-for-android-emulator/">Read on &rarr;</a>
+    </footer>
+  
 
-<h1>title1</h1>
 
-<pre><code>    ##title2
-</code></pre>
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/12/20/ru-guo-ming-tian-shi-shi-jie-mo-ri/">如果明天是世界末日</a></h1>
+    
+    
+      <p class="meta">
+        
 
-<h2>title2</h2>
 
-<pre><code>    ###title3
-</code></pre>
 
-<h3>title3</h3>
 
-<pre><code>    ####title4
-</code></pre>
 
-<h4>title4</h4>
 
-<pre><code>    #####title5
-</code></pre>
 
-<h5>title5</h5>
 
-<pre><code>    ######title6
-</code></pre>
+  
 
-<h6>title6</h6>
 
-<pre><code>    *italic*
-</code></pre>
+<time datetime="2012-12-20T21:44:00+08:00" pubdate data-updated="true">Dec 20<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/12/20/ru-guo-ming-tian-shi-shi-jie-mo-ri/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
 
-<p><em>italic</em></p>
 
-<pre><code>    **bold**
-</code></pre>
+  <div class="entry-content"><p>那我觉得今天过的好没意义啊。</p>
 
-<p><strong>bold</strong></p>
+<p>早晨起床，刷牙，洗脸，拉尿，换衣服，滑轮滑去买了两个肉包，到实验室喝了杯蜂蜜水，写了两行related work，被叫去开组会，突然华为的人进来又听海波和他们讨论了一个上午，中午吃了碗和方便面长的一样但是比方便面难吃还要17块钱的“辛拉面”，回到实验室抄了两个小时的政治课笔记，莫名其妙地又待了一个小时写了几行related work，唯一还算比较有意义的就是晚上和实验室去吃了世界末日前最后一餐，回来被小呆众闺蜜调戏了一番，然后和“追梦的贱人们”聊了会儿天&#8230;然后等下又要冒着雨会寝室，洗脸洗脚，刷牙睡觉&#8230;</p>
 
-<pre><code>    ***italic&amp;bold***
-</code></pre>
+<p>如果明天真的是世界末日的话，那这个就算我的遗嘱了吧&#8230;</p>
 
-<p><strong><em>italic&amp;bold</em></strong></p>
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/12/20/ru-guo-ming-tian-shi-shi-jie-mo-ri/">Read on &rarr;</a>
+    </footer>
+  
 
-<pre><code>    &gt;highlight
-</code></pre>
 
-<blockquote><p>highlight</p></blockquote>
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/12/15/dynamic-linker/">Dynamic Linker</a></h1>
+    
+    
+      <p class="meta">
+        
 
-<pre><code>    &lt;html&gt; *a* &lt;/html&gt;
-</code></pre>
 
-<p><html> <em>a</em> </html></p>
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-15T13:03:00+08:00" pubdate data-updated="true">Dec 15<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/12/15/dynamic-linker/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>在了解dynamic linker之前，得先对ELF文件有一个初步的了解：</p>
+
+<p>在<a href="http://www.jollen.org/blog/2006/12/enabling_dynamic_loader_1.html" title="elf">jollen</a>的博客中有一断对ELF Session的表格:</p>
+
+<p><img src="http://ytliu.github.com/images/2012-12-09-1.png" title="elf section" alt="elf section" /></p>
+
+<p>很有参考价值。其中将会涉及到的sections有<em>.got</em>, <em>.plt</em>, <em>.interp</em>。</p>
+
+<p>另外在<a href="http://www.bottomupcs.com/" title="computer science from bottom up">Computer Science from the Bottom Up</a>中有一章对dynamic linker进行了详细的说明。</p>
+
+<p>以下的内容很多来自于该文档和俞甲子的《程序员的自我修养》一书第七章。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/12/15/dynamic-linker/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/12/09/aslr-in-android/">ASLR in Android</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-09T11:07:00+08:00" pubdate data-updated="true">Dec 9<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/12/09/aslr-in-android/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>这两篇看了两篇文章分析<a href="https://blog.duosecurity.com/2012/02/a-look-at-aslr-in-android-ice-cream-sandwich-4-0/" title="asli in 4.0">aslr in androi4.0</a>和<a href="https://blog.duosecurity.com/2012/07/exploit-mitigations-in-android-jelly-bean-4-1/" title="aslr in 4.1">android 4.1</a>，觉得蛮有趣的，这里简单介绍下。</p>
+
+<h3>ASLR with Liux Kernel</h3>
+
+<p>首先介绍下linux中的ASLR，ASLR可以对任意内存进行随机化：</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/12/09/aslr-in-android/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/12/08/get-root-in-my-android/">Get Root in My Android</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-08T16:28:00+08:00" pubdate data-updated="true">Dec 8<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/12/08/get-root-in-my-android/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>首先申明，这其实并不是一篇android root教程，因为我并没有用什么exploit的方法，也没有用CWM等这些第三方ROM，而是改了ASOP，然后把它刷到机子上，然后对其进行所谓的root，装了一个dSploit和busybox。</p>
+
+<p>具体的做法是这样的：</p>
 
 <ul>
-<li>1</li>
-<li>2</li>
-<li><p>3</p></li>
-<li><p>first</p></li>
-<li>second</li>
-<li>third</li>
-<li>fourth</li>
+<li>更新到ASOP的最新版 - 4.2.4</li>
+<li>lunch full-maguro, make</li>
+<li>fastboot to smartphone</li>
+<li>把手机连到电脑上，通过adb shell上去，进入su模式</li>
+<li>通过<a href="http://www.cypherpunk.at/2011/10/08/manual-rooting-android-on-linux-2/" title="manual rooting">这里</a>的方法进行root</li>
 </ul>
 
 
-<p>hr-high</p>
-
-<hr />
-
-<p>hr-below</p>
-
-<blockquote><p>highlight</p>
-
-<blockquote><p>highlight again</p></blockquote></blockquote>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Awesome code snippet</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="p">[</span><span class="n">rectangle</span> <span class="nl">setX:</span> <span class="mi">10</span> <span class="nl">y:</span> <span class="mi">10</span> <span class="nl">width:</span> <span class="mi">20</span> <span class="nl">height:</span> <span class="mi">20</span><span class="p">];</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span>Javascript Array Syntax </span><a href='http://j.mp/pPUUmW'>MDN Documentation </a></figcaption> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">var</span> <span class="nx">arr1</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">arrayLength</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">arr2</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">element0</span><span class="p">,</span> <span class="nx">element1</span><span class="p">,</span> <span class="p">...,</span> <span class="nx">elementN</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>中文测试
-这个测试中有很多很多很多字符</p>
-
-<blockquote><p>&#8220;C&#8221;是系统默认的locale，&#8221;POSIX&#8221;是&#8221;C&#8221;的别名。所以当我们新安装完一个系统时，默认的locale就是C或POSIX。</p><p>在Debian中安装locales的方法如下：</p><p>· 通过apt-get install locales命令安装locales包<br/>· 安装完成locales包后，系统会自动进行locale配置，你只要选择所需的locale，可以多选。最后指定一个系统默认的locale。这样系统就会帮你自动生成相应的locale和配置好系统的locale。</p><p>· 增加新的locale也很简单，用dpkg-reconfigure locales重新配置locale即可。</p><p>· 我们也可手动增加locale，只要把新的locale增加到/etc/locale.gen文件中，再运行locale-gen命令即可生成新的locale。再通过设置上面介绍的LC_*变量就可设置系统的locale了。下是一个locale.gen文件的样例。</p></blockquote>
-
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/12/08/get-root-in-my-android/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -434,45 +561,67 @@
   
   <div class="pagination">
     
+      <a class="prev" href="/blog/page/3/">&larr; Older</a>
+    
     <a href="/blog/archives">Blog Archives</a>
     
-    <a class="next" href="/">Newer &rarr;</a>
+    <a class="next" href="/blog/">Newer &rarr;</a>
     
   </div>
 </div>
 <aside class="sidebar">
   
     <section>
+  <h1>About Me</h1>
+  <p align="middle"><img src="http://ytliu.github.com/images/mypic.jpg" alt="Liu Yutao" width="60%" /></p>
+  <p>My name is Liu Yutao and this is my blog. I am a Ph.D candidate in <a href="http://ipads.se.sjtu.edu.cn/" >IPADS</a> of SJTU, and this is my <a href="http://ipads.se.sjtu.edu.cn/doku.php?id=pub:members:yutao_liu">Homepage</a>.</p>
+  <p>E-mail me at mctrain016@gmail.com if you have any questions or comments.</p>
+</section>
+<section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2012/09/02/quan-xin-de-kai-shi/">全新的开始</a>
+        <a href="/blog/2013/05/22/chinasysxiao-ji/">ChinaSys小记（2013.5）</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2012/04/01/notes-about-ruby/">Notes about Ruby</a>
+        <a href="/blog/2013/05/04/androidde-na-xie-shi-cyanogenmod/">Android的那些事 - CyanogenMod</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2012/03/26/wo-de-meng-xiang/">我的梦想</a>
+        <a href="/blog/2013/04/30/xi-tong-diao-yong-xue-xi-bi-ji-ptrace/">系统调用学习笔记 - ptrace和wait</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2012/03/17/exploitation-learning-outset/">Metasploit Learning Outset</a>
+        <a href="/blog/2013/04/28/xi-tong-diao-yong-xue-xi-bi-ji-linuxxi-tong-diao-yong-biao-%28zhuan-%29/">系统调用学习笔记 - Linux系统调用表（转）</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2012/03/09/wo-kan-bei-ai-and-wo-xue-ruby/">我看北爱&amp;我学ruby</a>
+        <a href="/blog/2013/04/14/tong-bu-yuan-yu-xue-xi-bi-ji-lock%2Crcuhe-transaction/">同步原语学习笔记 - Lock，RCU和Transaction Memory</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/04/09/netfilterxue-xi-bi-ji-%28san-%29/">Netfilter学习笔记（三）</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/">Netfilter学习笔记（二）</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/29/netfilterxue-xi-bi-ji-%28yi-%29/">Netfilter学习笔记（一）</a>
       </li>
     
   </ul>
 </section>
 
+<section>
+<h1>分類</h1>
+<span class='categories_tag'> <a href='/blog/categories/android' style='font-size: 160.0%'>Android(15)</a>  <a href='/blog/categories/attack' style='font-size: 104.0%'>Attack(1)</a>  <a href='/blog/categories/cloud' style='font-size: 104.0%'>Cloud(1)</a>  <a href='/blog/categories/git' style='font-size: 108.0%'>Git(2)</a>  <a href='/blog/categories/life' style='font-size: 104.0%'>Life(1)</a>  <a href='/blog/categories/linux' style='font-size: 116.0%'>Linux(4)</a>  <a href='/blog/categories/mobile' style='font-size: 104.0%'>Mobile(1)</a>  <a href='/blog/categories/network' style='font-size: 112.0%'>Network(3)</a>  <a href='/blog/categories/ocaml' style='font-size: 104.0%'>Ocaml(1)</a>  <a href='/blog/categories/opennebula' style='font-size: 104.0%'>Opennebula(1)</a>  <a href='/blog/categories/paper' style='font-size: 116.0%'>Paper(4)</a>  <a href='/blog/categories/qemu' style='font-size: 104.0%'>Qemu(1)</a>  <a href='/blog/categories/ruby' style='font-size: 104.0%'>Ruby(1)</a>  <a href='/blog/categories/ruby' style='font-size: 104.0%'>Ruby(1)</a>  <a href='/blog/categories/security' style='font-size: 116.0%'>Security(4)</a>  <a href='/blog/categories/security' style='font-size: 104.0%'>Security(1)</a>  <a href='/blog/categories/system' style='font-size: 108.0%'>System(2)</a>  <a href='/blog/categories/人生' style='font-size: 108.0%'>人生(2)</a>  <a href='/blog/categories/周计划' style='font-size: 108.0%'>周计划(2)</a>  <a href='/blog/categories/杂' style='font-size: 112.0%'>杂(3)</a>  <a href='/blog/categories/梦想' style='font-size: 104.0%'>梦想(1)</a>  <a href='/blog/categories/生活' style='font-size: 120.0%'>生活(5)</a> </span>
+</section>
 
-
-
-
+<iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=0&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=1961136593&verifier=9b2b2fd0&dpc=1"></iframe>
 
   
 </aside>
@@ -480,28 +629,39 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2012 - Your Name -
+  Copyright &copy; 2013 - Liu Yutao -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 
 </footer>
   
 
-
+<script type="text/javascript">
+      var disqus_shortname = 'mctrainsblog';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
 
 
 
 
 
   <script type="text/javascript">
-    (function(){
-      var twitterWidgets = document.createElement('script');
-      twitterWidgets.type = 'text/javascript';
-      twitterWidgets.async = true;
-      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
-      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
     })();
   </script>
+
+
 
 
 
