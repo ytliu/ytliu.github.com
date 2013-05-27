@@ -2,7 +2,7 @@
 #      Main Configs       #
 # ----------------------- #
 
-url: http://ytliu.github.com
+url: http://ytliu.info
 title: Mctrain's Blog
 subtitle: What I learned in IT, as well as thought about life
 author: Liu Yutao 
@@ -17,7 +17,7 @@ date_format: "ordinal"
 
 # RSS / Email (optional) subscription links (change if using something like Feedburner)
 subscribe_rss: /atom.xml
-subscribe_email: ytliu.cc@gmail.com
+subscribe_email: mctrain016@gmail.com
 # RSS feeds can list your email address if you like
 email:
 
@@ -46,7 +46,8 @@ titlecase: true       # Converts page and post titles to titlecase
 # list each of the sidebar modules you want to include, in the order you want them to appear.
 # To add custom asides, create files in /source/_includes/custom/asides/ and add them to the list like 'custom/asides/custom_aside_name.html'
 #default_asides: [asides/recent_posts.html, asides/github.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html]
-default_asides: [asides/about.html, asides/recent_posts.html, asides/categories_tag.html, asides/weibo.html]
+#default_asides: [asides/about.html, asides/recent_posts.html, asides/categories_tag.html, asides/weibo.html]
+default_asides: [asides/about.html, asides/weibo.html]
 
 # Each layout uses the default asides, but they can have their own asides instead. Simply uncomment the lines below
 # and add an array with the asides you want to use.
