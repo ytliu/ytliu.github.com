@@ -1,4 +1,4 @@
 User-agent: *
 Disallow: 
 
-Sitemap: http://ytliu.github.com/sitemap.xml 
+Sitemap: http://ytliu.info/sitemap.xml 

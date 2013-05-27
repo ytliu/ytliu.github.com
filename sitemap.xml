@@ -1,31 +1,27 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
-        <loc>http://ytliu.github.com/blog/archives/</loc>
+        <loc>http://ytliu.info/blog/archives/</loc>
         <lastmod>2013-05-26T19:31:04+08:00</lastmod>
     </url>
     <url>
-        <loc>http://ytliu.github.com/blog/</loc>
+        <loc>http://ytliu.info/blog/</loc>
         <lastmod>2013-05-26T19:48:07+08:00</lastmod>
     </url>
     <url>
-        <loc>http://ytliu.github.com/blog/</loc>
-        <lastmod>2013-05-27T11:28:16+08:00</lastmod>
+        <loc>http://ytliu.info/</loc>
+        <lastmod>2013-05-27T17:41:26+08:00</lastmod>
     </url>
     <url>
-        <loc>http://ytliu.github.com/</loc>
-        <lastmod>2013-05-27T11:27:20+08:00</lastmod>
+        <loc>http://ytliu.info/notes/</loc>
+        <lastmod>2013-05-27T17:41:26+08:00</lastmod>
     </url>
     <url>
-        <loc>http://ytliu.github.com/notes/</loc>
-        <lastmod>2013-05-27T11:29:21+08:00</lastmod>
+        <loc>http://ytliu.info/notes/ruby_notes.html</loc>
+        <lastmod>2013-05-27T17:41:26+08:00</lastmod>
     </url>
     <url>
-        <loc>http://ytliu.github.com/notes/ruby_notes.html</loc>
-        <lastmod>2013-05-27T10:26:10+08:00</lastmod>
-    </url>
-    <url>
-        <loc>http://ytliu.github.com/robots.txt</loc>
+        <loc>http://ytliu.info/robots.txt</loc>
         <lastmod>2013-04-30T22:49:22+08:00</lastmod>
     </url>
 </urlset>

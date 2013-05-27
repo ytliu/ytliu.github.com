@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Mctrain's Blog]]></title>
-  <link href="http://ytliu.github.com/atom.xml" rel="self"/>
-  <link href="http://ytliu.github.com/"/>
-  <updated>2013-05-27T11:34:52+08:00</updated>
-  <id>http://ytliu.github.com/</id>
+  <link href="http://ytliu.info/atom.xml" rel="self"/>
+  <link href="http://ytliu.info/"/>
+  <updated>2013-05-27T17:44:02+08:00</updated>
+  <id>http://ytliu.info/</id>
   <author>
     <name><![CDATA[Liu Yutao]]></name>
     
