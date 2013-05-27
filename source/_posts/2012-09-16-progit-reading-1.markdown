@@ -74,7 +74,7 @@ object主要由两种组成：*tree object*和*commit object*，在介绍这两�
 
 到目前为止，在first commit之后，整个数据存储的树结构是这样的：
 
-![tree object 1](http://ytliu.github.com/images/2012-09-16-1.png "tree object 1")
+![tree object 1](http://ytliu.info/images/2012-09-16-1.png "tree object 1")
 
 记下来我们新建一个目录dir，并再次commit一次：
     $ mkdir dir
@@ -113,7 +113,7 @@ object主要由两种组成：*tree object*和*commit object*，在介绍这两�
       100644 blob df6b0d2bcc76e6ec0fca20c227104a4f28bac41b test3
 可以看出，现在多了两个*tree object*，当前的树结构是这样的：
 
-![tree object1 2](http://ytliu.github.com/images/2012-09-16-2.png "tree object 2")
+![tree object1 2](http://ytliu.info/images/2012-09-16-2.png "tree object 2")
 
 也就是说在新建一个dir的时候会新建一个*tree object*，而它指向的是这个dir下的blob或其它tree，另外，在进行一次commit的时候也会新建一个*tree object*，其包含的内容是staging area里面的所有东西。另外，git也提供了和*tree object*相关的plumbing命令：*write-tree*和*read-tree*。*write-tree*用于新建一个tree，把staging area里面的object就涵盖进来，而*read-tree*则是将一个tree读入staging area，比如运行以下命令：
     $ git write-tree
@@ -187,7 +187,7 @@ object主要由两种组成：*tree object*和*commit object*，在介绍这两�
 
 到目前为止，整个git仓库的objects的关系可以用下图来表示：
 
-![object 1](http://ytliu.github.com/images/2012-09-16-3.png "object 1")
+![object 1](http://ytliu.info/images/2012-09-16-3.png "object 1")
 
 ##git references
 其实.git/refs的目的主要是为了更方便用户记忆object，而不用每次都用一个那么长的SHA-1，比如：

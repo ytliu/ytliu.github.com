@@ -26,7 +26,7 @@ categories: Security Paper
 ####**stack cookies(canaries) & variable reordering**
 *bf*最简单的攻击就是修改函数调用的return address，canaries即是在进入函数栈时在压入的return address之后再加入一个4位的随机数（canaries），如果攻击者改了return address那么canaries也会被改，那么系统在返回时将会报错。但是也有可能在函数返回之前调用一些函数变量，variable reordering则是将变量的顺序进行调整使得攻击者无法对本地变量进行overwrite，这两个技术都是靠编译器支持的，如果开启了这两种保护，栈上的结构将会变成这样：
 
-![stack layout with or without GS protection](http://ytliu.github.com/images/2012-02-25-1.png "stack layout")
+![stack layout with or without GS protection](http://ytliu.info/images/2012-02-25-1.png "stack layout")
 
 这两种机制的缺点很明显，对于canaries，它只能保护函数返回时的控制流变化，而且*canaries*也有可能被破解，对于*vr*它只支持有限种类的变量reordering，对于一些结构体的保护就不是很好。
 
@@ -38,7 +38,7 @@ categories: Security Paper
 
 文中举了个简单但是明了的例子，虽然不同系统中对heap的实现大同小异，但原理都是一样的。在本文的例子中，堆的结构是这样的：
 
-![heap layout](http://ytliu.github.com/images/2012-02-25-2.png "heap layout")
+![heap layout](http://ytliu.info/images/2012-02-25-2.png "heap layout")
 
 每一个被回收的堆都有一个带有信息的头结构，里面包含了next, prev, size, used的信息，而在free操作过后都会有一个merge的操作，即将相邻的两个free的堆merge起来从而避免fragmentation，在这个merge操作中有一个非常关键的操作：
 
@@ -48,7 +48,7 @@ hdr->next->next->prev = hdr->next->prev;
 
 而系统在计算*next->prev*时会先得到next的地址然后加4，于是攻击者就可以通过buffer overflow将堆的头结构改成以下内容（这里要说明下，heap的overflow可以通过integer的overflow来实现，具体可参阅文章前半部分）：
 
-![heap header layout](http://ytliu.github.com/images/2012-02-25-3.png "heap header layout")
+![heap header layout](http://ytliu.info/images/2012-02-25-3.png "heap header layout")
 
 将next中的地址指向栈中存放*return address + 4*的地址，然后*next + 4*即为return address，将其地址通过那步关键操作赋值成攻击者注入的恶意代码的地址，即可达到目的。
 

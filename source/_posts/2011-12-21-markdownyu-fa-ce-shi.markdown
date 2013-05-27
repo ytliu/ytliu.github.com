@@ -6,15 +6,14 @@ comments: true
 categories: 杂
 ---
 
-<http://ytliu.github.com>
+<http://ytliu.info>
 
-\[mctrain](http://ytliu.github.com "mctrain's blog")    
-[mctrain](http://ytliu.github.com "mctrain's blog")    
+\[mctrain](http://ytliu.info "mctrain's blog")    
+[mctrain](http://ytliu.info "mctrain's blog")    
 [mctrain-2][link-mctrain-2]   
-[link-mctrain-2]:http://ytliu.github.com "mctrain's blog"   
+[link-mctrain-2]:http://ytliu.info "mctrain's blog"   
 
-        ![pic](http://ytliu.github.com/images/search.png "pic")
-![pic](http://ytliu.github.com/images/search.png "pic")
+![pic](http://ytliu.info/images/search.png "pic")
 
         #title1
 #title1

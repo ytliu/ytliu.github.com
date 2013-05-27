@@ -51,7 +51,7 @@ telnet到B的console里面对端口进行重定向：
 
 这是现在的框架：
 
-![framework](http://ytliu.github.com/images/2012-12-01-1.png "framework of smartphone and emulator")
+![framework](http://ytliu.info/images/2012-12-01-1.png "framework of smartphone and emulator")
 
 原理和两个模拟器相连很像，但是中间加了一个proxy：
 

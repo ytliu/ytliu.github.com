@@ -20,7 +20,7 @@ categories: Android Qemu
 
 首先是qemu整体流程：
 
-![qemu process](http://ytliu.github.com/images/2012-12-30-1.png "qemu process")
+![qemu process](http://ytliu.info/images/2012-12-30-1.png "qemu process")
 
 首先将guest code（这里即为arm code）被TCG（Tiny Code Generator)转换成一个中间表达，然后再转换成host code（这里即为x86 code），具体来说分为两步：
 
@@ -29,7 +29,7 @@ categories: Android Qemu
 
 我们先来看下qemu的code base：
 
-![qemu code base](http://ytliu.github.com/images/2012-12-30-2.png "qemu code base")
+![qemu code base](http://ytliu.info/images/2012-12-30-2.png "qemu code base")
 
 * `vl.c/vl-android.c`: 这个是整个qemu的入口函数，主要是初始化qemu环境，然后进入`main_loop`；
 * `target-xyz/translate.c`: 将guest code翻译成TCG ops；
@@ -47,7 +47,7 @@ categories: Android Qemu
 
 这是主要部分，流程是这样的：
 
-![qemu process from code perspective](http://ytliu.github.com/images/2012-12-30-3.png "qemu process from code perspective")
+![qemu process from code perspective](http://ytliu.info/images/2012-12-30-3.png "qemu process from code perspective")
 
 其中函数`cpu_exec()`相当于主要的执行循环函数，它将TB第一次初始化，在两个嵌套无限for循环中通过`tb_find_fast()`来获得host code TB，然后通过`tcg_qemu_tb_exec()`来执行相应代码。
 

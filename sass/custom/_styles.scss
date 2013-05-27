@@ -1,8 +1,155 @@
 // This File is imported last, and will override other styles in the cascade
 // Add styles here to make changes without digging in too much
 
-#content .blog-index article h1 {
-    font-size:1.8em}
+//#content .blog-index article h1 {
+//    font-size:1.3em}
+//
+//#content .blog-index article meta {
+//    font-size:1.0em}
+//
+//#content .blog-index article .entry-content {
+//    font-size:0.8em}
+//
+//#blog-archives h2 {
+//	font-size:1.2em}
+//
+//#blog-archives article h1 {
+//	font-size:1.0em}
+//
+//#blog-archives article time {
+//	font-size:1.0em}
+//
+//#blog-archives article footer {
+//	font-size:.8em}
 
-#blog-archives article h1 {
-	font-size:1.5em}
+@font-face {
+  font-family: "League";
+  src: url('/font/LeagueGothic.otf');
+}
+
+a:visited, #content .blog-index article h1 a:hover { color: #1863A1; }
+
+
+/* ----- main layout ----- */
+
+
+html { background: #262C33 url("/images/line-tile.png"); }
+
+body { font-size: 1em; }
+
+body > div { background-image: none; }
+
+body > div > div { background-image: none; }
+
+
+/* ----- header ----- */
+
+
+body > header{
+  background: none;
+  padding: 1.6em 0 1em 0
+}
+
+body > header h1{
+  font-size: 2.8em;
+  padding-left: 20px;
+  text-shadow: rgba(0, 0, 0, 0.8) 0 0 8px;
+}
+
+body > header h2{
+  font-size: 0.5em;
+  letter-spacing: 1px;
+  margin-top: -1.4em;
+  padding-left: 20px;
+}
+
+body > nav {
+  padding-top: .15em;
+  padding-bottom: .15em;
+}
+
+body > nav a{
+  font-size: 1em;
+  line-height: 1.4em;
+}
+
+body > nav form .search{
+  padding: .2em .3em;
+}
+
+
+/* ----- Content ----- */
+
+
+#content .blog-index article h1 {
+  font-size: 1.8em;
+  font-weight: normal;
+}
+
+#content .blog-index article h1, #content .blog-index article h1 a, article header h1, article header h1 a{
+  color: #555555 !important;
+}
+
+h1 { font-size: 1.8em; }
+
+h1 span{
+  font-weight: normal;
+  color: #E0841B;
+}
+
+article h2, article h3, article header h1{
+  font-weight: normal;
+}
+
+.blog-index article h1 a:hover{ text-decoration: none; }
+
+article p {
+  text-align:justify;
+  margin-bottom: 1em;
+}
+
+
+/* ----- Sidebar ----- */
+
+
+aside.sidebar section h1 { letter-spacing: 0.1em; }
+
+aside.sidebar a { text-decoration: none; }
+
+.toggle-sidebar{display: none;}
+
+ul#gh\_repos > li > a{
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.4em;
+}
+
+/* make list looks better */
+ul {
+  margin-left:18px
+}
+
+aside.sidebar{
+  -moz-border-radius-topright: 0.4em;
+  -webkit-border-radius: 0 0.4em 0 0;
+  border-radius: 0 0.4em 0 0;
+}
+
+
+/* ----- Footer ----- */
+
+
+body > footer{
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  border-radius:0;
+  margin-bottom: 0;
+}
+
+
+/* ----- 404 ----- */
+
+
+.notfound404 article{
+  margin-left: 0 !important;
+}

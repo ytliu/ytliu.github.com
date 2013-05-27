@@ -63,6 +63,6 @@ sendgmail('rec2_score', username, password)
 
 这里*.map*是对Array里面的所有元素都做一遍to_f操作变成一个新的Array，*.inject(0)*则是在为之后的reduce赋一个初始值0，之后每一次reduce都进行一次*a + e*的操作，将a作为输出，然后再将*a, e*作为输入。举一个例子：
 
-![example-1](http://ytliu.github.com/images/2012-04-01-1.png "reduce example")
+![example-1](http://ytliu.info/images/2012-04-01-1.png "reduce example")
 
 希望之后还有什么需要的都可以用ruby来尝试下，然后再慢慢地学习ruby on rails，不会忘记我的梦想滴~

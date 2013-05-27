@@ -8,7 +8,7 @@ categories: Android Security
 
 故事得从几天前利小哥发现的[xidashi](www.xidashi.com)说起：
 
-![xidashi](http://ytliu.github.com/images/2013-03-01-1.png "xidashi")
+![xidashi](http://ytliu.info/images/2013-03-01-1.png "xidashi")
 
 洗大师是一个android的安全应用软件+第三方应用市场，它的功能和特点简单来说就是：
 
@@ -45,9 +45,9 @@ categories: Android Security
 
 这篇文章采用了第二种方式，而它的方法其实是很直观的：
 
-![mrhide](http://ytliu.github.com/images/2013-03-01-2.png "Mr. Hide")
+![mrhide](http://ytliu.info/images/2013-03-01-2.png "Mr. Hide")
 
-![drandroid](http://ytliu.github.com/images/2013-03-01-3.png "Dr. Android")
+![drandroid](http://ytliu.info/images/2013-03-01-3.png "Dr. Android")
 
 * 首先，将apk中的粗粒度权限换成细粒度权限；
 * 然后在apk中插入一个library（文中为hidelib），并通过一个自动化工具Dr. Android找出应用程序中所有对sensitive API的调用，将其换成hidelib中对应的API调用；

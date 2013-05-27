@@ -194,7 +194,7 @@ qh = nfq_create_queue(h,  0, &cb, NULL);
 nfq_handle_packet(h, buf, rv);
 {% endcodeblock %}
 
-的时候就会将收到的包传给该函数进行处理，当然了，还可以像[这里](http://ytliu.github.io/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/)一样通过`struct iphdr`和`struct tcphdr`结构体来获得payload里面的IP包头和TCP包的信息，对其进行处理。
+的时候就会将收到的包传给该函数进行处理，当然了，还可以像[这里](http://ytliu.info/blog/2013/03/29/netfilterxue-xi-bi-ji-%28er-%29/)一样通过`struct iphdr`和`struct tcphdr`结构体来获得payload里面的IP包头和TCP包的信息，对其进行处理。
 
 * 之后在jni目录下创建`Android.mk`文件：
 

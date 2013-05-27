@@ -39,8 +39,8 @@ categories: Paper
 
 这是这篇paper的核心算法，至于最后如何利用得出的fingerprint，则可以通过下张图看出：
 
-![RE Overview](http://ytliu.github.com/images/2011-12-26-1.png "the overview of EndRE")
-![Look up in fingerprint hash table](http://ytliu.github.com/images/2011-12-26-2.png "Look up in fingerprint hash table")
+![RE Overview](http://ytliu.info/images/2011-12-26-1.png "the overview of EndRE")
+![Look up in fingerprint hash table](http://ytliu.info/images/2011-12-26-2.png "Look up in fingerprint hash table")
 
 在服务器端和客户端都要维护一个同步的cache，同时在服务器端有一个hash table，里面的key即为之前算出来的fingerprint，指向的是cache中的offset，当要传递一个包时，将算出的fingerprint在hash table里面查找，如果hit了，则从该fingerprint的第一个byte开始找出最大匹配的字符长度，从而省去了该重复内容的传递。而在客户端也只需要将接收到的内容按时间顺序写入cache中，保持和服务器的cache的同步性就好了。
 

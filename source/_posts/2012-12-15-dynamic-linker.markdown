@@ -10,7 +10,7 @@ categories: Linux
 
 在[jollen](http://www.jollen.org/blog/2006/12/enabling_dynamic_loader_1.html "elf")的博客中有一断对ELF Session的表格:
 
-![elf section](http://ytliu.github.com/images/2012-12-09-1.png "elf section")
+![elf section](http://ytliu.info/images/2012-12-09-1.png "elf section")
 
 很有参考价值。其中将会涉及到的sections有*.got*, *.plt*, *.interp*。
 

@@ -18,7 +18,7 @@ categories: Network
 
 网络栈中对netfilter的支持如图所示：
 
-![netfilter](http://ytliu.github.com/images/2013-03-29-1.png "package flow in netfiter and general networking")
+![netfilter](http://ytliu.info/images/2013-03-29-1.png "package flow in netfiter and general networking")
 
 可以看到在链路层和网络层中按照封包流的路径有五种类型的hooks: prerouting, input, forward, output, postrouting。这五种hooks会在封包到达之时按照封包流的顺序调用相应的回调函数，对四种类型的表中的chain（会在iptables中描述）进行过滤和修改：filter, nat, mangle, raw。而定义这些过滤的规则则是由一个用户态的命令`iptables`进行配置，也就是我接下来要详细描述的命令。
  

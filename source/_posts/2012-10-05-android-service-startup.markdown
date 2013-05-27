@@ -60,7 +60,7 @@ all applications, upon installation, are placed in a "stopped" state. This is th
 
 ##### startForeground()
 
-另外，为了防止你在background运行的service在low memory的时候被系统强制退出，可以通过startForeground()将该service定义在foreground中，而这个所谓的foreground就是我们平时看到的位于android上方的消息栏，里面可以设置该service需要显示的信息，以及时间间隔...具体可以参见[Service API](http://ytliu.github.com "Service API")，这里有一个简单的示例：
+另外，为了防止你在background运行的service在low memory的时候被系统强制退出，可以通过startForeground()将该service定义在foreground中，而这个所谓的foreground就是我们平时看到的位于android上方的消息栏，里面可以设置该service需要显示的信息，以及时间间隔...具体可以参见[Service API](http://developer.android.com/reference/android/app/Service.html "Service API")，这里有一个简单的示例：
 
 {% codeblock lang:java %}
 Notification note=new Notification(R.drawable.stat_notify_chat,

@@ -36,7 +36,7 @@ categories: System 生活
 
 晚上在微软亚研的赞助下吃了一顿自助餐，认识了三个国防科大的博士。
 
-#### 2013.5.18 周五 静之湖
+#### 2013.5.18 周六 静之湖
 
 上午的session是两个keynote，一个是Baidu的[林仕鼎](http://cn.linkedin.com/pub/shiding-lin/4a/a88/1a2)工程师的talk，他演讲的主题叫做“Application-Driven Datacenter Computing”，介绍了他们家在做的面向应用的架构，以及整个搜索引擎的整个流程框架，同时，他还给出了一些蛮有趣的数据，比如在百度，一个做transaction的机器：
 	数据总量（100~1000PB）
@@ -71,5 +71,5 @@ categories: System 生活
 
 到上海之后两天就和实验室一起去常州南山和天目湖春游了，爬了两天的山，脚好酸，感觉自己太弱了！最后放一张图作为结束吧（感觉这张照片的构图很不错，最后那个摆出V字形的就是弱弱的我啦啦啦）
 
-![IPADS Image](http://ytliu.github.com/images/2013-05-22-1.png "IPADS Image")
+![IPADS Image](http://ytliu.info/images/2013-05-22-1.jpeg "IPADS Image")
 

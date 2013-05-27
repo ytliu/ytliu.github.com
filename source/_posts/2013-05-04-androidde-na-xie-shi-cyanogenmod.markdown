@@ -44,7 +44,7 @@ categories: Android
 
 我们经常会看到CM7，CM8等等，这些都是CM的版本号，从[wiki](http://en.wikipedia.org/wiki/CyanogenMod#Version_history)上的一张图可以很清楚的看出这些版本都是代表些什么意思：
 
-![CM version](http://ytliu.github.com/images/2013-05-04-1.png "CM version")
+![CM version](http://ytliu.info/images/2013-05-04-1.png "CM version")
 
 ------
 

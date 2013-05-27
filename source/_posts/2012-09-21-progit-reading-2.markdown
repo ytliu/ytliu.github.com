@@ -13,7 +13,7 @@ categories: Git
 #git basic
 git中的文件有以下几种状态，而所有的命令也就是对于这几种状态的查看和转换：
 
-![git file status](http://ytliu.github.com/images/2012-09-16-4.png "git file status")
+![git file status](http://ytliu.info/images/2012-09-16-4.png "git file status")
 
 一般情况下，在新建一个文件后，需要*git add*将其变成tracked file，如果修改了一个该文件，则同样需要使用*git add*将其变成staged file，只有staged的文件才会在*git commit*的时候commit成功。
 
@@ -120,15 +120,15 @@ git中的文件有以下几种状态，而所有的命令也就是对于这几�
 
 git branch的抽象是这样子的，每次commit都会产生一个commit object:
 
-![commit object](http://ytliu.github.com/images/2012-09-16-5.png "commit object")
+![commit object](http://ytliu.info/images/2012-09-16-5.png "commit object")
 
 而一个branch则有一个个commit object通过pointer串起来的:
 
-![branch](http://ytliu.github.com/images/2012-09-16-6.png "branch")
+![branch](http://ytliu.info/images/2012-09-16-6.png "branch")
 
 在整个git目录中有一个很特别的index叫做HEAD，它指向了当前的branch:
 
-![current branch](http://ytliu.github.com/images/2012-09-16-7.png "current branch")
+![current branch](http://ytliu.info/images/2012-09-16-7.png "current branch")
 
 之后，就是对branch的一些操作:
 
@@ -148,11 +148,11 @@ merge需要先指定base的branch，然后再和一个新的branch进行合并�
 
 如果两个branch不在一个history中(如图所示):
     
-![merge branch 1](http://ytliu.github.com/images/2012-09-16-8.png "merge branch 1")
+![merge branch 1](http://ytliu.info/images/2012-09-16-8.png "merge branch 1")
 
 则会找到一个common ancestor，之后创建一个新的commit object，它的parents为两个branch，
 
-![merge branch 2](http://ytliu.github.com/images/2012-09-16-9.png "merge branch 2")
+![merge branch 2](http://ytliu.info/images/2012-09-16-9.png "merge branch 2")
 
 如果两个branch有conflic，则需要通过diff工具进行merge，merge完之后用*git add*和*git commit*进行确认。
 
@@ -177,15 +177,15 @@ merge需要先指定base的branch，然后再和一个新的branch进行合并�
 
 和merge不同，rebase是将一个branch的改动replay到另一个branch上，比如说，一个简单的例子:
 
-![rebase branch 1](http://ytliu.github.com/images/2012-09-16-10.png "rebase branch 1")
+![rebase branch 1](http://ytliu.info/images/2012-09-16-10.png "rebase branch 1")
 
 以experiment为current branch，*git merge master*的结果是这样的:
 
-![rebase branch 2](http://ytliu.github.com/images/2012-09-16-11.png "rebase branch 2")
+![rebase branch 2](http://ytliu.info/images/2012-09-16-11.png "rebase branch 2")
 
 而以experiment为current branch，*git rebase master*的结果是这样的:
 
-![rebase branch 3](http://ytliu.github.com/images/2012-09-16-12.png "rebase branch 3")
+![rebase branch 3](http://ytliu.info/images/2012-09-16-12.png "rebase branch 3")
 
 它的过程是这样的：先找到一个common ancestor，将两个branch的diff结果保存到一个文件里面，将当前的branch重新设成新的branch，之后将这些diff都应用到这个branch中。
 
@@ -216,7 +216,7 @@ Do not rebase commits that you have pushed to a public repository.
 
 另外也可以看commit range，比如如图所示:
 
-![commit range](http://ytliu.github.com/images/2012-09-16-13.png "commit range")
+![commit range](http://ytliu.info/images/2012-09-16-13.png "commit range")
 
 branch1..branch2的意思是: all commits reachable by branch2 that aren't reachable by branch1。
 

@@ -43,8 +43,8 @@ Since JTAG access gives the hardware equivalent of a software debugger, attacker
         Fast detection + reliability,
 用的方法也很直接：gather inside information, avoid end-to-end timeout。相当于在运行应用程序主机的每一层跑一个spy（说白了就是和应用程序同个进程的一个线程），而每一层包括应用程序、OS、VMM，甚至是switch，用两个图就很容易理解：
 
-![FALCON's Model](http://ytliu.github.com/images/2011-12-23-1.png "FALCON's Model")
-![FALCON's Implementation](http://ytliu.github.com/images/2011-12-23-2.png "FALCON's Implementation")
+![FALCON's Model](http://ytliu.info/images/2011-12-23-1.png "FALCON's Model")
+![FALCON's Implementation](http://ytliu.info/images/2011-12-23-2.png "FALCON's Implementation")
 
 从后来的evaluation来看它的detection速度确实变小好多，CPU的overhead也很小，不过我觉得有两个问题：    
 第一，在分布式系统中一台机器挂掉的几率可能很小，真的有必要为这么小的几率做一件这么复杂的事吗？比如原来是10秒钟检查到一个一个月才挂一次的机器现在用1秒钟来检查，却要付出一直用client和spy交互的代价？      

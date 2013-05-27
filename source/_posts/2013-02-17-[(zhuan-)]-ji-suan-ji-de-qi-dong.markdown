@@ -33,7 +33,7 @@ categories: Linux
 
 上个世纪70年代初，"只读内存"（read-only memory，缩写为ROM）发明，开机程序被刷入ROM芯片，计算机通电后，第一件事就是读取它。
 
-![BIOS](http://ytliu.github.com/images/2013-02-17-1.png "BIOS")
+![BIOS](http://ytliu.info/images/2013-02-17-1.png "BIOS")
 
 这块芯片里的程序叫做"基本輸出輸入系統"（Basic Input/Output System），简称为BIOS。
 
@@ -53,7 +53,7 @@ BIOS程序首先检查，计算机硬件能否满足运行的基本条件，这�
 
 打开BIOS的操作界面，里面有一项就是"设定启动顺序"。
 
-![BIOS Sequence](http://ytliu.github.com/images/2013-02-17-2.png "BIOS Sequence")
+![BIOS Sequence](http://ytliu.info/images/2013-02-17-2.png "BIOS Sequence")
 
 #### 二、第二阶段：主引导记录
 
@@ -122,7 +122,7 @@ BIOS按照"启动顺序"，把控制权转交给排在第一位的储存设备�
 
 Linux环境中，目前最流行的启动管理器是Grub。
 
-![Grub](http://ytliu.github.com/images/2013-02-17-3.png "Grub")
+![Grub](http://ytliu.info/images/2013-02-17-3.png "Grub")
 
 对于grub而言，在MBR中的446字节的引导程序属于GRUB的开始执行程序，通过这段程序，进一步执行stage1.5或是stage2的执行程序，将在下面详细介绍执行过程。
 
@@ -170,23 +170,23 @@ j) ESCD更新完毕后，系统BIOS的启动代码将进行它的最后一项工
 
 对于传统MBR，其结构主要如下：
 
-![BIOS Graph](http://ytliu.github.com/images/2013-02-17-4.png "BIOS Graph")
+![BIOS Graph](http://ytliu.info/images/2013-02-17-4.png "BIOS Graph")
 
 上图即对上文中所述的很形象的说明，在图中看到MBR被分成三个部分，分别是：Bootloader、分别表以及Magic Number。其中Bootloader部分为stage1中被执行的起始部分。
 
 相反，对于EFI系统中所采用的GPT分区方式，则采用了不同于MBR分区方式的形式，从下图中可以发现：
 
-![EFI Graph](http://ytliu.github.com/images/2013-02-17-5.png "EFI Graph")
+![EFI Graph](http://ytliu.info/images/2013-02-17-5.png "EFI Graph")
 
 如上图所示，GPT分区表主要包括：保护MBR、首要GPT头、首要GPT、备用GPT、备用GPT头和磁盘数据区。保护MBR与正常的MBR区别不大，主要是分区表上的不同，在保护MBR中只要一个表示为0xEE的分区，以此来表示这块硬盘使用GPT分区表。首要GPT头包含了众多信息，具体内容如下：
 
-![EFI Table](http://ytliu.github.com/images/2013-02-17-6.png "EFI Table")
+![EFI Table](http://ytliu.info/images/2013-02-17-6.png "EFI Table")
 
 分区表头定义了硬盘的可用空间以及组成分区表的项的大小和数量。分区表头还记录了这块硬盘的GUID，记录了分区表头本身的位置和大小（位置总是在LBA1）以及备份分区表头和分区表的位置和大小（在硬盘的最后）。它还存储着它本身和分区表的CRC32校验。固件、引导程序和操作系统在启动时可以根据这个校验值来判断分区表是否有错误，如果出错了，可以使用软件从硬盘最后的备份GPT分区表恢复整个分区表，如果备份GPT也校验错误，那么磁盘将不可用，系统拒绝启动。
 
 接下来主要是128个分区表项，GPT分区表使用简单而直接的方式表示分区。一个分区表项的前16字节是分区类型GUID。例如，EFI系统分区的GUID类型是{C12A7328-F81F-11D2-BA4B-00A0C93EC93B} 。接下来的16字节是该分区的唯一的GUID（这个指的是该分区本身，而之前的GUID指的是该分区的类型）。在接下来是分区其实和末尾的64位LBA编号，以及分区的名字和属性。具体结构如下表：
 
-![EFI Table2](http://ytliu.github.com/images/2013-02-17-7.png "EFI Table2")
+![EFI Table2](http://ytliu.info/images/2013-02-17-7.png "EFI Table2")
 
 #### MBR引导
 

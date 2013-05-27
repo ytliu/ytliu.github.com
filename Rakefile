@@ -4,14 +4,16 @@ require "stringex"
 
 ## -- Rsync Deploy config -- ##
 # Be sure your public key is listed in your server's ~/.ssh/authorized_keys file
-ssh_user       = "user@domain.com"
+#ssh_user       = "user@domain.com"
+ssh_user       = "mctrain@o.stdyun.net"
 ssh_port       = "22"
-document_root  = "~/website.com/"
+#document_root  = "~/website.com/"
+document_root  = "~/ytliu.info/"
 rsync_delete   = true
 deploy_default = "push"
-#rsync_delete   = false
-#rsync_args     = ""  # Any extra arguments to pass to rsync
-#deploy_default = "rsync"
+rsync_delete   = false
+rsync_args     = ""  # Any extra arguments to pass to rsync
+deploy_default = "rsync"
 
 # This will be configured for you when you run config_deploy
 deploy_branch  = "master"
@@ -20,12 +22,14 @@ deploy_branch  = "master"
 
 public_dir      = "public"    # compiled site directory
 source_dir      = "source"    # source file directory
-blog_index_dir  = 'source'    # directory for your blog's index page (if you put your index in source/blog/index.html, set this to 'source/blog')
+blog_index_dir  = 'source/blog'    # directory for your blog's index page (if you put your index in source/blog/index.html, set this to 'source/blog')
 deploy_dir      = "_deploy"   # deploy directory (for Github pages deployment)
 stash_dir       = "_stash"    # directory to stash posts for speedy generation
 posts_dir       = "_posts"    # directory for blog files
+notes_dir       = "_notes"    # directory for notes files
 themes_dir      = ".themes"   # directory for blog files
 new_post_ext    = "markdown"  # default new post file extension when using the new_post task
+new_note_ext    = "markdown"  # default new post file extension when using the new_post task
 new_page_ext    = "markdown"  # default new page file extension when using the new_page task
 server_port     = "4000"      # port for preview server eg. localhost:4000
 
@@ -114,6 +118,32 @@ task :new_post, :title do |t, args|
     post.puts "comments: true"
     post.puts "categories: "
     post.puts "---"
+  end
+end
+
+# usage rake new_note[my-new-note] or rake new_note['my new note'] or rake new_note (defaults to "new-note")
+desc "Begin a new note in #{source_dir}/#{notes_dir}"
+task :new_note, :title do |t, args|
+  if args.title
+    title = args.title
+  else
+    title = get_stdin("Enter a title for your post: ")
+  end
+  raise "### You haven't set anything up yet. First run `rake install` to set up an Octopress theme." unless File.directory?(source_dir)
+  mkdir_p "#{source_dir}/#{notes_dir}"
+  filename = "#{source_dir}/#{notes_dir}/#{Time.now.strftime('%Y-%m-%d')}-#{title.to_url}.#{new_note_ext}"
+  if File.exist?(filename)
+    abort("rake aborted!") if ask("#{filename} already exists. Do you want to overwrite?", ['y', 'n']) == 'n'
+  end
+  puts "Creating new note: #{filename}"
+  open(filename, 'w') do |note|
+    note.puts "---"
+    note.puts "layout: note"
+    note.puts "title: \"#{title.gsub(/&/,'&amp;')}\""
+    note.puts "date: #{Time.now.strftime('%Y-%m-%d %H:%M')}"
+    note.puts "comments: true"
+    note.puts "categories: "
+    note.puts "---"
   end
 end
 

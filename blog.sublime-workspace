@@ -11,14 +11,6 @@
 	},
 	"buffers":
 	[
-		{
-			"file": "_config.yml",
-			"settings":
-			{
-				"buffer_size": 3407,
-				"line_ending": "Unix"
-			}
-		}
 	],
 	"build_system": "",
 	"command_palette":
@@ -76,6 +68,16 @@
 	},
 	"file_history":
 	[
+		"/Users/luisleo/blog/octopress/source/_includes/custom/head.html",
+		"/Users/luisleo/blog/octopress/source/_posts/2013-05-22-chinasysxiao-ji.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2013-05-04-androidde-na-xie-shi-cyanogenmod.markdown",
+		"/Users/luisleo/blog/octopress/source/_posts/2011-12-21-markdownyu-fa-ce-shi.markdown",
+		"/Users/luisleo/blog/octopress/_config.yml",
+		"/Users/luisleo/IPADS/project/OpenNebula/kvmmon/test.py",
+		"/Users/luisleo/IPADS/project/OpenNebula/kvmmon/test-cpu.py",
+		"/Users/luisleo/Test/python/pexpect-2.3/pexpect_test.py",
+		"/Users/luisleo/IPADS/project/OpenNebula/第三方验收文档/test.py",
+		"/Users/luisleo/blog/octopress/source/_posts/2013-02-23-traceview-in-android.markdown",
 		"/Users/luisleo/blog/octopress/source/_includes/asides/about.html",
 		"/Users/luisleo/blog/octopress/source/_posts/2013-04-28-xi-tong-diao-yong-xue-xi-bi-ji-linuxxi-tong-diao-yong-biao-(zhuan-).markdown",
 		"/Users/luisleo/blog/octopress/source/_posts/2013-04-09-netfilterxue-xi-bi-ji-(san-).markdown",
@@ -128,7 +130,6 @@
 		"/Users/luisleo/blog/octopress/source/_posts/2012-12-30-qemu-study-for-android-emulator.markdown",
 		"/Users/luisleo/blog/octopress/source/_posts/2013-01-06-base64bian-ma.markdown",
 		"/Users/luisleo/blog/octopress/source/_posts/2013-01-12-qiao-bang-zhu-chuan-you-gan.markdown",
-		"/Users/luisleo/blog/octopress/source/_posts/2013-02-23-traceview-in-android.markdown",
 		"/Users/luisleo/blog/octopress/source/_posts/2013-04-14-tong-bu-yuan-yu-xue-xi-bi-ji-lock,rcuhe-transaction.markdown",
 		"/Users/luisleo/blog/octopress/source/_posts/2013-03-01-dr-android-and-mr-hide-xidashiyin-fa-de-gu-shi.markdown",
 		"/Users/luisleo/blog/octopress/source/_posts/2013-03-10-redexer-and-ocaml.markdown",
@@ -136,7 +137,6 @@
 		"/Users/luisleo/blog/octopress/source/_posts/2013-03-24-cross-reference-graph-of-android-component.markdown",
 		"/Users/luisleo/blog/octopress/source/_posts/2013-04-30-xi-tong-diao-yong-xue-xi-bi-ji-([?]-)-linuxxi-tong-diao-yong-biao-(zhuan-).markdown",
 		"/Users/luisleo/blog/octopress/_deploy/blog/2013/04/30/xi-tong-diao-yong-xue-xi-bi-ji-([?]-)-linuxxi-tong-diao-yong-biao-(zhuan-)/index.html",
-		"/Users/luisleo/blog/octopress/source/_posts/2011-12-21-markdownyu-fa-ce-shi.markdown",
 		"/Users/luisleo/Documents/SJTU/Courses/软件程序理论/1120379027.hs",
 		"/Users/luisleo/granter.py",
 		"/Users/luisleo/hello-user.py",
@@ -220,35 +220,8 @@
 	"groups":
 	[
 		{
-			"selected": 0,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "_config.yml",
-					"settings":
-					{
-						"buffer_size": 3407,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								153,
-								153
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/YAML/YAML.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				}
 			]
 		}
 	],
@@ -297,6 +270,26 @@
 		"height": 0.0,
 		"selected_items":
 		[
+			[
+				"source/_incudes/custom/head.",
+				"source/_includes/custom/head.html"
+			],
+			[
+				"mark",
+				"source/_posts/2011-12-21-markdownyu-fa-ce-shi.markdown"
+			],
+			[
+				"chinas",
+				"source/_posts/2013-05-22-chinasysxiao-ji.markdown"
+			],
+			[
+				"ptrace",
+				"source/_posts/2013-02-23-traceview-in-android.markdown"
+			],
+			[
+				"cyano",
+				"source/_posts/2013-05-04-androidde-na-xie-shi-cyanogenmod.markdown"
+			],
 			[
 				"ab",
 				"source/_includes/asides/about.html"
@@ -388,10 +381,6 @@
 			[
 				"xi",
 				"_deploy/blog/2013/04/30/xi-tong-diao-yong-xue-xi-bi-ji-([?]-)-linuxxi-tong-diao-yong-biao-(zhuan-)/index.html"
-			],
-			[
-				"mark",
-				"source/_posts/2011-12-21-markdownyu-fa-ce-shi.markdown"
 			],
 			[
 				"head.h",

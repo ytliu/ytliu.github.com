@@ -44,13 +44,13 @@ end
 
 为了减小等待message的时间，有一种解决方法叫GOLL:
 
-![GOLL](http://ytliu.github.com/images/2013-04-14-01.png "GOLL")
+![GOLL](http://ytliu.info/images/2013-04-14-01.png "GOLL")
 
 即构造一棵二叉树，两个reader共享一个activeReader，而对于writer来说，只要其子节点存在activeReader，则它就为1。
 
 另外一种方法叫BR lock：
 
-![BRLock](http://ytliu.github.com/images/2013-04-14-02.png "big reader lock")
+![BRLock](http://ytliu.info/images/2013-04-14-02.png "big reader lock")
 
 和GOLL相比，它为每一个reader都维护一个变量，这样在reader之间都完全不会存在message，但是对于writer来说，它的overhead则增大了很多，在writer进入CS之前，需要所有的reader都发message给它。
 
@@ -92,7 +92,7 @@ procedure release_lock( L: *lock, I: *qnode )
 
 除了lock之后，还有一种同步原语叫RCU：
 
-![RCU](http://ytliu.github.com/images/2013-04-14-03.png "RCU")
+![RCU](http://ytliu.info/images/2013-04-14-03.png "RCU")
 
 RCU最大的特点在于writer可以在reader进行读取操作的时候直接修改，不过需要注意的是，这里的修改是这样的：
 
@@ -113,7 +113,7 @@ Shared_data = B
 
 这里注意在Reader的代码中，`rcu_read_lock()`会关闭中断，禁止在一个核中其它进程的抢断，而`rcu_read_unlock()`则会打开中断，恢复抢断机制。于是writer就可以根据reader进程是否进行过context switch来判断说是否对Shared_data的读过程是否全部结束了：
 
-![RCU figure 2](http://ytliu.github.com/images/2013-04-14-04.png "RCU Figure")
+![RCU figure 2](http://ytliu.info/images/2013-04-14-04.png "RCU Figure")
 
 RCU还要考虑的一个问题是在reader中是否能允许sleep？因为如果一个reader在读的过程中如果碰到一段IO操作，那么它如果不sleep的话，则会很大地浪费CPU资源，而如果sleep的话，则会发生一次context switch，而此时，读的过程其实并没有结束，与RCU的语义就不符了。
 

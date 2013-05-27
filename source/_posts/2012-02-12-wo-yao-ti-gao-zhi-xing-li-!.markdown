@@ -29,7 +29,7 @@ categories: 周计划 生活
         是乎，该作者提出一种方法，用一种简单的方法将在一台虚拟机上跑的应用反向工程到另一种操作系统的环
         境中来，由该操作系统作为secure domain，对客户虚拟机内存等资源进行监控。
 其实讲了那么多，大部分是motivation，就是用一种反向工程的方式来做VMI。但我对这篇paper最感兴趣的是这个reverse engineering的方法！这个方法由作者的一张图可以很清晰地表达出来：
-![Virtuoso's usage](http://ytliu.github.com/images/2012-02-12-1.png "An example of Virtuoso's usage")
+![Virtuoso's usage](http://ytliu.info/images/2012-02-12-1.png "An example of Virtuoso's usage")
 
 整个过程由log trace, trace analyze, instruction translator, run outside of VM等步骤组成，具体的流程或许说几千个字都说不完，这里也不纠缠了，如果有兴趣可以自己去看，这里想提下的就是里面提到的几个理论和工具，这些是我很想去尝试下的：
         dynamic slicing algorithm, Volatility(a framework for volatile memory analysis writen in Python), 

@@ -1,4 +1,4 @@
----
+/---
 layout: post
 title: "Paper reading - x86 interrupt and SR-IOV interrupts avoidance"
 date: 2012-01-03 21:37
@@ -19,7 +19,7 @@ categories: Paper
 
 <!-- more -->
 
-![baseline interrupt handle](http://ytliu.github.com/images/2012-01-04-1.png "guest/host context switch in interrupt handling")
+![baseline interrupt handle](http://ytliu.info/images/2012-01-04-1.png "guest/host context switch in interrupt handling")
 
 于是乎，这篇paper的作者就提出了ELI（ExitLess Interrupt），其目的就是最大程度地减少由这些interrupt造成的context切换，从而达到性能的最大化。
 
@@ -30,7 +30,7 @@ categories: Paper
 
 对于第一个问题，是由x86的specification定义的，除非改变整个x86架构，否则不会有本质的解决方案。那么，作者又是如何解决这个问题的呢？在这里，就像在virtual memory里的shadow page table一样，作者提出一个shadow IDT的概念。在解释这个shadow IDT之前，我想先介绍下x86虚拟化环境下的中断处理机制：
 
-![x86 virtualization interrupt handling](http://ytliu.github.com/images/2012-01-04-2.png "interrupt handle in x86 virtualization")
+![x86 virtualization interrupt handling](http://ytliu.info/images/2012-01-04-2.png "interrupt handle in x86 virtualization")
         由xen的机制举例，在整个系统中有两个IDT（Interrupt Descriptor Table），一个IDT由xen
         维护，一个由客户虚拟机维护，在一个硬件中断产生时，不管当前是xen在执行还是虚拟机在执
         行，都会先进入xen的IDT，由中断的vector相对应的handler进行处理，如果发现是由分配给虚
